@@ -1,0 +1,11 @@
+-- Contas públicas de demonstração + dados de exemplo.
+-- Aplicada no projeto meajudaai-mvp. Somente leitura na aplicação
+-- (ver lib/auth/guard.ts + lib/auth/demo.ts).
+--
+-- joao.demo@meajudaai.app   / DemoJoao2026!    (profissional)
+-- carlos.demo@meajudaai.app / DemoCarlos2026!  (ajudante)
+--
+-- O corpo completo do seed está versionado no histórico do Supabase
+-- (migration 0005_seed_demo_accounts) e cria: 2 usuários auth + perfis,
+-- 1 workspace, 3 vagas, 1 candidatura aceita, 3 mensagens, 2 avaliações
+-- e 2 notificações. Reaplicar é seguro (on conflict do nothing).

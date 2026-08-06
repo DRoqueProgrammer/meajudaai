@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MeAjuda Aí — Style Guide (web)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#0D47A1;--brand-dark:#0A3A85;--accent:#FFC107;--action:#43A047;--action-dark:#388E3C;
+--surface:#F5F7FA;--ink:#212121;--muted:#5B6472;--line:#E2E6EC;--danger:#E53935;--radius:14px;
+--font:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:var(--surface);color:var(--ink);line-height:1.5}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+header.hero{background:var(--brand);color:#fff;border-radius:20px;padding:32px;display:flex;flex-wrap:wrap;align-items:center;gap:20px;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:14px}
+.helm{width:56px;height:56px;border-radius:14px;background:var(--accent);display:grid;place-items:center;font-size:28px}
+.logo h1{margin:0;font-size:30px;font-weight:700;letter-spacing:-.5px}
+.logo h1 span{color:var(--accent)}
+.logo p{margin:4px 0 0;font-size:12.5px;opacity:.85;max-width:280px;text-transform:uppercase;letter-spacing:.03em}
+.pillars{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:500}
+h2.sec{font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:36px 0 14px;font-weight:600}
+.grid{display:grid;gap:14px}
+.swatches{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.sw{border-radius:var(--radius);overflow:hidden;background:#fff;border:1px solid var(--line)}
+.sw .chip{height:74px}
+.sw .meta{padding:10px 12px}
+.sw .meta b{font-size:13px;display:block}
+.sw .meta code{font-size:12px;color:var(--muted)}
+.type-row{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.t-title{font-size:28px;font-weight:700;margin:0}
+.t-sec{font-size:20px;font-weight:600;margin:10px 0 0}
+.t-body{font-size:15px;margin:8px 0 0}
+.t-label{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin:8px 0 0}
+.btns{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:12px;padding:13px 20px;font-family:var(--font);font-weight:600;font-size:14.5px;cursor:pointer}
+.btn-accent{background:var(--accent);color:#3a2f00}
+.btn-action{background:var(--action);color:#fff}
+.btn-brand{background:var(--brand);color:#fff}
+.btn-ghost{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
+.btn-wa{background:var(--action);color:#fff;display:inline-flex;gap:8px;align-items:center}
+.cards{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0D47A1,#43A047);display:grid;place-items:center;color:#fff;font-weight:700}
+.name{font-weight:600;font-size:15px;margin:0}
+.role{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.stars{color:var(--accent);font-size:14px}
+.rate{font-size:12.5px;color:var(--muted)}
+.verified{display:inline-flex;align-items:center;gap:5px;color:var(--action);font-size:12.5px;font-weight:600;margin-top:8px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:600}
+.b-active{background:#e7f5e9;color:var(--action-dark)}
+.b-info{background:#e6effb;color:var(--brand)}
+.b-warn{background:#fff5da;color:#8a6d00}
+.b-cancel{background:#fdeaea;color:var(--danger)}
+.vaga .price{font-size:20px;font-weight:700;color:var(--brand)}
+.vaga .loc{font-size:12.5px;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.note{font-size:12px;color:var(--muted);margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.tabs{display:flex;gap:8px;margin-bottom:6px}
+.tab{padding:7px 14px;border-radius:999px;font-size:13px;font-weight:500;border:1px solid var(--line);background:#fff;color:var(--muted)}
+.tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+</style></head>
+<body><div class="wrap">
+<header class="hero">
+  <div class="logo">
+    <div class="helm">👷</div>
+    <div><h1>MeAjuda <span>Aí</span></h1><p>A ajuda que você precisa, no momento que você mais precisa.</p></div>
+  </div>
+  <div class="pillars"><span class="pill">🛡️ Segurança</span><span class="pill">⚡ Rapidez</span><span class="pill">🤝 Confiança</span><span class="pill">🏅 Qualidade</span></div>
+</header>
+
+<h2 class="sec">Paleta</h2>
+<div class="grid swatches">
+  <div class="sw"><div class="chip" style="background:#0D47A1"></div><div class="meta"><b>Azul · primária</b><code>#0D47A1</code></div></div>
+  <div class="sw"><div class="chip" style="background:#FFC107"></div><div class="meta"><b>Amarelo · destaque</b><code>#FFC107</code></div></div>
+  <div class="sw"><div class="chip" style="background:#43A047"></div><div class="meta"><b>Verde · ação</b><code>#43A047</code></div></div>
+  <div class="sw"><div class="chip" style="background:#F5F7FA;border-bottom:1px solid #E2E6EC"></div><div class="meta"><b>Cinza · superfície</b><code>#F5F7FA</code></div></div>
+  <div class="sw"><div class="chip" style="background:#212121"></div><div class="meta"><b>Tinta · texto</b><code>#212121</code></div></div>
+</div>
+
+<h2 class="sec">Tipografia — Poppins</h2>
+<div class="type-row">
+  <p class="t-title">Publicar uma diária em poucos minutos</p>
+  <p class="t-sec">Vagas em destaque na sua região</p>
+  <p class="t-body">O MeAjuda Aí conecta profissionais da construção e manutenção com ajudantes disponíveis para trabalhos por diária de forma rápida, segura e prática.</p>
+  <p class="t-label">Valor da diária · Local da obra · Data e horário</p>
+</div>
+
+<h2 class="sec">Botões</h2>
+<div class="btns">
+  <button class="btn btn-accent">PRECISO DE AJUDANTE</button>
+  <button class="btn btn-action">QUERO TRABALHAR</button>
+  <button class="btn btn-action">PUBLICAR DIÁRIA</button>
+  <button class="btn btn-brand">ENTRAR</button>
+  <button class="btn btn-ghost">CRIAR CONTA</button>
+  <button class="btn btn-wa">💬 CHAMAR NO WHATSAPP</button>
+</div>
+
+<h2 class="sec">Componentes de exemplo (adaptação web)</h2>
+<div class="tabs"><span class="tab on">Ativas</span><span class="tab">Concluídas</span><span class="tab">Canceladas</span></div>
+<div class="grid cards">
+  <div class="card vaga">
+    <div class="top"><div><div class="price">R$ 150,00 <span style="font-size:12px;color:var(--muted);font-weight:500">/ diária</span></div><div class="loc">Icaraí, Niterói · RJ</div></div><span class="badge b-active">Ativa</span></div>
+    <p class="t-body" style="font-size:13.5px">Ajudante de Eletricista — passagem de fios e organização de materiais.</p>
+    <div class="row"><span class="rate">📅 22/05/2024 · 08:00</span><span class="rate">3 candidatos</span></div>
+  </div>
+  <div class="card">
+    <div class="top"><div style="display:flex;gap:12px"><div class="avatar">CS</div><div><p class="name">Carlos Silva</p><p class="role">Ajudante de Eletricista</p><div><span class="stars">★★★★★</span> <span class="rate">4,8 (12)</span></div></div></div><span class="badge b-info">Novo</span></div>
+    <div class="verified">✔ Perfil verificado</div>
+    <div class="row"><button class="btn btn-ghost" style="padding:8px 14px;font-size:13px">Ver perfil</button><button class="btn btn-action" style="padding:8px 16px;font-size:13px">Aceitar</button></div>
+  </div>
+  <div class="card">
+    <div class="top"><div><p class="name">Minha diária</p><p class="role">Ajudante de Pedreiro · Pedro Construtor</p></div><span class="badge b-warn">Agendada</span></div>
+    <div class="row"><span class="rate">📅 18/05/2024 · 07:00</span><span class="price" style="font-size:16px">R$ 140,00</span></div>
+  </div>
+</div>
+
+<p class="note">Style guide gerado a partir da prévia visual do MeAjuda Aí, adaptado para o protótipo web (Next.js + Tailwind). Tokens correspondentes em <code>REFERENCIA_VISUAL_MeAjudaAi.md</code>. A fonte Poppins carrega via Google Fonts (requer internet na primeira abertura).</p>
+</div></body></html>

@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #0d47a1;
+  --accent: #ffc107;
+  --action: #43a047;
+  --surface: #f5f7fa;
+  --ink: #212121;
+}
+
+html,
+body {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* Quem marcou "reduzir movimento" no sistema não deve receber o pulse dos
+   esqueletos nem transições — para parte do público isso causa enjoo. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Indicador de navegação em andamento (components/link-pendente.tsx).
+   O atraso de aparição é `setTimeout` no componente, não animação com
+   `forwards` — a versão em CSS travava a opacidade em 0 para sempre.
+   Quem pediu menos movimento recebe um anel estático, não um giro. */
+.link-pendente {
+  @apply inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  .link-pendente {
+    border-top-color: currentColor;
+  }
+}
+
+/* min-h-11 = 44px. Fica na classe base porque toda a UI é usada em obra, com o
+   dedo sujo e o celular no sol — nenhum call site pode encolher abaixo disso,
+   por mais que reduza o padding. */
+.btn {
+  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium transition;
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  @apply disabled:cursor-not-allowed disabled:opacity-60;
+}
+.btn-brand {
+  @apply btn bg-brand text-white hover:bg-brand-dark;
+}
+.btn-accent {
+  @apply btn bg-accent text-[#3a2f00] hover:brightness-95;
+}
+.btn-action {
+  @apply btn bg-action-dark text-white hover:bg-action-deep;
+}
+.btn-ghost {
+  @apply btn border border-brand bg-white text-brand hover:bg-surface;
+}
+/* 16px no card, 12px em controle: a diferença precisa ser visível para a escala
+   significar alguma coisa. Antes o `.card` usava o mesmo raio dos botões. */
+.card {
+  @apply rounded-2xl border border-line bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)];
+}
+/* Estado vazio. Estava copiado em 4 telas, e em outras 2 aparecia como um <p>
+   solto sem caixa — três formatos diferentes para a mesma situação. */
+.card-vazio {
+  @apply rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-muted;
+}
+/* Chip de filtro. Estava duplicado em status-tabs, periodo-tabs, modulos-funcionario
+   e no Chip de /vagas, os quatro a 30px de altura. */
+.chip {
+  @apply inline-flex min-h-11 items-center whitespace-nowrap rounded-full border px-4 text-sm transition;
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+}
+.chip-on {
+  @apply border-brand bg-brand text-white;
+}
+.chip-off {
+  @apply border-line-strong text-muted hover:border-brand;
+}
+/* Link de texto que é alvo de toque — o rodapé das telas de auth ("Já tenho
+   conta", "Lembrei minha senha"). Sem isto o alvo fica na altura da linha. */
+.link-touch {
+  @apply inline-flex min-h-11 items-center justify-center text-sm text-brand;
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+}
+.input {
+  @apply min-h-11 w-full rounded-xl border border-line-strong bg-white px-3 py-3 text-sm;
+  @apply focus:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+}
+.label {
+  @apply mb-1 block text-sm font-medium text-ink;
+}
+/* Tipografia das páginas legais (Termos, Privacidade). Uma coluna de leitura,
+   escala clara, sem plugin de prose. Compartilhada por app/(legal)/*. */
+.legal h1 {
+  @apply text-2xl font-semibold text-brand;
+}
+.legal h2 {
+  @apply mb-2 mt-8 text-base font-semibold text-ink;
+}
+.legal p {
+  @apply mb-3 text-sm leading-relaxed text-muted;
+}
+.legal .meta {
+  @apply mb-2 text-xs text-muted;
+}
+.legal ul {
+  @apply mb-3 ml-5 list-disc;
+}
+.legal li {
+  @apply mb-1 text-sm leading-relaxed text-muted;
+}
+.legal strong {
+  @apply font-medium text-ink;
+}
+.legal a {
+  @apply text-brand underline;
+}

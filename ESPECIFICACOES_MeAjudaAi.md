@@ -1,0 +1,155 @@
+# Documento Técnico Oficial — MeAjuda Aí
+
+**Versão:** 1.0
+**Proprietário do Projeto:** Henrique
+**Data do documento:** 23/07/2026
+
+---
+
+## 1. Resumo do Projeto
+
+O **MeAjuda Aí** é uma plataforma mobile destinada a conectar profissionais autônomos da construção civil e manutenção com ajudantes disponíveis para trabalho por diária. O aplicativo deverá funcionar em **Android** e **iOS**.
+
+### Stack tecnológica recomendada
+
+| Camada | Tecnologia |
+|---|---|
+| Frontend | FlutterFlow |
+| Backend | Firebase |
+| Banco de dados | Cloud Firestore |
+| Autenticação | Firebase Authentication |
+| Notificações | Firebase Cloud Messaging |
+| Mapas | Google Maps API |
+
+---
+
+## 2. Tipos de Usuário
+
+### 2.1 Profissional
+
+Exemplos de perfis: Eletricista, Pedreiro, Pintor, Encanador, Gesseiro, Azulejista, Mestre de Obras, Instalador, Técnico de Refrigeração.
+
+**Permissões:** criar conta, editar perfil, publicar vaga, visualizar candidatos, aceitar candidato, recusar candidato, conversar por chat, avaliar ajudante, visualizar histórico.
+
+### 2.2 Ajudante
+
+**Permissões:** criar conta, editar perfil, visualizar vagas, candidatar-se, cancelar candidatura, conversar por chat, avaliar profissional, visualizar histórico.
+
+### 2.3 Administrador
+
+**Permissões:** bloquear usuários, excluir vagas, excluir avaliações, receber denúncias, gerenciar categorias, visualizar relatórios, gerenciar anúncios.
+
+---
+
+## 3. Telas Obrigatórias
+
+| # | Tela | # | Tela |
+|---|---|---|---|
+| 01 | Splash Screen | 11 | Perfil do Usuário |
+| 02 | Login | 12 | Minhas Diárias |
+| 03 | Cadastro | 13 | Histórico |
+| 04 | Recuperação de Senha | 14 | Chat |
+| 05 | Escolha de Perfil | 15 | Notificações |
+| 06 | Home Profissional | 16 | Avaliação |
+| 07 | Home Ajudante | 17 | Configurações |
+| 08 | Publicar Diária | 18 | Termos de Uso |
+| 09 | Detalhes da Vaga | 19 | Política de Privacidade |
+| 10 | Lista de Candidatos | 20 | Painel Administrativo |
+
+---
+
+## 4. Fluxos de Uso
+
+### 4.1 Fluxo do Profissional
+
+Cadastro → Validação SMS → Perfil aprovado → Publicar vaga → Receber candidatos → Selecionar ajudante → Liberar contato → Executar serviço → Avaliar ajudante → Encerrar vaga.
+
+### 4.2 Fluxo do Ajudante
+
+Cadastro → Validação SMS → Perfil aprovado → Visualizar vagas → Candidatar-se → Aguardar resposta → Ser aprovado → Receber contato → Executar serviço → Avaliar profissional → Finalizar diária.
+
+---
+
+## 5. Funcionalidades Principais
+
+### 5.1 Publicar Vaga
+
+**Campos:** Título, Categoria, Descrição, Cidade, Bairro, CEP, Data, Horário, Valor da diária, Quantidade de vagas, Observações, Status.
+
+**Status possíveis:** Aberta, Em andamento, Finalizada, Cancelada.
+
+### 5.2 Candidatura
+
+Botão **"Candidatar-se"**. O sistema registra: ID da vaga, ID do ajudante, Data, Status.
+
+**Status possíveis:** Aguardando, Aceito, Recusado, Cancelado.
+
+### 5.3 Sistema de Avaliação
+
+Após a conclusão do serviço: nota de **1 a 5 estrelas** e comentário opcional. A média é calculada automaticamente.
+
+### 5.4 Sistema de Denúncias
+
+**Motivos:** Perfil falso, Golpe, Assédio, Linguagem ofensiva, Falta grave, Outros.
+
+---
+
+## 6. Banco de Dados (Cloud Firestore)
+
+### Coleção: `usuarios`
+`id`, `nome`, `cpf`, `telefone`, `email`, `cidade`, `estado`, `foto`, `tipo_usuario`, `nota_media`, `status`, `data_cadastro`
+
+### Coleção: `vagas`
+`id`, `id_profissional`, `titulo`, `descricao`, `categoria`, `cidade`, `bairro`, `cep`, `valor_diaria`, `quantidade_vagas`, `status`, `data_servico`, `hora_inicio`, `data_criacao`
+
+### Coleção: `candidaturas`
+`id`, `id_vaga`, `id_ajudante`, `status`, `data_candidatura`
+
+### Coleção: `avaliacoes`
+`id`, `avaliador`, `avaliado`, `nota`, `comentario`, `data`
+
+### Coleção: `mensagens`
+`id`, `remetente`, `destinatario`, `mensagem`, `data`, `lida`
+
+### Coleção: `notificacoes`
+`id`, `usuario`, `titulo`, `mensagem`, `visualizada`, `data`
+
+### Coleção: `denuncias`
+`id`, `denunciante`, `denunciado`, `motivo`, `descricao`, `status`, `data`
+
+---
+
+## 7. Notificações
+
+Nova vaga, Nova candidatura, Candidatura aceita, Mensagem recebida, Avaliação recebida, Conta aprovada, Conta bloqueada.
+
+---
+
+## 8. Segurança
+
+CPF único, Telefone único, Email único, Validação SMS, Autenticação Firebase, Bloqueio por administrador, Logs de atividades.
+
+---
+
+## 9. Monetização Futura
+
+| Item | Valor |
+|---|---|
+| Plano Premium | R$ 19,90/mês |
+| Destaque de vaga | R$ 4,90 |
+| Perfil destacado | R$ 9,90 |
+| Publicidade | Banners patrocinados |
+
+**Parcerias com lojas:** materiais elétricos, ferramentas, EPIs, cursos profissionalizantes.
+
+---
+
+## 10. Critérios de Entrega
+
+Aplicativo Android funcional; código-fonte entregue; projeto FlutterFlow entregue; banco Firebase configurado; painel administrativo funcional; documentação básica; publicação na Google Play; garantia mínima de 30 dias.
+
+---
+
+## 11. Objetivo Final
+
+Criar a principal plataforma brasileira de conexão entre profissionais da construção civil e ajudantes para serviços por diária, oferecendo rapidez, segurança e praticidade.

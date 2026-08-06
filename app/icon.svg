@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Mesmo capacete de components/icons.tsx (HardHat): azul da marca sobre o
+       amarelo do badge do logo. Área segura de maskable: o desenho fica dentro
+       dos 80% centrais. -->
+  <rect width="48" height="48" rx="10" fill="#FFC107"/>
+  <g fill="#0D47A1" transform="translate(24 24) scale(0.78) translate(-24 -24)">
+    <rect x="21.5" y="15" width="5" height="14" rx="2.5"/>
+    <path d="M13 30v-2a11 11 0 0 1 22 0v2z"/>
+    <path d="M7 31a2 2 0 0 1 2-2h30a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/>
+  </g>
+</svg>

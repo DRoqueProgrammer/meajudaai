@@ -1,0 +1,65 @@
+# MeAjuda Aí — Protótipo
+
+Marketplace que conecta profissionais autônomos da construção/manutenção (cada um um workspace/empresa com equipe) a ajudantes por diária. Fluxo central: **publicar vaga → candidatar → aceitar → chat → avaliar**.
+
+**Stack:** Next.js 15 (App Router) · Supabase (Postgres + Auth + Realtime) · TypeScript · Tailwind (Poppins). Multi-tenant com RLS.
+
+## Contas de demonstração
+
+A página inicial (`/`) é pública e traz dois cards **"Explore sem cadastro"**:
+
+| Conta | Papel | E-mail |
+|---|---|---|
+| João Eletricista | Profissional | `joao.demo@meajudaai.app` |
+| Carlos Silva | Ajudante | `carlos.demo@meajudaai.app` |
+
+Clicar no card entra pela rota `/api/demo/enter?who=joao|carlos`, que grava cookies **session-only** (fecha o navegador, cai a sessão). As contas são **somente leitura**: toda server action de escrita passa por `requireWriter()` (`lib/auth/guard.ts`), e um banner avisa o visitante. Os dados de exemplo (3 vagas, candidatura aceita, conversa e avaliações) são semeados pela migration `0005_seed_demo_accounts.sql`.
+
+## Rodar localmente
+
+```bash
+npm install
+npm run dev
+# abre http://localhost:3000
+```
+
+O `.env.local` já está preenchido com a URL e as chaves do projeto Supabase `meajudaai-mvp`. Para outro ambiente, veja `.env.example`.
+
+## Passo pendente no Supabase (uma vez)
+
+Registre o auth hook para o papel do usuário entrar no JWT:
+**Dashboard → Authentication → Hooks → Custom Access Token → `public.custom_access_token_hook`**.
+O app funciona sem isso (o papel é lido do banco como fallback), mas o hook é o caminho oficial.
+
+Login por **e-mail** está ativo. Telefone/OTP está pronto no código e liga quando um provedor de SMS for configurado (Authentication → Providers → Phone).
+
+## Estrutura
+
+```
+app/            Rotas (App Router): (auth) login/cadastro · (app) telas do fluxo
+components/     UI, nav, cards, chat, avaliação, notificações
+lib/
+  supabase/     clientes server/browser/admin + tipos gerados
+  auth/         guards de usuário e workspace
+  actions/      server actions (escrita, com zod + service-role)
+  *.ts          utilitários BR, cidades, categorias, validação
+supabase/       (schema aplicado via conector — ver .claude/sdd)
+.claude/sdd/    documentos SDD (brainstorm → define → design → build report)
+refs/           3 codebases de referência (não versionar)
+```
+
+## Banco (Supabase)
+
+Tabelas: `profiles`, `profiles_pii` (PII separada), `workspaces`, `workspace_members`, `vagas`, `candidaturas`, `avaliacoes` (trigger de média), `mensagens` (Realtime), `notificacoes` (Realtime), `categorias_servico`. RLS ativa em todas.
+
+## Testes
+
+```bash
+npm test          # unidade (formatadores + validação zod) — 14 testes
+```
+
+Há também um teste de **isolamento RLS** (`tests/rls.test.ts`) que bate no Supabase real: cria dois usuários/workspaces e verifica que um não enxerga a vaga em andamento nem a PII do outro. É opt-in (cria e apaga dados no banco). Para rodá-lo, adicione `RUN_INTEGRATION=1` ao `.env.local` e rode `npm test` novamente.
+
+## Próximos passos
+
+Testes E2E do fluxo (Playwright), provedor de SMS para OTP, denúncias/moderação, painel admin, monetização — todos fora do MVP (ver `.claude/sdd/features/DEFINE_MEAJUDAAI_MVP.md`).

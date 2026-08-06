@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeAjuda Aí — Domínios de Negócio</title>
+<style>
+:root{
+  --bg:#f5f7fb; --panel:#ffffff; --panel-2:#eef2f8; --ink:#161d29; --soft:#5a6472; --line:#e0e5ee;
+  --accent:#0d47a1; --shadow:0 4px 18px rgba(20,32,64,.08);
+  --d0:#1f6fe0; --d1:#12a5a5; --d2:#e0902a; --d3:#7c5cff; --d4:#43a047; --d5:#e0457b; --d6:#e8635a;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0b0f19; --panel:#131a28; --panel-2:#1a2333; --ink:#e9edf5; --soft:#98a3b6; --line:#242e40;
+  --accent:#6ea0f5; --shadow:0 8px 26px rgba(0,0,0,.5);
+  --d0:#4f92ff; --d1:#2bc7c7; --d2:#f2a93b; --d3:#9c82ff; --d4:#5cc563; --d5:#f2679e; --d6:#f47d73;
+}}
+:root[data-theme="light"]{--bg:#f5f7fb;--panel:#fff;--panel-2:#eef2f8;--ink:#161d29;--soft:#5a6472;--line:#e0e5ee;--accent:#0d47a1;--shadow:0 4px 18px rgba(20,32,64,.08);--d0:#1f6fe0;--d1:#12a5a5;--d2:#e0902a;--d3:#7c5cff;--d4:#43a047;--d5:#e0457b;--d6:#e8635a;}
+:root[data-theme="dark"]{--bg:#0b0f19;--panel:#131a28;--panel-2:#1a2333;--ink:#e9edf5;--soft:#98a3b6;--line:#242e40;--accent:#6ea0f5;--shadow:0 8px 26px rgba(0,0,0,.5);--d0:#4f92ff;--d1:#2bc7c7;--d2:#f2a93b;--d3:#9c82ff;--d4:#5cc563;--d5:#f2679e;--d6:#f47d73;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Poppins","Segoe UI",system-ui,-apple-system,sans-serif;line-height:1.55;font-size:14.5px}
+.mono{font-family:"Cascadia Code",Consolas,ui-monospace,monospace}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+header.top{padding:34px 0 18px}
+.kick{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{margin:6px 0 8px;font-size:30px;font-weight:700;letter-spacing:-.02em;text-wrap:balance}
+.lead{margin:0;max-width:70ch;color:var(--soft);font-size:15px}
+.stats{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:9px 15px;box-shadow:var(--shadow)}
+.stat b{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat span{display:block;font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.06em}
+nav.pills{position:sticky;top:0;z-index:20;display:flex;gap:7px;flex-wrap:wrap;padding:12px 0;margin:8px 0 6px;background:linear-gradient(var(--bg),var(--bg) 70%,transparent)}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--ink);text-decoration:none;font-size:12.5px;font-weight:500}
+.pill:hover{border-color:var(--c)}
+.pill .dot{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.cross{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:8px 0 26px;box-shadow:var(--shadow)}
+.cross h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft)}
+.cross ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:720px){.cross ul{grid-template-columns:1fr 1fr}}
+.cross li{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;padding:7px 10px;border-radius:9px;background:var(--panel-2)}
+.cross .cdot{width:10px;height:10px;border-radius:3px;flex:none}
+.cross .arr{color:var(--soft)}
+.cross .cdesc{flex-basis:100%;color:var(--soft);font-size:12px;padding-left:17px}
+.domain{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 22px 22px 26px;margin-bottom:22px;box-shadow:var(--shadow);scroll-margin-top:70px;overflow:hidden}
+.dbar{position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c)}
+.dtitle{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.ddot{width:13px;height:13px;border-radius:50%;background:var(--c);flex:none}
+.dtitle h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);text-transform:capitalize}
+.badge.ghost{background:var(--panel-2);color:var(--soft)}
+.dsum{margin:10px 0 14px;max-width:78ch;color:var(--ink)}
+.dmeta{display:grid;gap:14px;margin-bottom:20px}
+@media(min-width:760px){.dmeta{grid-template-columns:1fr 1.4fr}}
+.mlabel{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.chip{font-size:12px;padding:3px 9px;border-radius:7px;background:var(--panel-2);border:1px solid var(--line)}
+.rules{margin:7px 0 0;padding-left:18px;font-size:12.8px;color:var(--soft)}
+.rules li{margin:2px 0}
+.flow{border-top:1px dashed var(--line);padding-top:14px;margin-top:14px}
+.fhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.fname{font-weight:600;font-size:15px}
+.entry{font-size:11.5px;color:var(--soft)}
+.etype{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;color:var(--c);border:1px solid var(--c);border-radius:5px;padding:0 5px;margin-right:4px}
+.steps{list-style:none;display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:0;padding:0}
+.step{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:9px;padding:7px 11px;cursor:pointer;transition:transform .1s}
+.step:hover,.step:focus{transform:translateY(-1px);outline:none;border-color:var(--c);box-shadow:var(--shadow)}
+.sidx{font-size:10.5px;font-weight:700;color:#fff;background:var(--c);min-width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.sname{font-size:13px;font-weight:500}
+.spath{font-size:10.5px;color:var(--soft)}
+.arrow{display:flex;align-items:center;color:var(--soft);font-size:15px;padding:0 1px}
+.pop{position:fixed;z-index:50;max-width:340px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:13px 15px;display:none}
+.pop.show{display:block}
+.pop h4{margin:0 0 5px;font-size:14px}
+.pop p{margin:0 0 8px;font-size:12.8px;color:var(--soft)}
+.pop .pf{font-size:11.5px;color:var(--accent);word-break:break-all}
+footer{margin-top:30px;color:var(--soft);font-size:12px;text-align:center}
+</style></head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="kick">MeAjuda Aí · Domínios de Negócio</div>
+    <h1>Como o negócio flui pelo código</h1>
+    <p class="lead">Marketplace de diárias da construção/manutenção: profissionais publicam vagas e ajudantes se candidatam. Fluxo de negócio: publicar → candidatar → aceitar → conversar → concluir → avaliar, com moderação anônima e contas demo.</p>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>domínios</span></div>
+      <div class="stat"><b>18</b><span>fluxos</span></div>
+      <div class="stat"><b>63</b><span>passos</span></div>
+      <div class="stat"><b>9</b><span>conexões</span></div>
+    </div>
+  </header>
+  <nav class="pills"><a class="pill" href="#domain:contas-e-acesso" style="--c:var(--d0)"><span class="dot"></span>Contas &amp; Acesso</a><a class="pill" href="#domain:vagas-e-diarias" style="--c:var(--d1)"><span class="dot"></span>Vagas &amp; Diárias</a><a class="pill" href="#domain:candidaturas" style="--c:var(--d2)"><span class="dot"></span>Candidaturas &amp; Seleção</a><a class="pill" href="#domain:comunicacao" style="--c:var(--d3)"><span class="dot"></span>Comunicação &amp; Chat</a><a class="pill" href="#domain:avaliacoes" style="--c:var(--d4)"><span class="dot"></span>Avaliações &amp; Reputação</a><a class="pill" href="#domain:perfil-e-equipe" style="--c:var(--d5)"><span class="dot"></span>Perfil &amp; Equipe</a><a class="pill" href="#domain:moderacao" style="--c:var(--d6)"><span class="dot"></span>Moderação &amp; Denúncias (Admin)</a></nav>
+  <div class="cross">
+    <h3>Como os domínios se conectam</h3>
+    <ul><li><span class="cdot" style="background:var(--d0)"></span><b>Contas &amp; Acesso</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d1)"></span><b>Vagas &amp; Diárias</b><span class="cdesc">Profissional autenticado publica e gerencia vagas.</span></li><li><span class="cdot" style="background:var(--d0)"></span><b>Contas &amp; Acesso</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d2)"></span><b>Candidaturas &amp; Seleção</b><span class="cdesc">Ajudante autenticado se candidata às vagas.</span></li><li><span class="cdot" style="background:var(--d1)"></span><b>Vagas &amp; Diárias</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d2)"></span><b>Candidaturas &amp; Seleção</b><span class="cdesc">Cada vaga recebe e seleciona candidaturas.</span></li><li><span class="cdot" style="background:var(--d2)"></span><b>Candidaturas &amp; Seleção</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d3)"></span><b>Comunicação &amp; Chat</b><span class="cdesc">O aceite da candidatura libera o chat entre as partes.</span></li><li><span class="cdot" style="background:var(--d2)"></span><b>Candidaturas &amp; Seleção</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d4)"></span><b>Avaliações &amp; Reputação</b><span class="cdesc">A diária concluída habilita a avaliação mútua.</span></li><li><span class="cdot" style="background:var(--d4)"></span><b>Avaliações &amp; Reputação</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d5)"></span><b>Perfil &amp; Equipe</b><span class="cdesc">As avaliações compõem a reputação exibida no perfil.</span></li><li><span class="cdot" style="background:var(--d3)"></span><b>Comunicação &amp; Chat</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d6)"></span><b>Moderação &amp; Denúncias (Admin)</b><span class="cdesc">Conversas e conteúdos podem gerar denúncias para moderação.</span></li><li><span class="cdot" style="background:var(--d6)"></span><b>Moderação &amp; Denúncias (Admin)</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d0)"></span><b>Contas &amp; Acesso</b><span class="cdesc">O admin bloqueia usuários e provisiona administradores.</span></li><li><span class="cdot" style="background:var(--d0)"></span><b>Contas &amp; Acesso</b> <span class="arr">→</span> <span class="cdot" style="background:var(--d5)"></span><b>Perfil &amp; Equipe</b><span class="cdesc">O profissional monta a equipe do seu workspace.</span></li></ul>
+  </div>
+  <section class="domain" id="domain:contas-e-acesso" style="--c:var(--d0)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Contas &amp; Acesso</h2><span class="badge">complex</span><span class="badge ghost">4 fluxos</span></div>
+      <p class="dsum">Cadastro, login, recuperação de senha, sessão e o modo demo somente-leitura. Define o papel do usuário (profissional, ajudante ou admin) e o workspace ativo.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">usuário</span><span class="chip">sessão</span><span class="chip">papel</span><span class="chip">workspace</span><span class="chip">conta demo</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>CPF/telefone/email únicos</li><li>contas demo são somente-leitura (requireWriter)</li><li>papel entra no JWT via auth hook (fallback lê do banco)</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Cadastro &amp; Login</span><span class="entry mono" title="/(auth)/login · /(auth)/cadastro"><span class="etype">HTTP</span> /(auth)/login · /(auth)/cadastro</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Formulário de criação de conta (nome, contato, senha)." data-file="app/(auth)/cadastro/form.tsx">
+        <span class="sidx">1</span><span class="sname">Preencher cadastro</span>
+        <span class="spath mono">form.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Validação de entrada com Zod." data-file="lib/validation.ts">
+        <span class="sidx">2</span><span class="sname">Validar dados</span>
+        <span class="spath mono">validation.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action de autenticação cria o usuário no Supabase." data-file="lib/actions/auth.ts">
+        <span class="sidx">3</span><span class="sname">Criar conta</span>
+        <span class="spath mono">auth.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Tela de login por e-mail." data-file="app/(auth)/login/page.tsx">
+        <span class="sidx">4</span><span class="sname">Entrar</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Middleware renova a sessão Supabase e protege rotas." data-file="middleware.ts">
+        <span class="sidx">5</span><span class="sname">Renovar sessão</span>
+        <span class="spath mono">middleware.ts</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Recuperar Senha</span><span class="entry mono" title="/(auth)/recuperar-senha"><span class="etype">HTTP</span> /(auth)/recuperar-senha</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Formulário que dispara o e-mail de recuperação." data-file="app/(auth)/recuperar-senha/form.tsx">
+        <span class="sidx">1</span><span class="sname">Solicitar recuperação</span>
+        <span class="spath mono">form.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Route handler processa o callback de confirmação." data-file="app/auth/confirmar/route.ts">
+        <span class="sidx">2</span><span class="sname">Confirmar link</span>
+        <span class="spath mono">route.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Tela para gravar a nova senha." data-file="app/(auth)/nova-senha/page.tsx">
+        <span class="sidx">3</span><span class="sname">Definir nova senha</span>
+        <span class="spath mono">page.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Entrada Demo (sem cadastro)</span><span class="entry mono" title="/api/demo/enter"><span class="etype">HTTP</span> /api/demo/enter</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Landing pública com os cards João (profissional) e Carlos (ajudante)." data-file="app/page.tsx">
+        <span class="sidx">1</span><span class="sname">Escolher card demo</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Route handler grava cookies de sessão (session-only)." data-file="app/api/demo/enter/route.ts">
+        <span class="sidx">2</span><span class="sname">Entrar como demo</span>
+        <span class="spath mono">route.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Helper de modo demo define o contexto somente-leitura." data-file="lib/auth/demo.ts">
+        <span class="sidx">3</span><span class="sname">Marcar sessão demo</span>
+        <span class="spath mono">demo.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Guarda requireWriter barra mutações em contas demo." data-file="lib/auth/guard.ts">
+        <span class="sidx">4</span><span class="sname">Bloquear escrita</span>
+        <span class="spath mono">guard.ts</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Papel &amp; Workspace</span><span class="entry mono" title="troca de papel / workspace"><span class="etype">MANUAL</span> troca de papel / workspace</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Determina profissional/ajudante/admin." data-file="lib/auth/roles.ts">
+        <span class="sidx">1</span><span class="sname">Resolver papel</span>
+        <span class="spath mono">roles.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Componente para alternar o papel ativo." data-file="components/trocar-papel.tsx">
+        <span class="sidx">2</span><span class="sname">Trocar papel</span>
+        <span class="spath mono">trocar-papel.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Define a empresa/workspace ativa (multi-tenant)." data-file="lib/auth/workspace.ts">
+        <span class="sidx">3</span><span class="sname">Selecionar workspace</span>
+        <span class="spath mono">workspace.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Módulos disponíveis por usuário/papel." data-file="lib/auth/modules.ts">
+        <span class="sidx">4</span><span class="sname">Habilitar módulos</span>
+        <span class="spath mono">modules.ts</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:vagas-e-diarias" style="--c:var(--d1)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Vagas &amp; Diárias</h2><span class="badge">complex</span><span class="badge ghost">4 fluxos</span></div>
+      <p class="dsum">O profissional publica vagas de diária, acompanha candidatos, cancela ou conclui a diária. O ajudante descobre e filtra vagas disponíveis. Base do financeiro/relatórios.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">vaga</span><span class="chip">diária</span><span class="chip">período</span><span class="chip">workspace</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>só o profissional dono do workspace publica/gerencia</li><li>vaga tem período e status</li><li>concluir diária habilita avaliação</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Publicar Vaga</span><span class="entry mono" title="/publicar"><span class="etype">HTTP</span> /publicar</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Tela de publicar vaga." data-file="app/(app)/publicar/page.tsx">
+        <span class="sidx">1</span><span class="sname">Abrir publicação</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Formulário (categoria, período, valor, local)." data-file="components/publicar-form.tsx">
+        <span class="sidx">2</span><span class="sname">Preencher vaga</span>
+        <span class="spath mono">publicar-form.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Validação Zod dos dados da vaga." data-file="lib/validation.ts">
+        <span class="sidx">3</span><span class="sname">Validar</span>
+        <span class="spath mono">validation.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action grava a vaga no Supabase." data-file="lib/actions/vagas.ts">
+        <span class="sidx">4</span><span class="sname">Gravar vaga</span>
+        <span class="spath mono">vagas.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Confirmação da vaga publicada." data-file="components/vaga-publicada.tsx">
+        <span class="sidx">5</span><span class="sname">Ver publicada</span>
+        <span class="spath mono">vaga-publicada.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Gerenciar Minhas Vagas</span><span class="entry mono" title="/minhas-vagas"><span class="etype">HTTP</span> /minhas-vagas</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Lista das vagas do profissional." data-file="app/(app)/minhas-vagas/page.tsx">
+        <span class="sidx">1</span><span class="sname">Listar minhas vagas</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Candidatos de uma vaga." data-file="app/(app)/minhas-vagas/[id]/candidatos/page.tsx">
+        <span class="sidx">2</span><span class="sname">Ver candidatos</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Ação de cancelamento." data-file="components/cancelar-vaga.tsx">
+        <span class="sidx">3</span><span class="sname">Cancelar vaga</span>
+        <span class="spath mono">cancelar-vaga.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Marca a diária como concluída." data-file="components/concluir-diaria.tsx">
+        <span class="sidx">4</span><span class="sname">Concluir diária</span>
+        <span class="spath mono">concluir-diaria.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Descobrir Vagas (ajudante)</span><span class="entry mono" title="/vagas"><span class="etype">HTTP</span> /vagas</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Lista de vagas disponíveis." data-file="app/(app)/vagas/page.tsx">
+        <span class="sidx">1</span><span class="sname">Navegar vagas</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Detalhe de uma vaga." data-file="app/(app)/vagas/[id]/page.tsx">
+        <span class="sidx">2</span><span class="sname">Ver detalhe</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Abas de período (manhã/tarde/dia)." data-file="components/periodo-tabs.tsx">
+        <span class="sidx">3</span><span class="sname">Filtrar por período</span>
+        <span class="spath mono">periodo-tabs.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Financeiro &amp; Relatórios</span><span class="entry mono" title="/financeiro · /relatorios"><span class="etype">HTTP</span> /financeiro · /relatorios</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Resumo financeiro das diárias." data-file="app/(app)/financeiro/page.tsx">
+        <span class="sidx">1</span><span class="sname">Ver financeiro</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Relatórios operacionais." data-file="app/(app)/relatorios/page.tsx">
+        <span class="sidx">2</span><span class="sname">Ver relatórios</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Helpers de formatação (moeda/data)." data-file="lib/format.ts">
+        <span class="sidx">3</span><span class="sname">Formatar valores</span>
+        <span class="spath mono">format.ts</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:candidaturas" style="--c:var(--d2)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Candidaturas &amp; Seleção</h2><span class="badge">complex</span><span class="badge ghost">3 fluxos</span></div>
+      <p class="dsum">O ajudante se candidata a uma vaga; o profissional aceita ou recusa. O status da candidatura evolui numa timeline e alimenta a agenda de diárias do ajudante.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">candidatura</span><span class="chip">status</span><span class="chip">diária</span><span class="chip">notificação</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>ajudante candidata uma vez por vaga</li><li>aceite move status e abre o chat</li><li>recusa encerra a candidatura</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Candidatar-se</span><span class="entry mono" title="/vagas/[id]"><span class="etype">HTTP</span> /vagas/[id]</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Botão de candidatura na vaga." data-file="components/candidatar-button.tsx">
+        <span class="sidx">1</span><span class="sname">Candidatar</span>
+        <span class="spath mono">candidatar-button.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action grava a candidatura." data-file="lib/actions/candidaturas.ts">
+        <span class="sidx">2</span><span class="sname">Registrar candidatura</span>
+        <span class="spath mono">candidaturas.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Abas/estado da candidatura." data-file="components/status-tabs.tsx">
+        <span class="sidx">3</span><span class="sname">Acompanhar status</span>
+        <span class="spath mono">status-tabs.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Responder Candidatura (profissional)</span><span class="entry mono" title="/minhas-vagas/[id]/candidatos"><span class="etype">HTTP</span> /minhas-vagas/[id]/candidatos</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Lista de candidatos da vaga." data-file="app/(app)/minhas-vagas/[id]/candidatos/page.tsx">
+        <span class="sidx">1</span><span class="sname">Ver candidatos</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Ação de resposta à candidatura." data-file="components/responder-candidatura.tsx">
+        <span class="sidx">2</span><span class="sname">Aceitar ou recusar</span>
+        <span class="spath mono">responder-candidatura.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Linha do tempo do status." data-file="components/status-timeline.tsx">
+        <span class="sidx">3</span><span class="sname">Atualizar timeline</span>
+        <span class="spath mono">status-timeline.tsx</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Minhas Diárias &amp; Agenda (ajudante)</span><span class="entry mono" title="/minhas-diarias · /agenda"><span class="etype">HTTP</span> /minhas-diarias · /agenda</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Diárias aceitas do ajudante." data-file="app/(app)/minhas-diarias/page.tsx">
+        <span class="sidx">1</span><span class="sname">Listar diárias</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Agenda das diárias." data-file="app/(app)/agenda/page.tsx">
+        <span class="sidx">2</span><span class="sname">Ver agenda</span>
+        <span class="spath mono">page.tsx</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:comunicacao" style="--c:var(--d3)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Comunicação &amp; Chat</h2><span class="badge">moderate</span><span class="badge ghost">2 fluxos</span></div>
+      <p class="dsum">Após o aceite, profissional e ajudante conversam por chat em tempo real (Supabase Realtime). Notificações avisam sobre candidaturas, mensagens e mudanças de status.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">mensagem</span><span class="chip">conversa</span><span class="chip">notificação</span><span class="chip">leitura</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>chat liberado após aceite</li><li>mensagens em tempo real via Realtime</li><li>leitura marca notificações/mensagens</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Conversar (Chat Realtime)</span><span class="entry mono" title="/chat/[vagaId]"><span class="etype">HTTP</span> /chat/[vagaId]</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Chat da vaga entre as partes." data-file="app/(app)/chat/[vagaId]/page.tsx">
+        <span class="sidx">1</span><span class="sname">Abrir conversa</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Caixa de mensagens do usuário." data-file="app/(app)/mensagens/page.tsx">
+        <span class="sidx">2</span><span class="sname">Ver mensagens</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Envio de mensagem (server action)." data-file="components/botao-enviar.tsx">
+        <span class="sidx">3</span><span class="sname">Enviar mensagem</span>
+        <span class="spath mono">botao-enviar.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Marca mensagens como lidas." data-file="lib/actions/leitura.ts">
+        <span class="sidx">4</span><span class="sname">Marcar leitura</span>
+        <span class="spath mono">leitura.ts</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Notificações</span><span class="entry mono" title="/notificacoes"><span class="etype">HTTP</span> /notificacoes</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Central de notificações." data-file="app/(app)/notificacoes/page.tsx">
+        <span class="sidx">1</span><span class="sname">Listar notificações</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Componente de lista de notificações." data-file="components/notificacoes-list.tsx">
+        <span class="sidx">2</span><span class="sname">Renderizar lista</span>
+        <span class="spath mono">notificacoes-list.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Atalho para a ação pendente." data-file="components/link-pendente.tsx">
+        <span class="sidx">3</span><span class="sname">Abrir link pendente</span>
+        <span class="spath mono">link-pendente.tsx</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:avaliacoes" style="--c:var(--d4)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Avaliações &amp; Reputação</h2><span class="badge">moderate</span><span class="badge ghost">1 fluxos</span></div>
+      <p class="dsum">Concluída a diária, as partes se avaliam mutuamente com 1–5 estrelas. As avaliações compõem a reputação exibida no perfil de cada usuário.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">avaliação</span><span class="chip">nota (1–5)</span><span class="chip">reputação</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>avaliação só após diária concluída</li><li>avaliação mútua profissional↔ajudante</li><li>notas agregam na reputação do perfil</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Avaliar (1–5 estrelas)</span><span class="entry mono" title="/avaliar/[vagaId]"><span class="etype">HTTP</span> /avaliar/[vagaId]</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Tela de avaliação da diária." data-file="app/(app)/avaliar/[vagaId]/page.tsx">
+        <span class="sidx">1</span><span class="sname">Abrir avaliação</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Formulário de nota e comentário." data-file="components/avaliar-form.tsx">
+        <span class="sidx">2</span><span class="sname">Preencher estrelas</span>
+        <span class="spath mono">avaliar-form.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action registra a avaliação." data-file="lib/actions/avaliacoes.ts">
+        <span class="sidx">3</span><span class="sname">Gravar avaliação</span>
+        <span class="spath mono">avaliacoes.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Nota agrega na reputação do perfil." data-file="app/(app)/perfil/[id]/page.tsx">
+        <span class="sidx">4</span><span class="sname">Refletir no perfil</span>
+        <span class="spath mono">page.tsx</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:perfil-e-equipe" style="--c:var(--d5)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Perfil &amp; Equipe</h2><span class="badge">moderate</span><span class="badge ghost">2 fluxos</span></div>
+      <p class="dsum">Cada usuário mantém seu perfil (dados e avatar). O profissional monta a equipe do workspace, convida membros e define os módulos de cada funcionário.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">perfil</span><span class="chip">avatar</span><span class="chip">equipe</span><span class="chip">convite</span><span class="chip">módulo</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>perfil editável pelo próprio usuário</li><li>equipe pertence ao workspace</li><li>módulos controlam o acesso do funcionário</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Gerenciar Perfil</span><span class="entry mono" title="/perfil/[id] · /perfil/editar"><span class="etype">HTTP</span> /perfil/[id] · /perfil/editar</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Perfil público do usuário (com reputação)." data-file="app/(app)/perfil/[id]/page.tsx">
+        <span class="sidx">1</span><span class="sname">Ver perfil</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Tela de edição do próprio perfil." data-file="app/(app)/perfil/editar/page.tsx">
+        <span class="sidx">2</span><span class="sname">Editar perfil</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action grava perfil/avatar." data-file="lib/actions/perfil.ts">
+        <span class="sidx">3</span><span class="sname">Salvar perfil</span>
+        <span class="spath mono">perfil.ts</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Equipe &amp; Convites</span><span class="entry mono" title="/equipe"><span class="etype">HTTP</span> /equipe</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Membros do workspace." data-file="app/(app)/equipe/page.tsx">
+        <span class="sidx">1</span><span class="sname">Ver equipe</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Formulário de convite." data-file="components/convidar-form.tsx">
+        <span class="sidx">2</span><span class="sname">Convidar membro</span>
+        <span class="spath mono">convidar-form.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Módulos por funcionário." data-file="components/modulos-funcionario.tsx">
+        <span class="sidx">3</span><span class="sname">Definir módulos</span>
+        <span class="spath mono">modulos-funcionario.tsx</span></li></ol>
+    </div></div>
+  </section><section class="domain" id="domain:moderacao" style="--c:var(--d6)">
+    <div class="dbar"></div>
+    <header class="dhead">
+      <div class="dtitle"><span class="ddot"></span><h2>Moderação &amp; Denúncias (Admin)</h2><span class="badge">moderate</span><span class="badge ghost">2 fluxos</span></div>
+      <p class="dsum">Qualquer usuário pode denunciar de forma anônima. O admin modera denúncias e usuários, e provisiona outros administradores. O denunciante nunca é revelado ao denunciado.</p>
+      <div class="dmeta">
+        <div class="mblock"><span class="mlabel">Entidades</span><div class="chips"><span class="chip">denúncia</span><span class="chip">usuário</span><span class="chip">admin</span></div></div>
+        <div class="mblock"><span class="mlabel">Regras de negócio</span><ul class="rules"><li>denúncia é anônima para o denunciado</li><li>só admin modera e cria admins</li><li>bloqueio de usuário por admin</li></ul></div>
+      </div>
+    </header>
+    <div class="flows"><div class="flow">
+      <div class="fhead"><span class="fname">Denunciar (anônimo)</span><span class="entry mono" title="ação de denúncia"><span class="etype">MANUAL</span> ação de denúncia</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Componente de denúncia (perfil/conversa/vaga)." data-file="components/denunciar.tsx">
+        <span class="sidx">1</span><span class="sname">Abrir denúncia</span>
+        <span class="spath mono">denunciar.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Server action grava a denúncia." data-file="lib/actions/denuncias.ts">
+        <span class="sidx">2</span><span class="sname">Registrar denúncia</span>
+        <span class="spath mono">denuncias.ts</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Regra de negócio: denunciante oculto." data-file="lib/denuncias.ts">
+        <span class="sidx">3</span><span class="sname">Preservar anonimato</span>
+        <span class="spath mono">denuncias.ts</span></li></ol>
+    </div><div class="flow">
+      <div class="fhead"><span class="fname">Moderar (Admin)</span><span class="entry mono" title="/admin/denuncias · /admin/usuarios"><span class="etype">HTTP</span> /admin/denuncias · /admin/usuarios</span></div>
+      <ol class="steps"><li class="step" tabindex="0" data-sum="Fila de denúncias para moderação." data-file="app/(app)/admin/denuncias/page.tsx">
+        <span class="sidx">1</span><span class="sname">Painel de denúncias</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Resolver/rejeitar denúncia." data-file="components/denuncia-moderar.tsx">
+        <span class="sidx">2</span><span class="sname">Moderar denúncia</span>
+        <span class="spath mono">denuncia-moderar.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Moderar/bloquear usuários." data-file="app/(app)/admin/usuarios/page.tsx">
+        <span class="sidx">3</span><span class="sname">Gerir usuários</span>
+        <span class="spath mono">page.tsx</span></li><li class="arrow" aria-hidden="true">→</li><li class="step" tabindex="0" data-sum="Provisionar novo administrador." data-file="components/criar-admin-form.tsx">
+        <span class="sidx">4</span><span class="sname">Criar admin</span>
+        <span class="spath mono">criar-admin-form.tsx</span></li></ol>
+    </div></div>
+  </section>
+  <footer>Gerado a partir de <span class="mono">.ua/domain-graph.json</span> · clique num passo para ver o arquivo que o implementa</footer>
+</div>
+<div class="pop" id="pop"><h4 id="pop-t"></h4><p id="pop-s"></p><div class="pf mono" id="pop-f"></div></div>
+<script>
+const pop=document.getElementById('pop'), pt=document.getElementById('pop-t'), ps=document.getElementById('pop-s'), pf=document.getElementById('pop-f');
+function showPop(el){
+  pt.textContent=el.querySelector('.sname').textContent;
+  ps.textContent=el.dataset.sum||'';
+  pf.textContent=el.dataset.file||'(sem arquivo específico)';
+  pop.classList.add('show');
+  const r=el.getBoundingClientRect(); const pw=340;
+  let x=Math.min(r.left, window.innerWidth-pw-14); x=Math.max(10,x);
+  let y=r.bottom+8; if(y+140>window.innerHeight) y=Math.max(10,r.top-148);
+  pop.style.left=x+'px'; pop.style.top=y+'px';
+}
+document.querySelectorAll('.step').forEach(el=>{
+  el.addEventListener('click',e=>{e.stopPropagation();showPop(el);});
+  el.addEventListener('focus',()=>showPop(el));
+});
+document.addEventListener('click',()=>pop.classList.remove('show'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')pop.classList.remove('show');});
+</script>
+</body></html>

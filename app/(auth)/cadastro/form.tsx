@@ -171,7 +171,7 @@ export function CadastroForm({ papelInicial }: { papelInicial: Papel | null }) {
           </label>
           <select
             id="cidade"
-            name="cidade"
+            name="cidadeUf"
             autoComplete="address-level2"
             className="input"
             defaultValue={v.cidadeUf ?? "Niterói|RJ"}

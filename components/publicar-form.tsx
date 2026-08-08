@@ -10,10 +10,10 @@ import { AddressMapPicker } from "@/components/maps/address-map-picker-dynamic";
 import { formatBRL } from "@/lib/format";
 import type { EstadoForm } from "@/lib/actions/form";
 
-// Média usada na dica e no limite de confirmação. Acima de 3× a média um valor
-// quase sempre é typo (R$ 1.500 no lugar de R$ 150) — por isso pede confirmação.
-const MEDIA = 148;
-const CONFIRMA_ACIMA = MEDIA * 3;
+// Teto de sanidade contra typo no valor: acima disto a diária quase sempre é
+// erro de digitação (R$ 1.500 no lugar de R$ 150) — por isso pede confirmação.
+// Não é preço sugerido nem média exibida; a plataforma não anuncia valor.
+const CONFIRMA_ACIMA = 500;
 
 /**
  * Formulário de diária, compartilhado por publicar e editar. `action` e
@@ -41,7 +41,7 @@ export function PublicarForm({
   // Data mínima = hoje. Diária publicada para ontem é lixo no feed de todo ajudante.
   const hoje = new Date().toLocaleDateString("sv-SE");
 
-  // Guarda contra typo no valor: acima de 3× a média, confirma antes de enviar.
+  // Guarda contra typo no valor: acima do teto de sanidade, confirma antes de enviar.
   // A checagem é no clique do botão (não no onSubmit do form): cancelar o clique
   // barra o envio de forma confiável, sem correr atrás da action do React. Sem
   // JavaScript o botão é submit normal e o teto do schema ainda barra o absurdo.
@@ -142,11 +142,11 @@ export function PublicarForm({
             <input id="quantidade_vagas" name="quantidade_vagas" className="input" type="number" inputMode="numeric" min="1" defaultValue={v.quantidade_vagas ?? "1"} />
           </div>
         </div>
-        {/* "Quanto eu ofereço?" é a maior dúvida na hora de publicar. O número já
-            estava na landing e faltava exatamente aqui, no momento da decisão. */}
+        {/* Dica neutra: explica o campo sem ancorar num valor médio nem prometer
+            rapidez — a plataforma conecta, não sugere preço nem tempo de contratação. */}
         <p id="valor-referencia" className="-mt-1 text-xs text-muted">
-          A diária média na plataforma é de {formatBRL(MEDIA)}. Valores abaixo da média costumam demorar mais
-          para receber candidatos.
+          Você define quanto quer pagar por esta diária. O valor combina com o serviço e aparece na
+          vaga para os candidatos.
         </p>
         <p className="mt-1 text-sm font-semibold text-brand">5. Descrição (opcional)</p>
         <div>
@@ -157,11 +157,11 @@ export function PublicarForm({
         </div>
         {estado?.erro ? <FormError>{estado.erro}</FormError> : null}
         {valorAlto !== null ? (
-          // Passo de confirmação: valor bem acima da média quase sempre é typo.
+          // Passo de confirmação: valor muito alto quase sempre é typo.
           <div className="flex flex-col gap-3 rounded-xl border border-brand bg-[#e6effb] p-3">
             <p className="text-sm">
-              <strong className="font-semibold">{formatBRL(valorAlto)}</strong> está bem acima da média
-              ({formatBRL(MEDIA)}). Confirma esse valor da diária?
+              <strong className="font-semibold">{formatBRL(valorAlto)}</strong> é um valor alto para
+              uma diária. Confirma esse valor?
             </p>
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => setValorAlto(null)} className="btn-ghost px-4 text-xs">

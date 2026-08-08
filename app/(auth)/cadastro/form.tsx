@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { cadastrarAction } from "@/lib/actions/auth";
 import { CIDADES } from "@/lib/cidades";
-import { mascaraCPF, mascaraTelefone } from "@/lib/format";
+import { mascaraTelefone } from "@/lib/format";
 import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
@@ -43,7 +43,6 @@ export function CadastroForm({
   const [estado, formAction] = useActionState(cadastrarAction, null);
 
   const v = estado?.valores ?? {};
-  const [cpf, setCpf] = useState(v.cpf ?? "");
   const [telefone, setTelefone] = useState(v.telefone ?? "");
   const [papel, setPapel] = useState<Papel | null>(
     (v.tipo_base as Papel | undefined) ?? papelInicial,
@@ -117,44 +116,27 @@ export function CadastroForm({
           </label>
           <input id="senha" name="senha" autoComplete="new-password" className="input" type="password" required />
         </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label className="label" htmlFor="cpf">
-              CPF
-            </label>
-            <input
-              id="cpf"
-              name="cpf"
-              inputMode="numeric"
-              className="input"
-              value={cpf}
-              onChange={(e) => setCpf(mascaraCPF(e.target.value))}
-              aria-describedby="pii-motivo"
-              required
-            />
-          </div>
-          <div className="flex-1">
-            <label className="label" htmlFor="telefone">
-              Telefone
-            </label>
-            <input
-              id="telefone"
-              name="telefone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              className="input"
-              value={telefone}
-              onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
-              aria-describedby="pii-motivo"
-              required
-            />
-          </div>
+        <div>
+          <label className="label" htmlFor="telefone">
+            Telefone
+          </label>
+          <input
+            id="telefone"
+            name="telefone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            className="input"
+            value={telefone}
+            onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+            aria-describedby="pii-motivo"
+            required
+          />
         </div>
         <p id="pii-motivo" className="-mt-1 text-xs leading-relaxed text-muted">
-          CPF e telefone ficam guardados e <strong className="font-medium">nunca aparecem</strong> no
-          seu perfil. Servem para verificar que você é uma pessoa real — é o que dá o selo de perfil
-          verificado e o que faz o outro lado aceitar a diária.
+          Seu telefone fica guardado e <strong className="font-medium">nunca aparece</strong> no seu
+          perfil. Ele serve para confirmar que você é uma pessoa real e para o contato depois que a
+          diária é aceita.
         </p>
         <div>
           <label className="label" htmlFor="cidade">

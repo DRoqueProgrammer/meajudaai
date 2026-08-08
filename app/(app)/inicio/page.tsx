@@ -13,8 +13,8 @@ function saudacao(): string {
 }
 
 /**
- * CTA primário do dia — a tela abria com um card cinza e nenhum botão, no
- * momento em que o produto promete "diária fechada antes do café".
+ * CTA primário do dia — a tela abria com um card cinza e nenhum botão, sem
+ * caminho para a ação principal (publicar uma diária ou buscar trabalho).
  * Cores fixadas pela referência visual: amarelo para "preciso de ajudante",
  * verde para "quero trabalhar". O amarelo carrega texto #3a2f00 (8,1:1); sobre
  * branco ele daria 1,6:1 e por isso só existe como preenchimento.

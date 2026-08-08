@@ -152,4 +152,4 @@ Aplicativo Android funcional; código-fonte entregue; projeto FlutterFlow entreg
 
 ## 11. Objetivo Final
 
-Criar a principal plataforma brasileira de conexão entre profissionais da construção civil e ajudantes para serviços por diária, oferecendo rapidez, segurança e praticidade.
+Criar a principal plataforma brasileira de conexão entre profissionais da construção civil e ajudantes para serviços por diária, oferecendo segurança, confiança e praticidade.

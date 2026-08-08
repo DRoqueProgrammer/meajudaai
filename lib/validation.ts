@@ -5,7 +5,6 @@ export const CadastroSchema = z.object({
   nome: z.string().min(2, "Informe seu nome"),
   email: z.string().email("E-mail inválido"),
   senha: z.string().min(6, "Mínimo de 6 caracteres"),
-  cpf: z.string().min(11, "CPF inválido"),
   telefone: z.string().min(10, "Telefone inválido"),
   cidade: z.string().min(2, "Informe a cidade"),
   estado: z.string().min(2).max(2),

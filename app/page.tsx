@@ -175,17 +175,17 @@ export default async function HomePage() {
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-7 px-8 py-10">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
-                App em breve
+                Comece agora
               </p>
               <p className="mt-2 text-[22px] font-bold leading-[1.2] tracking-[-0.02em] text-white">
-                Android e iOS. Mesmas diárias, no bolso.
+                Publique uma diária ou encontre trabalho na sua região.
               </p>
             </div>
             <Link
               href="/cadastro"
               className="rounded-[10px] bg-white px-[22px] py-[13px] text-[13px] font-semibold text-ink hover:bg-accent"
             >
-              Avisa quando sair
+              Criar conta
             </Link>
           </div>
         </section>

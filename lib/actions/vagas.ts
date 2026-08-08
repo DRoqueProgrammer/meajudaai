@@ -6,6 +6,7 @@ import { requireModule, requireCapability } from "@/lib/auth/modules";
 import { requireWorkspaceRole, getActiveWorkspace } from "@/lib/auth/workspace";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VagaSchema } from "@/lib/validation";
+import { geocodeAddress } from "./geocode";
 import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 import type { ActionResult } from "./auth";
@@ -65,6 +66,27 @@ export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Pro
     .select("id")
     .single();
   if (error) return { erro: "Não foi possível publicar a vaga.", valores: preserva };
+
+  const localLat = Number(campo(fd, "local_lat")) || null;
+  const localLng = Number(campo(fd, "local_lng")) || null;
+  if (localLat && localLng) {
+    const arred = (n: number) => Math.round(n * 100) / 100; // ~1,1 km
+    await db.from("vaga_local").insert({ vaga_id: data.id, lat: localLat, lng: localLng });
+    await db
+      .from("vagas")
+      .update({ local_aprox_lat: arred(localLat), local_aprox_lng: arred(localLng) })
+      .eq("id", data.id);
+  } else {
+    // Sem pino: geocoda bairro/cidade só para a localização APROXIMADA (sem exato).
+    const hits = await geocodeAddress(`${d.bairro ?? ""} ${d.cidade}, Brasil`.trim());
+    if (hits[0]) {
+      await db
+        .from("vagas")
+        .update({ local_aprox_lat: hits[0].lat, local_aprox_lng: hits[0].lng })
+        .eq("id", data.id);
+    }
+  }
+
   revalidatePath("/minhas-vagas");
   revalidatePath("/vagas");
 
@@ -137,6 +159,17 @@ export async function editarVagaAction(
     })
     .eq("id", vagaId);
   if (error) return { erro: "Não foi possível salvar as alterações.", valores: preserva };
+
+  const localLat = Number(campo(fd, "local_lat")) || null;
+  const localLng = Number(campo(fd, "local_lng")) || null;
+  if (localLat && localLng) {
+    const arred = (n: number) => Math.round(n * 100) / 100;
+    await db.from("vaga_local").upsert({ vaga_id: vagaId, lat: localLat, lng: localLng });
+    await db
+      .from("vagas")
+      .update({ local_aprox_lat: arred(localLat), local_aprox_lng: arred(localLng) })
+      .eq("id", vagaId);
+  }
 
   // Só avisa quando muda o que a pessoa aceitou: data ou valor. Corrigir um
   // título ou a descrição não muda o combinado — não vira notificação.

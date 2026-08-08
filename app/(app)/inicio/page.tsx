@@ -83,6 +83,14 @@ export default async function InicioPage() {
   const primeiroNome = (perfil?.nome ?? "").split(" ")[0] || "por aí";
   const minhaCidade = perfil?.cidade ?? null;
 
+  // Banner discricionário do sysadmin (RLS: só volta se ativo — ou se sysadmin).
+  const { data: banner } = await sb
+    .from("home_banner")
+    .select("texto")
+    .eq("id", 1)
+    .eq("ativo", true)
+    .maybeSingle();
+
   const isEmpresa = user!.role === "admin" || user!.role === "funcionario";
   const permitidos = user!.role === "funcionario" ? await getAllowedModules(user!) : null;
   const podePublicar = user!.role === "admin" || !!permitidos?.has("vagas");
@@ -117,6 +125,11 @@ export default async function InicioPage() {
 
   return (
     <div className="flex flex-col gap-5">
+      {banner?.texto ? (
+        <div className="rounded-2xl border border-accent bg-accent/15 px-4 py-3 text-sm text-[#3a2f00]">
+          {banner.texto}
+        </div>
+      ) : null}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">{painel}</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">

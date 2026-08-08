@@ -4,6 +4,8 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VagaCard } from "@/components/vaga-card";
+import { AgendaView } from "@/components/agenda/agenda-view";
+import { AgendaCalendar } from "@/components/agenda/agenda-calendar";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
 
@@ -21,9 +23,6 @@ type Item = {
 };
 
 function Cartao({ v }: { v: Item }) {
-  // A data está no cabeçalho do grupo, então o meta mostra local + hora no lugar
-  // dela. Subtítulo troca cidade por empresa: aqui o ajudante quer saber de quem
-  // é a diária.
   return (
     <VagaCard
       vaga={v}
@@ -49,7 +48,11 @@ function Cartao({ v }: { v: Item }) {
   );
 }
 
-export default async function AgendaPage() {
+export default async function AgendaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mes?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (user.role !== "ajudante") redirect("/inicio");
@@ -71,8 +74,6 @@ export default async function AgendaPage() {
         .in("id", vagaIds)
     : { data: [] };
   const wsIds = [...new Set((vagas ?? []).map((v) => v.workspace_id))];
-  // Nome da empresa: leitura elevada — o ajudante vê a empresa das próprias
-  // diárias aceitas (a RLS de workspaces só expõe a membros da empresa).
   const admin = createAdminClient();
   const { data: empresas } = wsIds.length
     ? await admin.from("workspaces").select("id, nome").in("id", wsIds)
@@ -94,14 +95,23 @@ export default async function AgendaPage() {
     }))
     .sort((a, b) => (a.data_servico ?? "9999").localeCompare(b.data_servico ?? "9999"));
 
-  // Era `toISOString()` (UTC): entre 21h e 24h em BRT o dia já virou lá fora, e
-  // a diária de hoje caía em "Anteriores" na véspera — exatamente quando o
-  // ajudante abre a agenda para conferir o serviço da manhã seguinte.
+  // Bloqueios do próprio ajudante (RLS: só os dele).
+  const { data: bloqueios } = await sb.from("bloqueio_agenda").select("data").eq("ajudante_id", user.id);
+  const blocos = (bloqueios ?? []).map((b) => b.data);
+
   const hoje = new Date().toLocaleDateString("sv-SE");
+  const { mes } = await searchParams;
+  const agora = new Date();
+  let year = agora.getFullYear();
+  let month = agora.getMonth() + 1;
+  if (mes && /^\d{4}-\d{2}$/.test(mes)) {
+    const [y, m] = mes.split("-").map(Number);
+    year = y!;
+    month = m!;
+  }
+
   const proximas = itens.filter((v) => !v.data_servico || v.data_servico >= hoje);
   const anteriores = itens.filter((v) => v.data_servico && v.data_servico < hoje).reverse();
-
-  // Agrupa as próximas por data.
   const grupos = new Map<string, Item[]>();
   for (const v of proximas) {
     const k = v.data_servico ?? "sem-data";
@@ -109,18 +119,8 @@ export default async function AgendaPage() {
     grupos.get(k)!.push(v);
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-baseline justify-between">
-        <h1 className="text-xl font-semibold">Minha agenda</h1>
-        <Link href="/minhas-diarias" className="text-xs font-medium text-brand">
-          Todas as candidaturas →
-        </Link>
-      </div>
-      <p className="text-sm text-muted">
-        Suas diárias confirmadas — de várias equipes, organizadas por dia.
-      </p>
-
+  const lista = (
+    <>
       {proximas.length === 0 && anteriores.length === 0 ? (
         <div className="card">
           <p className="text-sm text-muted">
@@ -136,7 +136,7 @@ export default async function AgendaPage() {
       {proximas.length > 0 ? (
         <section className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted">Próximas</p>
-          {[...grupos.entries()].map(([data, lista]) => (
+          {[...grupos.entries()].map(([data, grupo]) => (
             <div key={data} className="flex flex-col gap-2">
               <p className="text-sm font-semibold text-ink">
                 {data === "sem-data" ? (
@@ -147,7 +147,7 @@ export default async function AgendaPage() {
                   </>
                 )}
               </p>
-              {lista.map((v) => (
+              {grupo.map((v) => (
                 <Cartao key={v.id} v={v} />
               ))}
             </div>
@@ -163,6 +163,31 @@ export default async function AgendaPage() {
           ))}
         </section>
       ) : null}
+    </>
+  );
+
+  const calendario = (
+    <AgendaCalendar
+      year={year}
+      month={month}
+      hoje={hoje}
+      blocos={blocos}
+      diarias={itens.map((v) => ({ id: v.id, titulo: v.titulo, data: v.data_servico }))}
+    />
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-xl font-semibold">Minha agenda</h1>
+        <Link href="/minhas-diarias" className="text-xs font-medium text-brand">
+          Todas as candidaturas →
+        </Link>
+      </div>
+      <p className="text-sm text-muted">
+        Suas diárias confirmadas — de várias equipes. Alterne entre lista e calendário.
+      </p>
+      <AgendaView lista={lista} calendario={calendario} />
     </div>
   );
 }

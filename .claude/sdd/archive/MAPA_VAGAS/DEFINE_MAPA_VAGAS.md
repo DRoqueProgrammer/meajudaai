@@ -9,7 +9,7 @@
 | **Feature** | MAPA_VAGAS |
 | **Date** | 2026-08-05 |
 | **Author** | define-agent |
-| **Status** | Ready for Design |
+| **Status** | ✅ Shipped |
 | **Clarity Score** | 15/15 |
 
 ---
@@ -162,9 +162,10 @@ Fora isso: **pronto para Design.**
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2026-08-05 | define-agent | Versão inicial a partir de BRAINSTORM_MAPA_VAGAS.md |
+| 1.1 | 2026-08-05 | ship-agent | Shipped and archived |
 
 ---
 
 ## Next Step
 
-**Ready for:** `/design .claude/sdd/features/DEFINE_MAPA_VAGAS.md`
+**Ready for:** `/ship .claude/sdd/features/DEFINE_MAPA_VAGAS.md`

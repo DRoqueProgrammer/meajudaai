@@ -5,6 +5,7 @@ import { CIDADES } from "@/lib/cidades";
 import { CATEGORIAS } from "@/lib/categorias";
 import { QUANDOS, isQuando, rangeDoQuando } from "@/lib/periodo";
 import { getCurrentUser } from "@/lib/auth/roles";
+import { AvisarDemanda } from "@/components/avisar-demanda";
 
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
@@ -57,6 +58,20 @@ export default async function BuscarVagasPage({
   }
   const { data: vagas } = await q;
   const lista = vagas ?? [];
+
+  // Sinal de demanda reprimida: só quando a busca por uma categoria específica
+  // numa cidade específica não devolveu nada. Pré-checa se o usuário já avisou.
+  let jaAvisou = false;
+  if (lista.length === 0 && categoria && cidadeAtiva) {
+    const { data: minha } = await sb
+      .from("demanda_servico")
+      .select("id")
+      .eq("user_id", user!.id)
+      .eq("categoria", categoria)
+      .eq("cidade", cidadeAtiva)
+      .maybeSingle();
+    jaAvisou = !!minha;
+  }
 
   const qs = (patch: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
@@ -200,6 +215,9 @@ export default async function BuscarVagasPage({
               <Link href="/vagas?cidade=todas" className="btn-ghost mt-4">
                 Limpar os filtros
               </Link>
+            ) : null}
+            {categoria && cidadeAtiva ? (
+              <AvisarDemanda categoria={categoria} cidade={cidadeAtiva} jaAvisou={jaAvisou} />
             ) : null}
           </div>
         )}

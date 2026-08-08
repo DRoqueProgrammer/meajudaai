@@ -9,7 +9,7 @@
 | **Feature** | MAPA_VAGAS |
 | **Date** | 2026-08-05 |
 | **Author** | brainstorm-agent |
-| **Status** | Ready for Define |
+| **Status** | ✅ Complete (Defined) |
 
 ---
 

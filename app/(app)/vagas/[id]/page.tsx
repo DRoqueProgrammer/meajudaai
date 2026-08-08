@@ -8,6 +8,8 @@ import { CandidatarButton } from "@/components/candidatar-button";
 import { StatusTimeline } from "@/components/status-timeline";
 import { Denunciar } from "@/components/denunciar";
 import { VagaPublicada } from "@/components/vaga-publicada";
+import { VagasMap } from "@/components/maps/vagas-map-dynamic";
+import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
 
@@ -45,6 +47,9 @@ export default async function VagaDetalhePage({
     .eq("vaga_id", id)
     .eq("avaliador_id", user!.id)
     .maybeSingle();
+
+  // RLS vaga_local_select: só retorna para a equipe dona ou o ajudante contratado.
+  const { data: local } = await sb.from("vaga_local").select("lat, lng").eq("vaga_id", id).maybeSingle();
 
   const ehDono = vaga.criado_por === user!.id;
 
@@ -125,6 +130,19 @@ export default async function VagaDetalhePage({
             </div>
             <span className="text-xs font-semibold text-brand">Ver perfil →</span>
           </Link>
+        ) : null}
+
+        {local ? (
+          <div className="flex flex-col gap-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Local da obra</h2>
+            <VagasMap
+              points={[
+                { id: vaga.id, lat: local.lat, lng: local.lng, titulo: vaga.titulo, valor: vaga.valor_diaria, cidade: vaga.cidade },
+              ]}
+            />
+            <CompartilharLocal modo="obra" lat={local.lat} lng={local.lng} />
+            {!ehDono ? <CompartilharLocal modo="chegando" /> : null}
+          </div>
         ) : null}
 
         {temRelacao ? <StatusTimeline current={etapa} terminal={terminal} /> : null}

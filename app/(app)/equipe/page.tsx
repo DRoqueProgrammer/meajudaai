@@ -1,8 +1,10 @@
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { guardModule } from "@/lib/auth/modules";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Avatar } from "@/components/ui";
 import { ConvidarForm } from "@/components/convidar-form";
+import { ConvitesPendentes, type ConvitePendente } from "@/components/convites-pendentes";
 import { ModulosFuncionario } from "@/components/modulos-funcionario";
 import { GRANTABLE_MODULES, FUNCIONARIO_DEFAULT, CAPABILITIES } from "@/lib/modules";
 
@@ -49,6 +51,29 @@ export default async function EquipePage() {
       if (!modByUser.has(m.user_id)) modByUser.set(m.user_id, new Map());
       modByUser.get(m.user_id)!.set(m.module, m.allowed);
     }
+  }
+
+  // Convites aceitos aguardando aprovação (o `invite` é service-role only).
+  let pendentes: ConvitePendente[] = [];
+  if (ws && podeGerir) {
+    const adminC = createAdminClient();
+    const { data: invs } = await adminC
+      .from("invite")
+      .select("id, role, accepted_by")
+      .eq("workspace_id", ws.workspace_id)
+      .eq("status", "aceito");
+    const accIds = (invs ?? []).map((i) => i.accepted_by).filter((x): x is string => !!x);
+    const { data: perfisInv } = accIds.length
+      ? await adminC.from("profiles").select("user_id, nome").in("user_id", accIds)
+      : { data: [] };
+    const nomeInv = new Map((perfisInv ?? []).map((p) => [p.user_id, p.nome]));
+    pendentes = (invs ?? [])
+      .filter((i) => i.accepted_by)
+      .map((i) => ({
+        id: i.id,
+        nome: nomeInv.get(i.accepted_by!) ?? "Novo usuário",
+        papel: i.role === "owner" ? "sócio" : "funcionário",
+      }));
   }
 
   const efetivos = (userId: string): Record<string, boolean> => {
@@ -98,6 +123,7 @@ export default async function EquipePage() {
               );
             })}
           </div>
+          {podeGerir ? <ConvitesPendentes convites={pendentes} /> : null}
           {podeGerir ? <ConvidarForm /> : null}
         </>
       )}

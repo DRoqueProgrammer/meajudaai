@@ -6,6 +6,7 @@ import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CadastroSchema } from "@/lib/validation";
+import { podeAceitar } from "@/lib/convite-status";
 import { soDigitos } from "@/lib/format";
 import { getSiteUrl } from "@/lib/site-url";
 import { redirect } from "next/navigation";
@@ -20,6 +21,24 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
   // `cidadeUf` chega como "Niterói|RJ" do <select>.
   const [cidade, estado] = campo(fd, "cidadeUf").split("|");
   const preserva = valoresPreservados(fd, ["senha"]);
+  const admin = createAdminClient();
+
+  // Cadastro via convite: o papel vem do convite (owner → admin, membro →
+  // funcionario), não do formulário; e não se cria empresa (entra na de quem convidou).
+  const conviteToken = campo(fd, "convite_token");
+  let invite: { id: string; role: string; workspace_id: string; created_by: string } | null = null;
+  if (conviteToken) {
+    const { data: inv } = await admin
+      .from("invite")
+      .select("id, role, status, expires_at, workspace_id, created_by")
+      .eq("token", conviteToken)
+      .maybeSingle();
+    if (!inv || !podeAceitar(inv, new Date())) {
+      return { erro: "Convite inválido ou expirado.", valores: preserva };
+    }
+    invite = { id: inv.id, role: inv.role, workspace_id: inv.workspace_id, created_by: inv.created_by };
+  }
+  const tipoBaseAlvo = invite ? (invite.role === "owner" ? "admin" : "funcionario") : campo(fd, "tipo_base");
 
   const parsed = CadastroSchema.safeParse({
     nome: campo(fd, "nome"),
@@ -29,7 +48,7 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     telefone: campo(fd, "telefone"),
     cidade,
     estado,
-    tipo_base: campo(fd, "tipo_base"),
+    tipo_base: tipoBaseAlvo,
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -41,10 +60,13 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
         : (issue?.message ?? "Dados inválidos");
     return { erro, valores: preserva };
   }
+  // "funcionario" só nasce via convite; fora dele, recusa.
+  if (!invite && parsed.data.tipo_base === "funcionario") {
+    return { erro: "Dados inválidos", valores: preserva };
+  }
   const d = parsed.data;
   const cpf = soDigitos(d.cpf);
   const telefone = soDigitos(d.telefone);
-  const admin = createAdminClient();
 
   const { data: dup } = await admin
     .from("profiles_pii")
@@ -79,7 +101,20 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     return { erro: "CPF, telefone ou e-mail já cadastrado.", valores: preserva };
   }
 
-  if (d.tipo_base === "admin") {
+  if (invite) {
+    // Entra na equipe de quem convidou (na aprovação); por ora, fica pendente.
+    await admin
+      .from("invite")
+      .update({ status: "aceito", accepted_by: userId, accepted_at: new Date().toISOString() })
+      .eq("id", invite.id);
+    await admin.from("notificacoes").insert({
+      user_id: invite.created_by,
+      tipo: "convite_aceito",
+      titulo: "Alguém aceitou seu convite",
+      mensagem: `${d.nome} pediu para entrar na equipe. Aprove em Equipe.`,
+      link: "/equipe",
+    });
+  } else if (d.tipo_base === "admin") {
     const { data: ws } = await admin
       .from("workspaces")
       .insert({ owner_id: userId, nome: `Equipe de ${d.nome}`, cidade: d.cidade, estado: d.estado })

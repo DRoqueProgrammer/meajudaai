@@ -6,6 +6,7 @@ import { CATEGORIAS } from "@/lib/categorias";
 import { CIDADES } from "@/lib/cidades";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
+import { AddressMapPicker } from "@/components/maps/address-map-picker-dynamic";
 import { formatBRL } from "@/lib/format";
 import type { EstadoForm } from "@/lib/actions/form";
 
@@ -52,6 +53,7 @@ export function PublicarForm({
   // estiver no passado e some assim que escolhem uma nova — no publicar nunca
   // dispara, porque o campo começa vazio e o picker não deixa voltar no tempo.
   const [dataAtual, setDataAtual] = useState(v.data_servico ?? "");
+  const [local, setLocal] = useState<{ lat: number | null; lng: number | null }>({ lat: null, lng: null });
 
   function talvezConfirmar(e: React.MouseEvent<HTMLButtonElement>) {
     if (!formRef.current) return;
@@ -102,6 +104,9 @@ export function PublicarForm({
             <input id="bairro" name="bairro" className="input" defaultValue={v.bairro ?? ""} />
           </div>
         </div>
+        <AddressMapPicker onChange={(val) => setLocal({ lat: val.lat, lng: val.lng })} />
+        <input type="hidden" name="local_lat" value={local.lat ?? ""} />
+        <input type="hidden" name="local_lng" value={local.lng ?? ""} />
         <p className="mt-1 text-sm font-semibold text-brand">3. Data e horário</p>
         <div className="flex gap-2">
           <div className="flex-1">

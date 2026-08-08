@@ -2,11 +2,12 @@
  * Módulos do painel da empresa (molde foco-contabil/careconnect).
  * Client-safe: sem imports de servidor — os guards ficam em lib/auth/modules.ts.
  */
-export type AppModule = "vagas" | "equipe" | "financeiro" | "relatorios";
+export type AppModule = "vagas" | "equipe" | "financeiro" | "relatorios" | "mapa";
 
 export const PANEL_MODULES: { key: AppModule; label: string; href: string; icon: string }[] = [
   { key: "vagas", label: "Minhas Vagas", href: "/minhas-vagas", icon: "clipboard" },
   { key: "equipe", label: "Equipe", href: "/equipe", icon: "users" },
+  { key: "mapa", label: "Mapa", href: "/mapa", icon: "map" },
   { key: "financeiro", label: "Financeiro", href: "/financeiro", icon: "coin" },
   { key: "relatorios", label: "Relatórios", href: "/relatorios", icon: "chart" },
 ];
@@ -17,7 +18,7 @@ export const ALL_MODULES: AppModule[] = PANEL_MODULES.map((m) => m.key);
 export const FUNCIONARIO_DEFAULT: AppModule[] = ["vagas"];
 
 /** Módulos que o admin pode conceder/revogar de um funcionário. */
-export const GRANTABLE_MODULES: AppModule[] = ["vagas", "equipe", "financeiro", "relatorios"];
+export const GRANTABLE_MODULES: AppModule[] = ["vagas", "equipe", "mapa", "financeiro", "relatorios"];
 
 export function isAppModule(v: string): v is AppModule {
   return (ALL_MODULES as string[]).includes(v);

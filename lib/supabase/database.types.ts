@@ -50,6 +50,12 @@ export type Database = {
           },
         ];
       };
+      bloqueio_agenda: {
+        Row: { ajudante_id: string; created_at: string; data: string };
+        Insert: { ajudante_id: string; created_at?: string; data: string };
+        Update: { ajudante_id?: string; created_at?: string; data?: string };
+        Relationships: [];
+      };
       candidaturas: {
         Row: {
           ajudante_id: string;
@@ -178,6 +184,101 @@ export type Database = {
           updated_at?: string | null;
         };
         Relationships: [];
+      };
+      demanda_servico: {
+        Row: {
+          categoria: string;
+          cidade: string;
+          created_at: string;
+          id: string;
+          user_id: string;
+        };
+        Insert: {
+          categoria: string;
+          cidade: string;
+          created_at?: string;
+          id?: string;
+          user_id: string;
+        };
+        Update: {
+          categoria?: string;
+          cidade?: string;
+          created_at?: string;
+          id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      home_banner: {
+        Row: {
+          ativo: boolean;
+          id: number;
+          texto: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          ativo?: boolean;
+          id?: number;
+          texto?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          ativo?: boolean;
+          id?: number;
+          texto?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [];
+      };
+      invite: {
+        Row: {
+          accepted_at: string | null;
+          accepted_by: string | null;
+          created_at: string;
+          created_by: string;
+          expires_at: string;
+          id: string;
+          role: string;
+          status: string;
+          token: string;
+          workspace_id: string;
+        };
+        Insert: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          created_by: string;
+          expires_at?: string;
+          id?: string;
+          role: string;
+          status?: string;
+          token: string;
+          workspace_id: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          accepted_by?: string | null;
+          created_at?: string;
+          created_by?: string;
+          expires_at?: string;
+          id?: string;
+          role?: string;
+          status?: string;
+          token?: string;
+          workspace_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "invite_workspace_id_fkey";
+            columns: ["workspace_id"];
+            isOneToOne: false;
+            referencedRelation: "workspaces";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       mensagens: {
         Row: {
@@ -352,6 +453,20 @@ export type Database = {
         };
         Relationships: [];
       };
+      vaga_local: {
+        Row: { lat: number; lng: number; vaga_id: string };
+        Insert: { lat: number; lng: number; vaga_id: string };
+        Update: { lat?: number; lng?: number; vaga_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: "vaga_local_vaga_id_fkey";
+            columns: ["vaga_id"];
+            isOneToOne: true;
+            referencedRelation: "vagas";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       vagas: {
         Row: {
           bairro: string | null;
@@ -364,6 +479,8 @@ export type Database = {
           descricao: string | null;
           hora_inicio: string | null;
           id: string;
+          local_aprox_lat: number | null;
+          local_aprox_lng: number | null;
           quantidade_vagas: number;
           status: string;
           titulo: string;
@@ -381,6 +498,8 @@ export type Database = {
           descricao?: string | null;
           hora_inicio?: string | null;
           id?: string;
+          local_aprox_lat?: number | null;
+          local_aprox_lng?: number | null;
           quantidade_vagas?: number;
           status?: string;
           titulo: string;
@@ -398,6 +517,8 @@ export type Database = {
           descricao?: string | null;
           hora_inicio?: string | null;
           id?: string;
+          local_aprox_lat?: number | null;
+          local_aprox_lng?: number | null;
           quantidade_vagas?: number;
           status?: string;
           titulo?: string;
@@ -462,6 +583,7 @@ export type Database = {
     Functions: {
       current_app_role: { Args: Record<PropertyKey, never>; Returns: string };
       has_capability: { Args: { v_user: string; v_ws: string; v_cap: string }; Returns: boolean };
+      is_ajudante_aceito: { Args: { v_vaga: string; v_user: string }; Returns: boolean };
       is_conversa_membro: { Args: { v_conversa: string }; Returns: boolean };
       is_workspace_member: { Args: { ws: string }; Returns: boolean };
     };

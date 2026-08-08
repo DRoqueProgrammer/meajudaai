@@ -11,6 +11,7 @@ const PUBLIC_PREFIXES = [
   "/termos",
   "/privacidade",
   "/auth",
+  "/convite",
   "/_next",
   "/favicon",
   "/api/health",

@@ -9,7 +9,8 @@ export const CadastroSchema = z.object({
   telefone: z.string().min(10, "Telefone inválido"),
   cidade: z.string().min(2, "Informe a cidade"),
   estado: z.string().min(2).max(2),
-  tipo_base: z.enum(["admin", "ajudante"]),
+  // "funcionario" só é válido no cadastro-via-convite (a action barra fora dele).
+  tipo_base: z.enum(["admin", "ajudante", "funcionario"]),
 });
 export type CadastroInput = z.infer<typeof CadastroSchema>;
 

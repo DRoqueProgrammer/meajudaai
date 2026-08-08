@@ -8,18 +8,21 @@
 
 ## 1. Resumo do Projeto
 
-O **MeAjuda Aí** é uma plataforma mobile destinada a conectar profissionais autônomos da construção civil e manutenção com ajudantes disponíveis para trabalho por diária. O aplicativo deverá funcionar em **Android** e **iOS**.
+O **MeAjuda Aí** conecta profissionais autônomos da construção civil e manutenção com ajudantes disponíveis para trabalho por diária. **Nesta fase, o produto é entregue como aplicação web responsiva (PWA)** — acessível pelo navegador no celular e no desktop. Um **app mobile nativo (Android e iOS)** permanece como evolução futura, sem previsão por ora.
 
-### Stack tecnológica recomendada
+### Stack tecnológica
+
+Fase atual (protótipo web):
 
 | Camada | Tecnologia |
 |---|---|
-| Frontend | FlutterFlow |
-| Backend | Firebase |
-| Banco de dados | Cloud Firestore |
-| Autenticação | Firebase Authentication |
-| Notificações | Firebase Cloud Messaging |
-| Mapas | Google Maps API |
+| Frontend | Next.js (App Router) · TypeScript · Tailwind |
+| Backend / Banco | Supabase · PostgreSQL |
+| Autenticação | Supabase Auth |
+| Notificações | Supabase Realtime (in-app) |
+| Mapas | Leaflet · OpenStreetMap |
+
+> **Recomendação original do documento:** FlutterFlow (frontend) + Firebase (backend, Cloud Firestore, Authentication, Cloud Messaging) + Google Maps API — mantida como referência para uma futura versão mobile nativa.
 
 ---
 
@@ -94,7 +97,9 @@ Após a conclusão do serviço: nota de **1 a 5 estrelas** e comentário opciona
 
 ---
 
-## 6. Banco de Dados (Cloud Firestore)
+## 6. Banco de Dados
+
+> **Fase atual:** PostgreSQL no Supabase (com RLS). As coleções abaixo são a modelagem conceitual do documento original (em Cloud Firestore); no protótipo web elas viram tabelas equivalentes.
 
 ### Coleção: `usuarios`
 `id`, `nome`, `cpf`, `telefone`, `email`, `cidade`, `estado`, `foto`, `tipo_usuario`, `nota_media`, `status`, `data_cadastro`
@@ -127,7 +132,7 @@ Nova vaga, Nova candidatura, Candidatura aceita, Mensagem recebida, Avaliação 
 
 ## 8. Segurança
 
-CPF único, Telefone único, Email único, Validação SMS, Autenticação Firebase, Bloqueio por administrador, Logs de atividades.
+CPF único, Telefone único, Email único, Validação SMS, Autenticação Supabase, Bloqueio por administrador, Logs de atividades.
 
 ---
 
@@ -146,7 +151,9 @@ CPF único, Telefone único, Email único, Validação SMS, Autenticação Fireb
 
 ## 10. Critérios de Entrega
 
-Aplicativo Android funcional; código-fonte entregue; projeto FlutterFlow entregue; banco Firebase configurado; painel administrativo funcional; documentação básica; publicação na Google Play; garantia mínima de 30 dias.
+Aplicação web responsiva (PWA) funcional e publicada (deploy web); código-fonte entregue; banco de dados Supabase configurado; painel administrativo funcional; documentação básica; garantia mínima de 30 dias.
+
+> **Adiado para uma fase mobile futura (sem previsão por ora):** app nativo em FlutterFlow, backend Firebase e publicação na Google Play / App Store.
 
 ---
 

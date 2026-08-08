@@ -53,7 +53,7 @@ Escala sugerida (web): título 24–28px/600, seção 18–20px/600, corpo 14–
 9. **Minhas Diárias** — abas `AGENDADAS / CONCLUÍDAS / CANCELADAS`; cards com status colorido.
 10. **Avaliar** — "Como foi trabalhar com [nome]?", 5 estrelas, comentário opcional; `ENVIAR AVALIAÇÃO` (verde).
 
-**Rodapé institucional:** Contato direto (WhatsApp/telefone liberados após aprovação) · Avaliações reais · Mais oportunidades · "Baixe já" (Android/iOS).
+**Rodapé institucional:** Contato direto (WhatsApp/telefone liberados após aprovação) · Avaliações reais · Mais oportunidades · "Baixe já" (Android/iOS) — *item adiado enquanto o produto é web/PWA*.
 
 ---
 

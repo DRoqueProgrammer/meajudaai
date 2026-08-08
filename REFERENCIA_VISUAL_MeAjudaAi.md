@@ -8,10 +8,11 @@ Transcrição da prévia de identidade visual (mockup mobile) e diretrizes para 
 
 **Logo:** capacete de obra amarelo sobre aperto de mãos, wordmark "MeAjuda **Aí**" (Aí em amarelo), fundo azul-marinho.
 **Slogan:** "A ajuda que você precisa, no momento que você mais precisa."
-**Pitch:** "O MeAjuda Aí conecta profissionais da construção e manutenção com ajudantes disponíveis para trabalhos por diária de forma rápida, segura e prática."
+**Pitch:** "O MeAjuda Aí conecta profissionais da construção e manutenção com ajudantes disponíveis para trabalhos por diária, de forma prática e segura."
 
-**Pilares da marca:** Segurança · Rapidez · Confiança · Qualidade.
-**Três promessas:** **Rápido** (encontre ajudantes em poucos minutos) · **Seguro** (perfis verificados e avaliações reais) · **Perto de você** (vagas na sua região todos os dias).
+**Pilares da marca:** Segurança · Confiança · Qualidade · Praticidade.
+**Três promessas:** **Do seu jeito** (compare pela nota e escolha no seu tempo, sem pressa) · **Seguro** (perfis verificados e avaliações reais) · **Perto de você** (vagas na sua região todos os dias).
+**Posicionamento:** marketplace que conecta os dois lados — não é serviço sob demanda ("uber" de obra). A escolha acontece no tempo de quem contrata; não prometemos velocidade de contratação nem exibimos preços ou médias de diária.
 **Público:** eletricistas, pedreiros, pintores, encanadores e mais.
 
 ---

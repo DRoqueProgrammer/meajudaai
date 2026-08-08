@@ -6,26 +6,14 @@ import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/logo";
-import { formatBRL } from "@/lib/format";
 import { mailtoSuporte } from "@/lib/contato";
 
 export const dynamic = "force-dynamic";
 
-/** Diária média por categoria — número de vitrine, não vem do banco. */
-const MEDIA: Record<string, number> = {
-  ajudante_eletricista: 150,
-  ajudante_pedreiro: 140,
-  ajudante_pintor: 135,
-  ajudante_encanador: 145,
-  ajudante_gesseiro: 150,
-  ajudante_azulejista: 145,
-  ajudante_geral: 130,
-};
-
 const COMO_FUNCIONA = [
-  ["01", "Publique a diária", "Serviço, local, data e valor. Um minuto e tá no ar pra quem está perto."],
-  ["02", "Escolha com base em nota", "Avaliação real de quem já trabalhou com o ajudante. Sem indicação furada."],
-  ["03", "Aceite e combine", "Chat liberado após o aceite. No fim do dia, todo mundo avalia."],
+  ["01", "Publique a diária", "Serviço, local, data e horário. Sua vaga aparece pra quem é da área e está na sua região."],
+  ["02", "Escolha pela nota", "Avaliação real de quem já trabalhou junto. Compare com calma e feche com quem combina — sem pressa."],
+  ["03", "Combine e avalie", "Chat liberado depois do aceite. No fim da diária, os dois se avaliam."],
 ];
 
 function Leader({ label, value }: { label: string; value: string }) {
@@ -80,15 +68,15 @@ export default async function HomePage() {
                 className="font-extrabold leading-[1.08] tracking-[-0.03em]"
                 style={{ fontSize: "clamp(38px,4.6vw,60px)", textWrap: "pretty" }}
               >
-                Diária fechada{" "}
+                Quem precisa e quem faz,{" "}
                 <span className="[-webkit-box-decoration-break:clone] [box-decoration-break:clone] bg-[linear-gradient(transparent_58%,#FFC107_58%)] px-0.5">
-                  antes do café da manhã
+                  no mesmo lugar
                 </span>
                 .
               </h1>
               <p className="max-w-[46ch] text-base leading-[1.65] text-muted">
-                Publicou 06:40, três candidatos até 07:10, ajudante na obra às 08:00. É esse o ritmo
-                que a gente resolve — pros dois lados.
+                Publique a diária e receba candidatos da sua região. Você escolhe pela nota de quem
+                já trabalhou junto — no seu tempo, sem pressa de fechar com qualquer um.
               </p>
               <div className="mt-1 flex flex-wrap gap-3">
                 <Link
@@ -105,9 +93,9 @@ export default async function HomePage() {
                 </Link>
               </div>
               <div className="mt-[18px] flex flex-col gap-2.5 border-t border-line pt-[18px]">
-                <Leader label="Tempo médio até o 1º candidato" value="18 min" />
-                <Leader label="Diária média na região" value={formatBRL(148)} />
                 <Leader label="Ajudantes com perfil verificado" value="92%" />
+                <Leader label="Categorias de ajudante" value={String(CATEGORIAS.length)} />
+                <Leader label="Avaliação ao fim da diária" value="dos 2 lados" />
               </div>
             </div>
 
@@ -165,19 +153,20 @@ export default async function HomePage() {
 
         <section className="border-b border-line">
           <div className="mx-auto max-w-[1200px] px-8 py-14">
-            <p className="mb-[22px] text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-              Categorias · diária média
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+              Categorias
             </p>
-            <div className="grid gap-x-14 md:grid-cols-2">
+            <p className="mb-6 max-w-[52ch] text-[15px] leading-[1.6] text-muted">
+              Da obra ao acabamento: encontre — ou ofereça — ajuda na sua área.
+            </p>
+            <div className="flex flex-wrap gap-2.5">
               {CATEGORIAS.map((c) => (
-                <div
+                <span
                   key={c.slug}
-                  className="flex items-baseline gap-2.5 border-b border-[#EEF1F5] py-[11px]"
+                  className="rounded-full border border-line bg-surface px-4 py-2 text-sm font-medium"
                 >
-                  <span className="text-sm font-medium">{c.nome}</span>
-                  <span className="-translate-y-[3px] flex-1 border-b border-dotted border-[#C9CFD8]" />
-                  <span className="text-[13.5px] font-bold">{formatBRL(MEDIA[c.slug] ?? 130)}</span>
-                </div>
+                  {c.nome}
+                </span>
               ))}
             </div>
           </div>

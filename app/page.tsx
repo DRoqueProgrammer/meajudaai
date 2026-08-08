@@ -93,7 +93,6 @@ export default async function HomePage() {
                 </Link>
               </div>
               <div className="mt-[18px] flex flex-col gap-2.5 border-t border-line pt-[18px]">
-                <Leader label="Ajudantes com perfil verificado" value="92%" />
                 <Leader label="Categorias de ajudante" value={String(CATEGORIAS.length)} />
                 <Leader label="Avaliação ao fim da diária" value="dos 2 lados" />
               </div>

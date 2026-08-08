@@ -7,7 +7,6 @@ describe("CadastroSchema", () => {
     nome: "Cleber",
     email: "cleber@exemplo.com",
     senha: "segredo",
-    cpf: "12345678901",
     telefone: "21999998888",
     cidade: "Niterói",
     estado: "RJ",

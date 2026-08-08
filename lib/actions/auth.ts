@@ -44,7 +44,6 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     nome: campo(fd, "nome"),
     email: campo(fd, "email"),
     senha: String(fd.get("senha") ?? ""),
-    cpf: campo(fd, "cpf"),
     telefone: campo(fd, "telefone"),
     cidade,
     estado,
@@ -65,15 +64,14 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     return { erro: "Dados inválidos", valores: preserva };
   }
   const d = parsed.data;
-  const cpf = soDigitos(d.cpf);
   const telefone = soDigitos(d.telefone);
 
   const { data: dup } = await admin
     .from("profiles_pii")
     .select("user_id")
-    .or(`cpf.eq.${cpf},telefone.eq.${telefone},email.eq.${d.email}`)
+    .or(`telefone.eq.${telefone},email.eq.${d.email}`)
     .maybeSingle();
-  if (dup) return { erro: "CPF, telefone ou e-mail já cadastrado.", valores: preserva };
+  if (dup) return { erro: "Telefone ou e-mail já cadastrado.", valores: preserva };
 
   const { data: created, error: createErr } = await admin.auth.admin.createUser({
     email: d.email,
@@ -95,10 +93,10 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
   });
   const { error: piiErr } = await admin
     .from("profiles_pii")
-    .insert({ user_id: userId, cpf, telefone, email: d.email });
+    .insert({ user_id: userId, telefone, email: d.email });
   if (piiErr) {
     await admin.auth.admin.deleteUser(userId);
-    return { erro: "CPF, telefone ou e-mail já cadastrado.", valores: preserva };
+    return { erro: "Telefone ou e-mail já cadastrado.", valores: preserva };
   }
 
   if (invite) {
@@ -169,7 +167,7 @@ export async function entrarAction(_estado: EstadoForm, fd: FormData): Promise<E
  *
  * Devolve `ok: true` mesmo quando o e-mail não existe. Dizer "e-mail não
  * cadastrado" transforma o formulário num verificador de quem está na base —
- * e a base aqui são CPFs e telefones de pessoas reais.
+ * e a base aqui são telefones e e-mails de pessoas reais.
  */
 export async function recuperarSenhaAction(
   _estado: EstadoForm,

@@ -13,6 +13,7 @@ export const PERIODOS: { value: Periodo; label: string }[] = [
   { value: "tudo", label: "Tudo" },
 ];
 
+/** Type guard de `Periodo` para validar query params sem confiar na URL. */
 export function isPeriodo(v: string | undefined): v is Periodo {
   return v === "mes" || v === "3meses" || v === "ano" || v === "tudo";
 }
@@ -36,6 +37,7 @@ export const QUANDOS: { value: Quando; label: string }[] = [
   { value: "semana", label: "Esta semana" },
 ];
 
+/** Type guard de `Quando` para validar query params sem confiar na URL. */
 export function isQuando(v: string | undefined): v is Quando {
   return v === "hoje" || v === "amanha" || v === "semana";
 }

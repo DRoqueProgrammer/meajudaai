@@ -13,6 +13,7 @@ const TABS = [
   { value: "cancelada", label: "Canceladas" },
 ];
 
+/** Rota `/minhas-vagas` (admin): vagas publicadas pela empresa ativa, agrupadas por status. */
 export default async function MinhasVagasPage({
   searchParams,
 }: {

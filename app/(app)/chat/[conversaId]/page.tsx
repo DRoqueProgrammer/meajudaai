@@ -35,6 +35,7 @@ async function tituloConversa(sb: SbClient, conv: Conv, meId: string): Promise<s
   return `Chat · ${p?.nome ?? "Colega"}`;
 }
 
+/** Rota `/chat/[conversaId]`: thread de uma conversa (canal da equipe, DM interna ou DM externa). */
 export default async function ChatPage({ params }: { params: Promise<{ conversaId: string }> }) {
   const { conversaId } = await params;
   const user = await getCurrentUser();

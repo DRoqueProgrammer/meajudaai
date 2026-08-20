@@ -16,6 +16,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/** Root layout: metadata, fonte Poppins, viewport e casca PWA aplicados a todas as rotas. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">

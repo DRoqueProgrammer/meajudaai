@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
  * cadastro linka para elas antes de existir sessão (ver middleware). Coluna
  * estreita para leitura; a tipografia vem da classe `.legal` em globals.css.
  */
+/** Layout das páginas legais (termos e privacidade), com cabeçalho simples e link de volta. */
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface">

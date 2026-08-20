@@ -10,6 +10,7 @@ import { Logo } from "@/components/logo";
  * (o `invite` é service-role only) e mostra o preview. Quem tem conta aceita;
  * quem não tem cai no cadastro com o convite.
  */
+/** Rota `/convite/[token]`: valida o convite por link e oferece aceitar (logado) ou cadastrar-se. */
 export default async function ConvitePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   const admin = createAdminClient();

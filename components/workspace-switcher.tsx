@@ -12,6 +12,7 @@ import { BotaoEnviar } from "@/components/botao-enviar";
 
 type Ws = { workspace_id: string; role: string; nome: string };
 
+/** Seletor da empresa ativa (para admin com várias), com atalhos para criar e excluir equipe. */
 export function WorkspaceSwitcher({ workspaces, active }: { workspaces: Ws[]; active?: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();

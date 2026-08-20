@@ -10,6 +10,11 @@ export const dynamic = "force-dynamic";
  * SESSION-ONLY (sem maxAge/expires) — ao fechar o navegador a sessão cai e o
  * visitante volta para a landing, em vez de "virar dono" da conta demo.
  */
+/**
+ * `GET /api/demo/enter?who=joao|carlos|ana|admin`: faz login numa conta de
+ * demonstração e grava cookies de sessão *session-only* (caem ao fechar o
+ * navegador), depois redireciona para /inicio. As contas demo são read-only.
+ */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const who = (url.searchParams.get("who") ?? "joao") as DemoKey;

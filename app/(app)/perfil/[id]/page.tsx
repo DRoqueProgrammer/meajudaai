@@ -16,6 +16,7 @@ const PAPEL_LABEL: Record<string, string> = {
   ajudante: "Ajudante",
 };
 
+/** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await getCurrentUser();

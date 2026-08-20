@@ -17,6 +17,7 @@ export interface DiariaAgenda {
   data: string | null;
 }
 
+/** Calendário mensal do ajudante: toca num dia para marcar/desmarcar indisponibilidade e destaca dias em conflito. */
 export function AgendaCalendar({
   year,
   month,

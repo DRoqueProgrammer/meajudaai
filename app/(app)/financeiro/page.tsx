@@ -23,6 +23,7 @@ function Kpi({ label, valor, nota }: { label: string; valor: string; nota?: stri
   );
 }
 
+/** Rota `/financeiro` (módulo financeiro): totais de diárias da empresa por período. */
 export default async function FinanceiroPage({
   searchParams,
 }: {

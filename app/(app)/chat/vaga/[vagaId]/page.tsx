@@ -9,6 +9,7 @@ import { ensureDmExterna } from "@/lib/actions/conversas";
  * aceito é achada/criada e o usuário é redirecionado para a conversa canônica.
  * Centraliza a tradução vaga → conversa num lugar só.
  */
+/** Rota `/chat/vaga/[vagaId]`: resolve a DM externa da vaga e redireciona para `/chat/[conversaId]`. */
 export default async function ChatVagaResolver({ params }: { params: Promise<{ vagaId: string }> }) {
   const { vagaId } = await params;
   const user = await getCurrentUser();

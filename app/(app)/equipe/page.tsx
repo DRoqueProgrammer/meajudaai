@@ -8,6 +8,7 @@ import { ConvitesPendentes, type ConvitePendente } from "@/components/convites-p
 import { ModulosFuncionario } from "@/components/modulos-funcionario";
 import { GRANTABLE_MODULES, FUNCIONARIO_DEFAULT, CAPABILITIES } from "@/lib/modules";
 
+/** Rota `/equipe` (admin): membros da empresa, convites pendentes e permissões de módulos por funcionário. */
 export default async function EquipePage() {
   const user = await guardModule("equipe");
   const podeGerir = user.role === "admin" || user.role === "sysadmin";

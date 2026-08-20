@@ -18,6 +18,11 @@ const PUBLIC_PREFIXES = [
   "/api/demo",
 ];
 
+/**
+ * Middleware de sessão + guarda de rotas. Renova os cookies do Supabase a cada
+ * request e faz o roteamento de acesso: sem sessão, manda rotas privadas para
+ * /login; com sessão, tira o usuário das telas de login/cadastro/recuperação.
+ */
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 

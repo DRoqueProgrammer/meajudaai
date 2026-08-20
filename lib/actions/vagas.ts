@@ -11,6 +11,12 @@ import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 import type { ActionResult } from "./auth";
 
+/**
+ * Publica uma vaga (form sem JS). Valida com Zod, checa módulo/capacidade e
+ * papel na empresa ativa, grava a vaga e — havendo pino — a coordenada exata
+ * (vaga_local) mais a aproximada arredondada; sem pino, geocoda só o aproximado.
+ * Ao final redireciona para a vaga recém-criada.
+ */
 export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const preserva = valoresPreservados(fd);
   const parsed = VagaSchema.safeParse({
@@ -202,6 +208,11 @@ export async function editarVagaAction(
   redirect(`/minhas-vagas/${vagaId}/candidatos`);
 }
 
+/**
+ * Muda o status da vaga (gestor da empresa). Efeitos colaterais por transição:
+ * `cancelada` notifica os candidatos em jogo; `finalizada` avisa o ajudante
+ * aceito para avaliar. Revalida as listas afetadas.
+ */
 export async function mudarStatusVagaAction(
   vagaId: string,
   status: "aberta" | "em_andamento" | "finalizada" | "cancelada",

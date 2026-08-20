@@ -5,6 +5,7 @@ import { criarAdminAction } from "@/lib/actions/admin-users";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
+/** Formulário do painel (sysadmin) para criar um admin do zero: conta, perfil e empresa. */
 export function CriarAdminForm() {
   const [estado, formAction] = useActionState(criarAdminAction, null);
   const [open, setOpen] = useState(false);

@@ -10,6 +10,7 @@ export interface ConvitePendente {
   papel: string;
 }
 
+/** Fila de convites aceitos aguardando aprovação do dono (aprovar/recusar). */
 export function ConvitesPendentes({ convites }: { convites: ConvitePendente[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();

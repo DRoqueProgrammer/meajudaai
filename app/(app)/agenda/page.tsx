@@ -48,6 +48,7 @@ function Cartao({ v }: { v: Item }) {
   );
 }
 
+/** Rota `/agenda` (ajudante): diárias aceitas e dias de indisponibilidade, em lista ou calendário. */
 export default async function AgendaPage({
   searchParams,
 }: {

@@ -7,6 +7,7 @@ import { podeAceitar } from "@/lib/convite-status";
  * convite). Ler no servidor evita `useSearchParams()` sem Suspense, que passa em
  * dev e derruba o `next build`. O convite é carregado via admin (service-role only).
  */
+/** Rota `/cadastro`: criação de conta; com `?convite=<token>` entra na equipe de quem convidou. */
 export default async function CadastroPage({
   searchParams,
 }: {

@@ -26,6 +26,7 @@ function Leader({ label, value }: { label: string; value: string }) {
   );
 }
 
+/** Landing pública (`/`): apresenta o produto e as contas de demonstração; redireciona quem já está logado para /inicio. */
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (user) redirect("/inicio");

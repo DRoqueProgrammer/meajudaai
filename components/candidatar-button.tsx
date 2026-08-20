@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { candidatarAction, cancelarCandidaturaAction } from "@/lib/actions/candidaturas";
 import { FormError } from "@/components/ui";
 
+/** Botão de candidatar-se / retirar candidatura de uma vaga, com confirmação inline. */
 export function CandidatarButton({
   vagaId,
   candidaturaId,

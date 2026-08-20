@@ -25,6 +25,7 @@ export const ALVO_LABEL: Record<AlvoDenuncia, string> = {
   mensagem: "Mensagem",
 };
 
+/** Rótulo curto do motivo (o que a moderação vê na lista); devolve o slug se desconhecido. */
 export function motivoCurto(slug: string): string {
   return MOTIVOS_DENUNCIA.find((m) => m.slug === slug)?.curto ?? slug;
 }

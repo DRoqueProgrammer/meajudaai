@@ -17,6 +17,7 @@ import { BotaoEnviar } from "@/components/botao-enviar";
  * Campos não controlados (`defaultValue`): sem estado no cliente, o valor
  * digitado sobrevive ao erro porque a action devolve em `valores`.
  */
+/** Rota `/login`: entrada por e-mail e senha (form com Server Action, funciona sem JS). */
 export default function LoginPage() {
   const [estado, formAction] = useActionState(entrarAction, null);
 

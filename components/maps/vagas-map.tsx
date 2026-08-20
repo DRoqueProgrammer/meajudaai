@@ -23,6 +23,7 @@ export interface VagaPonto {
   cidade: string;
 }
 
+/** Mapa Leaflet/OpenStreetMap com um pino por vaga (coordenada aproximada) e popup com valor e link. */
 export function VagasMap({ points }: { points: VagaPonto[] }) {
   const center: [number, number] = points.length
     ? [

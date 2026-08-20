@@ -12,6 +12,7 @@ const TABS = [
   { value: "recusado", label: "Recusadas" },
 ];
 
+/** Rota `/minhas-diarias` (ajudante): candidaturas e diárias do usuário, agrupadas por status. */
 export default async function MinhasDiariasPage({
   searchParams,
 }: {

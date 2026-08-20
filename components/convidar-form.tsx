@@ -5,6 +5,7 @@ import { convidarMembroAction } from "@/lib/actions/workspace";
 import { criarConviteAction } from "@/lib/actions/convite";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
+/** Convite de membro para a equipe: por e-mail (vínculo imediato) ou por link gerado, com papel escolhido. */
 export function ConvidarForm() {
   const [estado, formAction] = useActionState(convidarMembroAction, null);
   const [role, setRole] = useState<"membro" | "owner">("membro");

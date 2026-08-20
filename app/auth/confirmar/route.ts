@@ -6,6 +6,11 @@ import { createServerClient } from "@/lib/supabase/server";
  * (os cookies só podem ser gravados em Route Handler / Server Action, não em
  * Server Component) e segue para a tela de senha nova.
  */
+/**
+ * `GET /auth/confirmar`: callback dos links de e-mail do Supabase (confirmação e
+ * recuperação de senha). Troca o `code`/`token_hash` por uma sessão e redireciona
+ * para `next` (ex.: /nova-senha).
+ */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");

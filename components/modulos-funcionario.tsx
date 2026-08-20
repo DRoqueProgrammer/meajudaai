@@ -6,6 +6,7 @@ import { setModuloFuncionarioAction } from "@/lib/actions/modules";
 import { CAPABILITIES, GRANTABLE_MODULES, capabilityLabel, moduleLabel } from "@/lib/modules";
 import { FormError } from "@/components/ui";
 
+/** Grade de toggles (admin) para liberar/revogar módulos de painel e capacidades de um funcionário na empresa. */
 export function ModulosFuncionario({
   funcionarioId,
   workspaceId,

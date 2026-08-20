@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { aceitarConviteAction } from "@/lib/actions/convite";
 
+/** Botão para o usuário logado aceitar um convite de equipe (fica pendente de aprovação do dono). */
 export function AceitarConvite({ token }: { token: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();

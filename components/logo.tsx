@@ -1,5 +1,6 @@
 import { HardHat } from "./icons";
 
+/** Logomarca "MeAjuda Aí" (capacete + wordmark), com variação de tamanho e de fundo escuro. */
 export function Logo({ onDark = false, size = "md" }: { onDark?: boolean; size?: "md" | "lg" }) {
   const badge = size === "lg" ? "h-16 w-16 rounded-2xl" : "h-10 w-10 rounded-xl";
   const hat = size === "lg" ? "h-10 w-10" : "h-6 w-6";

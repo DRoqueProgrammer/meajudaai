@@ -7,6 +7,7 @@ import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
+/** Formulário (client) para pedir o link de recuperação de senha; mostra recibo neutro ao enviar. */
 export function RecuperarSenhaForm({ expirado }: { expirado: boolean }) {
   const [estado, formAction] = useActionState(recuperarSenhaAction, null);
   // O recibo é derivado do estado da action, não de `useState`: assim ele

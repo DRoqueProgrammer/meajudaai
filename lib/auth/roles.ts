@@ -10,6 +10,7 @@ export interface CurrentUser {
 
 const ROLES: readonly AppRole[] = ["sysadmin", "admin", "funcionario", "ajudante"];
 
+/** Type guard de `AppRole` para blindar o valor lido do banco. */
 function isAppRole(v: unknown): v is AppRole {
   return typeof v === "string" && (ROLES as readonly string[]).includes(v);
 }
@@ -34,6 +35,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   return { id: user.id, email: user.email ?? null, role };
 }
 
+/** Como `getCurrentUser`, mas lança se não houver sessão. Use em rotas/actions protegidas. */
 export async function requireUser(): Promise<CurrentUser> {
   const u = await getCurrentUser();
   if (!u) throw new Error("Forbidden — não autenticado");

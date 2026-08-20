@@ -4,6 +4,7 @@ import { useState } from "react";
 import { nomeCategoria } from "@/lib/categorias";
 import { registrarDemandaAction } from "@/lib/actions/demanda";
 
+/** "Avise-me quando tiver": registra a demanda reprimida (categoria+cidade) numa busca sem resultado. */
 export function AvisarDemanda({
   categoria,
   cidade,

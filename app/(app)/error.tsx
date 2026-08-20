@@ -9,6 +9,7 @@ import { mailtoSuporte } from "@/lib/contato";
  * "Application error: a client-side exception" não ajuda pedreiro nenhum.
  * O detalhe técnico vai para o console, onde é útil para quem depura.
  */
+/** Error boundary das rotas autenticadas: mostra aviso amigável, link de suporte e botão de tentar de novo. */
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error("[meajudaai] erro de rota:", error);

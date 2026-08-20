@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+/** Faixa de aviso de que a sessão é uma conta de demonstração (somente leitura, nada é salvo). */
 export function DemoBanner({ nome }: { nome: string | null }) {
   return (
     // Não é sticky: disputava o topo com o PageHeader (z-30 contra z-10, ambos

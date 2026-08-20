@@ -32,6 +32,7 @@ const DESTINO_POR_TIPO: Record<string, string> = {
   convite_equipe: "/equipe",
 };
 
+/** Lista de notificações com atualização em tempo real (Realtime) e marcação automática como vistas ao abrir. */
 export function NotificacoesList({ meId, initial }: { meId: string; initial: Notif[] }) {
   const router = useRouter();
   const [notifs, setNotifs] = useState<Notif[]>(initial);

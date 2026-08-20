@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+/** Abas de filtro por status (via querystring), reutilizadas em Minhas Vagas e Minhas Diárias. */
 export function StatusTabs({
   base,
   current,

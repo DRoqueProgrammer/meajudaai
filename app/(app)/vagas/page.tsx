@@ -15,6 +15,7 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
   );
 }
 
+/** Rota `/vagas`: busca de vagas abertas por cidade, categoria e janela de tempo. */
 export default async function BuscarVagasPage({
   searchParams,
 }: {

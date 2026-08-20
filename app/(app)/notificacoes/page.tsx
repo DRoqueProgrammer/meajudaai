@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { NotificacoesList, type Notif } from "@/components/notificacoes-list";
 
+/** Rota `/notificacoes`: histórico de notificações do usuário (com atualização em tempo real). */
 export default async function NotificacoesPage() {
   const user = await getCurrentUser();
   const sb = await createServerClient();

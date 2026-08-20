@@ -33,6 +33,7 @@ const PAPEIS = [
   },
 ];
 
+/** Formulário de cadastro (client): escolha de papel, dados pessoais e máscaras; no modo convite o papel vem fixado. */
 export function CadastroForm({
   papelInicial,
   convite = null,

@@ -7,6 +7,11 @@ import { revalidatePath } from "next/cache";
 import { MensagemSchema } from "@/lib/validation";
 import { campo, type EstadoForm } from "./form";
 
+/**
+ * Envia uma mensagem numa conversa (form sem JS). Insere pelo client de sessão
+ * — a RLS msg_insert_membro exige que o remetente seja membro da conversa — e
+ * notifica os destinatários (todos menos o autor). Revalida para o caso sem Realtime.
+ */
 export async function enviarMensagemAction(
   _estado: EstadoForm,
   fd: FormData,

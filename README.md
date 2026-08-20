@@ -4,6 +4,12 @@ Marketplace que conecta profissionais autônomos da construção/manutenção (c
 
 **Stack:** Next.js 15 (App Router) · Supabase (Postgres + Auth + Realtime) · TypeScript · Tailwind (Poppins). Multi-tenant com RLS.
 
+## Documentação
+
+- **[docs/documentacao.html](./docs/documentacao.html)** — documentação técnica completa (arquitetura, modelo de dados, RLS, papéis, fluxos, server actions, rotas e setup). HTML autocontido, abre no navegador.
+- **[docs/apresentacao.html](./docs/apresentacao.html)** — apresentação do produto em slides (deck navegável por teclado/clique).
+- No banco, toda tabela, coluna e função tem `COMMENT` (migration `0019`); no código, as funções de `lib/`, os componentes e as rotas têm docstrings.
+
 ## Contas de demonstração
 
 A página inicial (`/`) é pública e traz dois cards **"Explore sem cadastro"**:
@@ -50,7 +56,15 @@ refs/           3 codebases de referência (não versionar)
 
 ## Banco (Supabase)
 
-Tabelas: `profiles`, `profiles_pii` (PII separada), `workspaces`, `workspace_members`, `vagas`, `candidaturas`, `avaliacoes` (trigger de média), `mensagens` (Realtime), `notificacoes` (Realtime), `categorias_servico`. RLS ativa em todas.
+19 tabelas no schema `public`, **todas com RLS ativa** e **comentadas** (migration `0019`):
+
+- **Identidade:** `profiles`, `profiles_pii` (PII separada).
+- **Empresa (multi-tenant):** `workspaces`, `workspace_members`, `user_modules` (RBAC por módulo), `invite`.
+- **Marketplace:** `vagas`, `vaga_local` (coordenada exata protegida), `candidaturas`, `avaliacoes` (trigger de média), `demanda_servico`, `categorias_servico`.
+- **Comunicação:** `conversas`, `conversa_membros`, `mensagens` (Realtime), `notificacoes` (Realtime).
+- **Agenda / moderação:** `bloqueio_agenda`, `denuncias`, `home_banner`.
+
+As políticas usam funções helper `SECURITY DEFINER` (`is_workspace_member`, `can_manage_vaga`, `is_parte_vaga`, `is_conversa_membro`…) para checar participação sem recursão. Detalhes em [docs/documentacao.html](./docs/documentacao.html).
 
 ## Testes
 

@@ -20,10 +20,12 @@ export const FUNCIONARIO_DEFAULT: AppModule[] = ["vagas"];
 /** Módulos que o admin pode conceder/revogar de um funcionário. */
 export const GRANTABLE_MODULES: AppModule[] = ["vagas", "equipe", "mapa", "financeiro", "relatorios"];
 
+/** Type guard: `v` é um módulo de painel conhecido. */
 export function isAppModule(v: string): v is AppModule {
   return (ALL_MODULES as string[]).includes(v);
 }
 
+/** Rótulo legível de um módulo de painel; devolve a própria chave se desconhecida. */
 export function moduleLabel(key: string): string {
   return PANEL_MODULES.find((m) => m.key === key)?.label ?? key;
 }
@@ -42,10 +44,12 @@ const CAPABILITY_LABELS: Record<AppCapability, string> = {
   chat_ajudantes: "Falar com ajudantes",
 };
 
+/** Type guard: `v` é uma capacidade de ação conhecida. */
 export function isCapability(v: string): v is AppCapability {
   return (CAPABILITIES as string[]).includes(v);
 }
 
+/** Rótulo legível de uma capacidade; devolve a própria chave se desconhecida. */
 export function capabilityLabel(key: string): string {
   return CAPABILITY_LABELS[key as AppCapability] ?? key;
 }

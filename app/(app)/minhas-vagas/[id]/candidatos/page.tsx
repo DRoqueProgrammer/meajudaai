@@ -8,6 +8,7 @@ import { CancelarVaga } from "@/components/cancelar-vaga";
 import { ConcluirDiaria } from "@/components/concluir-diaria";
 import { jaPassou } from "@/lib/periodo";
 
+/** Rota `/minhas-vagas/[id]/candidatos`: candidatos de uma vaga, para o gestor aceitar ou recusar. */
 export default async function CandidatosPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await guardModule("vagas");

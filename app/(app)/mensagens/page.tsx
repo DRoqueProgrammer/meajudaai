@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui";
  * equipe, DMs com colegas e DMs com ajudantes contratados. A RLS
  * conversas_select já limita ao que é meu.
  */
+/** Rota `/mensagens`: caixa de conversas do usuário, com prévia e contador de não-lidas. */
 export default async function MensagensPage() {
   const user = await getCurrentUser();
   const sb = await createServerClient();

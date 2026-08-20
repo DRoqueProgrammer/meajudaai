@@ -65,11 +65,13 @@ Exemplos de perfis: Eletricista, Pedreiro, Pintor, Encanador, Gesseiro, Azulejis
 
 ### 4.1 Fluxo do Profissional
 
-Cadastro → Validação SMS → Perfil aprovado → Publicar vaga → Receber candidatos → Selecionar ajudante → Liberar contato → Executar serviço → Avaliar ajudante → Encerrar vaga.
+Cadastro → Perfil aprovado → Publicar vaga → Receber candidatos → Selecionar ajudante → Liberar contato → Executar serviço → Avaliar ajudante → Encerrar vaga.
 
 ### 4.2 Fluxo do Ajudante
 
-Cadastro → Validação SMS → Perfil aprovado → Visualizar vagas → Candidatar-se → Aguardar resposta → Ser aprovado → Receber contato → Executar serviço → Avaliar profissional → Finalizar diária.
+Cadastro → Perfil aprovado → Visualizar vagas → Candidatar-se → Aguardar resposta → Ser aprovado → Receber contato → Executar serviço → Avaliar profissional → Finalizar diária.
+
+> **Fora da fase atual (planejado):** a validação por SMS/OTP entre o cadastro e o uso da conta ainda não está ativa — no protótipo web o acesso é por e-mail e senha.
 
 ---
 
@@ -102,7 +104,7 @@ Após a conclusão do serviço: nota de **1 a 5 estrelas** e comentário opciona
 > **Fase atual:** PostgreSQL no Supabase (com RLS). As coleções abaixo são a modelagem conceitual do documento original (em Cloud Firestore); no protótipo web elas viram tabelas equivalentes.
 
 ### Coleção: `usuarios`
-`id`, `nome`, `cpf`, `telefone`, `email`, `cidade`, `estado`, `foto`, `tipo_usuario`, `nota_media`, `status`, `data_cadastro`
+`id`, `nome`, `telefone`, `email`, `cidade`, `estado`, `foto`, `tipo_usuario`, `nota_media`, `status`, `data_cadastro`
 
 ### Coleção: `vagas`
 `id`, `id_profissional`, `titulo`, `descricao`, `categoria`, `cidade`, `bairro`, `cep`, `valor_diaria`, `quantidade_vagas`, `status`, `data_servico`, `hora_inicio`, `data_criacao`
@@ -132,7 +134,9 @@ Nova vaga, Nova candidatura, Candidatura aceita, Mensagem recebida, Avaliação 
 
 ## 8. Segurança
 
-CPF único, Telefone único, Email único, Validação SMS, Autenticação Supabase, Bloqueio por administrador, Logs de atividades.
+Telefone único, Email único, Autenticação Supabase, Bloqueio por administrador, Logs de atividades.
+
+> **CPF descartado** da coleta de dados. **Validação por SMS/OTP:** planejada, fora da fase atual (a autenticação hoje é por e-mail e senha).
 
 ---
 

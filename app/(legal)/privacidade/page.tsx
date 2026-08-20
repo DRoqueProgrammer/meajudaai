@@ -18,13 +18,13 @@ export default function PrivacidadePage() {
       <h2>Em resumo</h2>
       <p>
         Coletamos o mínimo para conectar você a quem precisa de você com segurança.{" "}
-        <strong>CPF e telefone ficam guardados e nunca aparecem no seu perfil.</strong> Não vendemos
+        <strong>Seu telefone fica guardado e nunca aparece no seu perfil.</strong> Não vendemos
         seus dados.
       </p>
 
       <h2>1. O que coletamos</h2>
       <ul>
-        <li>Cadastro: nome, e-mail, telefone, CPF e cidade.</li>
+        <li>Cadastro: nome, e-mail, telefone e cidade.</li>
         <li>O que você publica: vagas, candidaturas, avaliações e mensagens no chat.</li>
         <li>Denúncias que você faz ou recebe.</li>
       </ul>
@@ -40,7 +40,7 @@ export default function PrivacidadePage() {
       <h2>3. O que é público e o que não é</h2>
       <p>
         Seu nome, cidade, papel e suas avaliações aparecem para o outro lado da diária.{" "}
-        <strong>CPF e telefone nunca aparecem</strong> no seu perfil. Denúncias são anônimas para
+        <strong>Seu telefone nunca aparece</strong> no seu perfil. Denúncias são anônimas para
         quem é denunciado.
       </p>
 

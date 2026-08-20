@@ -24,7 +24,7 @@ export default function TermosPage() {
 
       <h2>2. Quem pode usar</h2>
       <p>
-        Você precisa ter 18 anos ou mais e informar dados verdadeiros — nome, CPF e telefone. Uma
+        Você precisa ter 18 anos ou mais e informar dados verdadeiros — nome, e-mail e telefone. Uma
         conta por pessoa. Manter a informação em dia é o que dá confiança para o outro lado aceitar
         a diária.
       </p>

@@ -20,7 +20,7 @@ Spec original: FlutterFlow + Firebase (mobile). **Decisão para o protótipo:** 
 `usuarios`, `vagas`, `candidaturas`, `avaliacoes`, `mensagens`, `notificacoes`, `denuncias`.
 
 ## Regras de segurança
-CPF/telefone/email únicos · validação SMS · autenticação Firebase · bloqueio por admin · logs de atividade.
+Telefone/email únicos · autenticação Supabase · bloqueio por admin · logs de atividade. Validação SMS/OTP planejada (fora da fase atual); CPF descartado da coleta.
 
 ## Supabase (protótipo)
 Projeto `meajudaai-mvp` · ref `zisvxszjrylnuqplkrlm` · região us-east-1 · org DRoqueProgrammer. URL/anon em `.env.local` (não comitado). Conector Supabase MCP ativo — migrations/SQL aplicáveis via conector. `service_role` key presente em `.env.local` (integração passa: `npm run test:integration`). Falta: provedor SMS p/ OTP (opcional), registrar auth hook após migration 0002.

@@ -407,21 +407,18 @@ export type Database = {
       };
       profiles_pii: {
         Row: {
-          cpf: string | null;
           created_at: string;
           email: string | null;
           telefone: string | null;
           user_id: string;
         };
         Insert: {
-          cpf?: string | null;
           created_at?: string;
           email?: string | null;
           telefone?: string | null;
           user_id: string;
         };
         Update: {
-          cpf?: string | null;
           created_at?: string;
           email?: string | null;
           telefone?: string | null;

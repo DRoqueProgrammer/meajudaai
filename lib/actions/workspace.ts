@@ -99,6 +99,11 @@ export async function excluirEquipeAction(workspaceId: string): Promise<ActionRe
   return { ok: true };
 }
 
+/**
+ * O dono adiciona à equipe alguém que já tem conta, pelo e-mail. Diferente do
+ * convite por link (lib/actions/convite.ts): aqui o vínculo é imediato, sem
+ * token nem aprovação. Notifica o novo membro.
+ */
 export async function convidarMembroAction(
   _estado: EstadoForm,
   fd: FormData,

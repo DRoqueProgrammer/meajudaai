@@ -6,6 +6,7 @@ import { CriarAdminForm } from "@/components/criar-admin-form";
 
 const ORDEM: Record<string, number> = { sysadmin: 0, admin: 1, funcionario: 2, ajudante: 3 };
 
+/** Rota `/admin/usuarios` (sysadmin): lista de usuários e troca de papel global. */
 export default async function AdminUsuariosPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "sysadmin") redirect("/inicio");

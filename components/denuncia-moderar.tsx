@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { moderarDenunciaAction, type DenunciaStatus } from "@/lib/actions/denuncias";
 import { FormError } from "@/components/ui";
 
+/** Controles de moderação de uma denúncia (sysadmin): muda o status e registra a resolução. */
 export function DenunciaModerar({ id, status }: { id: string; status: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();

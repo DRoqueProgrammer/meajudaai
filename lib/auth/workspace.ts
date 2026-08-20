@@ -11,6 +11,7 @@ export interface WorkspaceRef {
   nome: string;
 }
 
+/** Todas as empresas de que o usuário logado participa (id, papel e nome). */
 export async function getMyWorkspaces(): Promise<WorkspaceRef[]> {
   const user = await requireUser();
   const db = createAdminClient();
@@ -38,6 +39,7 @@ export async function getActiveWorkspace(): Promise<WorkspaceRef | null> {
   return list.find((w) => w.workspace_id === wanted) ?? list[0]!;
 }
 
+/** Guard: lança se o usuário não tiver um dos papéis exigidos na empresa. Sysadmin passa sempre. */
 export async function requireWorkspaceRole(
   workspaceId: string,
   roles: string[],

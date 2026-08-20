@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { salvarBannerAction } from "@/lib/actions/demanda";
 
+/** Editor do banner único da home (sysadmin): texto livre + liga/desliga. */
 export function BannerForm({ texto, ativo }: { texto: string; ativo: boolean }) {
   const [t, setT] = useState(texto);
   const [a, setA] = useState(ativo);

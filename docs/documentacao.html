@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeAjuda Aí — Documentação</title>
+<meta name="description" content="Documentação técnica do protótipo web do MeAjuda Aí: arquitetura, modelo de dados, segurança (RLS), fluxos e setup.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Tokens (light) — herdados do style guide do projeto ─────────────────── */
+:root{
+  --brand:#0D47A1; --brand-2:#0A3A85; --accent:#FFC107; --action:#43A047; --action-dark:#388E3C;
+  --danger:#E53935;
+  --bg:#F5F7FA; --panel:#FFFFFF; --panel-2:#FAFBFD; --ink:#1B2430; --muted:#5B6472;
+  --line:#E2E6EC; --line-strong:#CFD6E0;
+  --code-bg:#0f2038; --code-ink:#dce6f5;
+  --brand-tint:#E9F0FB; --accent-tint:#FFF6DD; --action-tint:#E7F5E9; --danger-tint:#FDEAEA;
+  --shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 24px -18px rgba(13,71,161,.30);
+  --radius:14px;
+  --font:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+/* ─── Tokens (dark) — só as variáveis mudam; componentes usam os tokens ────── */
+:root:not([data-theme="light"]){ }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --brand:#5B9BF3; --brand-2:#7FB2F6; --accent:#FFCE3A; --action:#5CC46A; --action-dark:#43A047;
+    --danger:#FF6B67;
+    --bg:#0C1420; --panel:#111C2C; --panel-2:#0E1826; --ink:#E7ECF3; --muted:#9AA7B8;
+    --line:#22303F; --line-strong:#31435A;
+    --code-bg:#0a1524; --code-ink:#cfe0f7;
+    --brand-tint:#152539; --accent-tint:#2c2716; --action-tint:#152a1e; --danger-tint:#2e1a1c;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --brand:#5B9BF3; --brand-2:#7FB2F6; --accent:#FFCE3A; --action:#5CC46A; --action-dark:#43A047;
+  --danger:#FF6B67;
+  --bg:#0C1420; --panel:#111C2C; --panel-2:#0E1826; --ink:#E7ECF3; --muted:#9AA7B8;
+  --line:#22303F; --line-strong:#31435A;
+  --code-bg:#0a1524; --code-ink:#cfe0f7;
+  --brand-tint:#152539; --accent-tint:#2c2716; --action-tint:#152a1e; --danger-tint:#2e1a1c;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  margin:0; font-family:var(--font); background:var(--bg); color:var(--ink);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+  /* motivo "blueprint" muito sutil */
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:44px 44px; background-position:-1px -1px;
+}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+/* ─── Shell: sidebar + conteúdo ───────────────────────────────────────────── */
+.shell{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:248px minmax(0,1fr);gap:0}
+.side{
+  position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;
+  padding:26px 18px 40px;border-right:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 82%, transparent);backdrop-filter:blur(6px);
+}
+.brandmark{display:flex;align-items:center;gap:11px;margin-bottom:22px}
+.helm{width:40px;height:40px;border-radius:11px;background:var(--accent);display:grid;place-items:center;font-size:21px;flex:none}
+.brandmark b{font-size:17px;font-weight:700;letter-spacing:-.3px;line-height:1.1}
+.brandmark b span{color:var(--accent)}
+.brandmark small{display:block;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;font-weight:500}
+nav.toc{display:flex;flex-direction:column;gap:1px}
+nav.toc a{
+  color:var(--muted);font-size:13.5px;font-weight:500;padding:7px 11px;border-radius:9px;
+  display:flex;align-items:center;gap:9px;border-left:2px solid transparent;
+}
+nav.toc a:hover{background:var(--panel);color:var(--ink);text-decoration:none}
+nav.toc a.on{color:var(--brand);background:var(--brand-tint);font-weight:600}
+nav.toc a .n{font-family:var(--mono);font-size:10.5px;color:var(--brand);opacity:.7;width:16px;flex:none}
+nav.toc .grp{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin:16px 0 5px 11px;opacity:.7}
+
+.main{padding:0 clamp(20px,4vw,54px) 96px;min-width:0}
+.content{max-width:820px;margin:0 auto}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.masthead{padding:44px 0 30px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--brand);font-weight:600;margin:0 0 10px}
+.masthead h1{font-size:clamp(30px,5vw,44px);font-weight:700;letter-spacing:-1px;margin:0;text-wrap:balance;line-height:1.08}
+.masthead h1 span{color:var(--accent)}
+.lede{font-size:17px;color:var(--muted);margin:14px 0 0;max-width:60ch}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{font-size:12px;font-weight:500;padding:6px 12px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink)}
+.pill b{color:var(--brand)}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:18px;font-size:12.5px;color:var(--muted)}
+.meta-row b{color:var(--ink);font-weight:600}
+
+/* ─── Sections & headings ─────────────────────────────────────────────────── */
+section{padding:38px 0;border-bottom:1px solid var(--line);scroll-margin-top:20px}
+section:last-of-type{border-bottom:none}
+h2{font-size:25px;font-weight:700;letter-spacing:-.5px;margin:0 0 4px;display:flex;align-items:baseline;gap:12px;text-wrap:balance}
+h2 .num{font-family:var(--mono);font-size:13px;color:var(--brand);font-weight:500;opacity:.8}
+h3{font-size:16px;font-weight:600;margin:26px 0 8px;color:var(--ink)}
+.sub{color:var(--muted);font-size:15px;margin:0 0 4px}
+p{margin:12px 0}
+ul,ol{margin:12px 0;padding-left:22px}
+li{margin:5px 0}
+strong{font-weight:600}
+code{font-family:var(--mono);font-size:.86em;background:var(--brand-tint);color:var(--brand-2);padding:1.5px 6px;border-radius:6px;border:1px solid var(--line)}
+:root[data-theme="dark"] code, :root:not([data-theme="light"]) code{color:var(--brand)}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:18px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.card h4{margin:0 0 3px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card .ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex:none}
+.card p{margin:6px 0 0;font-size:13.5px;color:var(--muted)}
+.card ul{margin:8px 0 0;padding-left:18px}
+.card li{font-size:13px;color:var(--muted)}
+
+.callout{display:flex;gap:13px;background:var(--accent-tint);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:var(--radius);padding:15px 17px;margin:20px 0}
+.callout .b{font-size:19px;line-height:1.2;flex:none}
+.callout p{margin:0;font-size:13.8px}
+.callout.brand{background:var(--brand-tint);border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+
+/* ─── Tables ──────────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);margin:16px 0;box-shadow:var(--shadow);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:13.4px;min-width:520px}
+caption{caption-side:top;text-align:left;font-weight:600;font-size:13.5px;padding:13px 16px 0;color:var(--ink)}
+th,td{text-align:left;padding:10px 15px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--panel-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;position:sticky;top:0}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--panel-2)}
+td code{background:transparent;border:none;padding:0;color:var(--brand-2);font-size:12.5px;white-space:nowrap}
+:root[data-theme="dark"] td code,:root:not([data-theme="light"]) td code{color:var(--brand)}
+td.k{font-family:var(--mono);font-size:12.5px;white-space:nowrap;color:var(--ink)}
+.pk{color:var(--accent);font-weight:600}
+
+/* ─── Badges & tags ───────────────────────────────────────────────────────── */
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--brand-tint);color:var(--brand-2);border:1px solid var(--line);white-space:nowrap}
+:root[data-theme="dark"] .tag,:root:not([data-theme="light"]) .tag{color:var(--brand)}
+.tag.rls{background:var(--action-tint);color:var(--action-dark);border-color:color-mix(in srgb,var(--action) 30%,var(--line))}
+.tag.rt{background:var(--accent-tint);color:#8a6d00;border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+:root[data-theme="dark"] .tag.rt,:root:not([data-theme="light"]) .tag.rt{color:var(--accent)}
+
+/* ─── Flow / lifecycle ────────────────────────────────────────────────────── */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:20px 0}
+.step{flex:1 1 120px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px;position:relative;box-shadow:var(--shadow)}
+.step .s{font-family:var(--mono);font-size:11px;color:var(--brand);font-weight:600}
+.step b{display:block;font-size:14px;margin:3px 0 2px}
+.step span{font-size:12px;color:var(--muted)}
+.flow.arrows .step:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--line-strong);font-size:16px;z-index:1}
+
+/* ─── Architecture diagram ────────────────────────────────────────────────── */
+.arch{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:20px 0}
+.arch .layer{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.arch .layer h4{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:8px}
+.arch .layer h4::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--brand)}
+.arch .box{font-size:13px;padding:8px 11px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.arch .box small{color:var(--muted);font-size:11.5px}
+.arch .layer.sb h4::before{background:var(--action)}
+
+/* ─── Code blocks ─────────────────────────────────────────────────────────── */
+pre{background:var(--code-bg);color:var(--code-ink);border-radius:var(--radius);padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.7;margin:16px 0;border:1px solid var(--line-strong)}
+pre .c{color:#7d8fb0}
+pre .k{color:var(--accent)}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+footer{padding:30px 0 0;color:var(--muted);font-size:12.5px}
+footer a{font-weight:500}
+
+/* ─── Theme toggle ────────────────────────────────────────────────────────── */
+.themetoggle{position:fixed;top:14px;right:16px;z-index:20;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:7px 13px;font-family:var(--font);font-size:12.5px;font-weight:500;cursor:pointer;box-shadow:var(--shadow);display:flex;gap:7px;align-items:center}
+.themetoggle:hover{border-color:var(--brand)}
+
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+.menubtn{display:none}
+@media (max-width:920px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line);
+        max-height:none;backdrop-filter:none}
+  nav.toc{display:none;margin-top:12px}
+  nav.toc.open{display:flex}
+  .menubtn{display:inline-flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--line);
+           color:var(--ink);border-radius:10px;padding:8px 13px;font-family:var(--font);font-weight:600;font-size:13.5px;cursor:pointer;margin-top:4px}
+  .arch{grid-template-columns:1fr}
+  .flow.arrows .step:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-13px;transform:translateX(-50%)}
+}
+</style>
+</head>
+<body>
+<button class="themetoggle" id="tt" aria-label="Alternar tema">🌗 Tema</button>
+<div class="shell">
+  <aside class="side">
+    <div class="brandmark">
+      <div class="helm" aria-hidden="true">👷</div>
+      <div><b>MeAjuda <span>Aí</span></b><small>Documentação técnica</small></div>
+    </div>
+    <button class="menubtn" id="menubtn" aria-expanded="false" aria-controls="toc">☰ Índice</button>
+    <nav class="toc" id="toc" aria-label="Índice">
+      <a href="#visao"><span class="n">01</span> Visão geral</a>
+      <a href="#arquitetura"><span class="n">02</span> Arquitetura</a>
+      <a href="#stack"><span class="n">03</span> Stack &amp; estrutura</a>
+      <a href="#dados"><span class="n">04</span> Modelo de dados</a>
+      <a href="#seguranca"><span class="n">05</span> Segurança &amp; RLS</a>
+      <a href="#rbac"><span class="n">06</span> Papéis &amp; permissões</a>
+      <a href="#fluxos"><span class="n">07</span> Fluxos principais</a>
+      <a href="#actions"><span class="n">08</span> Server Actions</a>
+      <a href="#rotas"><span class="n">09</span> Rotas &amp; telas</a>
+      <a href="#setup"><span class="n">10</span> Setup &amp; execução</a>
+      <a href="#demo"><span class="n">11</span> Contas demo</a>
+      <a href="#roadmap"><span class="n">12</span> Roadmap</a>
+      <div class="grp">Complementos</div>
+      <a href="./apresentacao.html">→ Apresentação do site</a>
+      <a href="../ESPECIFICACOES_MeAjudaAi.md">→ Especificação oficial</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+  <div class="content">
+    <header class="masthead">
+      <p class="eyebrow">Protótipo web · PWA responsivo</p>
+      <h1>MeAjuda <span>Aí</span> — documentação</h1>
+      <p class="lede">Marketplace que conecta profissionais autônomos da construção e manutenção a ajudantes por diária. Publicar vaga → candidatar → aceitar → conversar → avaliar.</p>
+      <div class="pills">
+        <span class="pill"><b>Next.js 15</b> · App Router</span>
+        <span class="pill"><b>Supabase</b> · Postgres + Auth + Realtime</span>
+        <span class="pill"><b>TypeScript</b></span>
+        <span class="pill"><b>Tailwind</b> · Poppins</span>
+        <span class="pill">Multi-tenant · RLS</span>
+      </div>
+      <div class="meta-row">
+        <span>Proprietário: <b>Henrique</b></span>
+        <span>Fase: <b>protótipo</b></span>
+        <span>Idioma do produto: <b>Português (BR)</b></span>
+        <span>Projeto Supabase: <b>meajudaai-mvp</b></span>
+      </div>
+    </header>
+
+    <!-- 01 ─────────────────────────────────────────────────────────────────── -->
+    <section id="visao">
+      <h2><span class="num">01</span> Visão geral</h2>
+      <p class="sub">O que é o produto e para quem.</p>
+      <p>O <strong>MeAjuda Aí</strong> resolve um encontro do dia a dia da obra: o profissional que precisa de um par de mãos <em>amanhã</em> e o ajudante que procura diária na região. A entrega desta fase é uma <strong>aplicação web responsiva (PWA)</strong> — abre no navegador do celular e do desktop, sem instalação. Um app mobile nativo permanece como evolução futura.</p>
+      <p>Cada profissional é dono de uma <strong>empresa (workspace)</strong> com sua equipe; o marketplace de vagas cruza essas empresas com os ajudantes. Tudo é isolado por empresa via Row-Level Security no banco.</p>
+      <div class="cards">
+        <div class="card">
+          <h4><span class="ic" style="background:var(--brand-tint)">🧰</span> Profissional</h4>
+          <p>Publica vagas de diária, avalia candidatos, seleciona, conversa e avalia. É <code>admin</code> de uma empresa.</p>
+        </div>
+        <div class="card">
+          <h4><span class="ic" style="background:var(--action-tint)">👷</span> Ajudante</h4>
+          <p>Busca vagas na região, candidata-se, combina pelo chat, executa e avalia o profissional.</p>
+        </div>
+        <div class="card">
+          <h4><span class="ic" style="background:var(--accent-tint)">🛡️</span> Administrador</h4>
+          <p>Modera denúncias, gerencia usuários e o banner da home. É <code>sysadmin</code> da plataforma.</p>
+        </div>
+      </div>
+      <p>Há ainda o papel <strong>funcionário</strong>: subordinado a um profissional, com acesso liberado módulo a módulo pelo dono da empresa.</p>
+    </section>
+
+    <!-- 02 ─────────────────────────────────────────────────────────────────── -->
+    <section id="arquitetura">
+      <h2><span class="num">02</span> Arquitetura</h2>
+      <p class="sub">Next.js no servidor, Supabase como backend gerenciado.</p>
+      <p>O frontend e a lógica de escrita vivem no <strong>App Router do Next.js</strong> (Server Components + Server Actions). O <strong>Supabase</strong> fornece Postgres, autenticação, Realtime e Storage. A regra de acesso mora no banco, em políticas RLS — o código de aplicação não é a última linha de defesa.</p>
+      <div class="arch">
+        <div class="layer">
+          <h4>Next.js · App Router</h4>
+          <div class="box"><span>Server Components</span><small>leitura sob RLS</small></div>
+          <div class="box"><span>Server Actions</span><small>escrita + Zod</small></div>
+          <div class="box"><span>middleware.ts</span><small>sessão + guarda de rotas</small></div>
+          <div class="box"><span>Client Components</span><small>chat, mapa, Realtime</small></div>
+        </div>
+        <div class="layer sb">
+          <h4>Supabase</h4>
+          <div class="box"><span>PostgreSQL + RLS</span><small>19 tabelas</small></div>
+          <div class="box"><span>Auth</span><small>e-mail/senha + JWT</small></div>
+          <div class="box"><span>Realtime</span><small>mensagens, notificações</small></div>
+          <div class="box"><span>Storage</span><small>bucket «avatares»</small></div>
+        </div>
+      </div>
+      <h3>Decisões que moldam o código</h3>
+      <ul>
+        <li><strong>Multi-tenant por RLS.</strong> Toda vaga, conversa e permissão pertence a um <code>workspace</code>; funções <span class="tag rls">SECURITY DEFINER</span> checam participação sem recursão de política.</li>
+        <li><strong>Três clientes Supabase.</strong> <code>server</code> (sessão, respeita RLS), <code>browser</code> (Realtime) e <code>admin</code> (service-role, ignora RLS — só no servidor, após os guards).</li>
+        <li><strong>Funciona sem JavaScript.</strong> Formulários usam <code>&lt;form action={serverAction}&gt;</code>; o POST nativo roda a ação no servidor e devolve estado. Progressive enhancement pensando em 4G de obra.</li>
+        <li><strong>PII e coordenada exata isoladas.</strong> RLS esconde linha, não coluna — então dado sensível vive em tabela à parte (<code>profiles_pii</code>, <code>vaga_local</code>).</li>
+      </ul>
+    </section>
+
+    <!-- 03 ─────────────────────────────────────────────────────────────────── -->
+    <section id="stack">
+      <h2><span class="num">03</span> Stack &amp; estrutura de pastas</h2>
+      <p class="sub">Onde cada coisa mora.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Camada</th><th>Tecnologia</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend / rotas</td><td>Next.js 15 (App Router) · React 19 · TypeScript · Tailwind (Poppins)</td></tr>
+            <tr><td>Backend / banco</td><td>Supabase · PostgreSQL com RLS</td></tr>
+            <tr><td>Autenticação</td><td>Supabase Auth (e-mail/senha; telefone/OTP pronto no código)</td></tr>
+            <tr><td>Tempo real</td><td>Supabase Realtime (mensagens e notificações in-app)</td></tr>
+            <tr><td>Mapas</td><td>Leaflet + OpenStreetMap · geocoding via Nominatim</td></tr>
+            <tr><td>Validação</td><td>Zod (schemas em <code>lib/validation.ts</code>)</td></tr>
+            <tr><td>Testes</td><td>Vitest (unidade + isolamento RLS opt-in)</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre><span class="c">app/</span>            Rotas: (auth) login/cadastro · (app) fluxo · (legal) termos/privacidade
+<span class="c">components/</span>     UI, nav, cards, chat, mapa, avaliação, notificações
+<span class="c">lib/</span>
+  <span class="c">supabase/</span>     clientes server / browser / admin + tipos gerados
+  <span class="c">auth/</span>         guards de usuário, papel, workspace, módulos
+  <span class="c">actions/</span>      server actions (escrita, com Zod + service-role após guard)
+  <span class="c">*.ts</span>          utilitários BR: format, categorias, cidades, validação, período…
+<span class="c">supabase/migrations/</span>  0001–0019 (schema, RLS, seeds, comentários)
+<span class="c">tests/</span>         Vitest (unidade + rls.test.ts opt-in)
+<span class="c">docs/</span>          esta documentação + apresentação</pre>
+    </section>
+
+    <!-- 04 ─────────────────────────────────────────────────────────────────── -->
+    <section id="dados">
+      <h2><span class="num">04</span> Modelo de dados</h2>
+      <p class="sub">19 tabelas no schema <code>public</code>, todas com RLS ativa. Cada tabela e coluna tem <code>COMMENT</code> no banco (migration 0019) — visível no Dashboard e no <code>\d+</code>.</p>
+
+      <h3>Identidade &amp; acesso</h3>
+      <div class="tbl-wrap">
+        <table>
+          <caption>Perfil público separado da PII (RLS esconde linha, não coluna).</caption>
+          <thead><tr><th>Tabela</th><th>Colunas-chave</th><th>Papel</th></tr></thead>
+          <tbody>
+            <tr><td class="k">profiles</td><td><code>user_id</code>, nome, foto_url, cidade, tipo_base, nota_media, verificado, status, bio</td><td>Perfil público 1:1 com <code>auth.users</code>. <code>nota_media</code> é mantida por trigger.</td></tr>
+            <tr><td class="k">profiles_pii</td><td><code>user_id</code>, telefone, email</td><td>PII isolada; lê só o dono ou o sysadmin. <span class="tag rls">RLS estrita</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Empresa (multi-tenant)</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tabela</th><th>Colunas-chave</th><th>Papel</th></tr></thead>
+          <tbody>
+            <tr><td class="k">workspaces</td><td><code>id</code>, owner_id, nome, cidade</td><td>Empresa/equipe — a unidade de isolamento multi-tenant.</td></tr>
+            <tr><td class="k">workspace_members</td><td><code>(workspace_id, user_id)</code>, role</td><td>Vínculo usuário↔empresa (owner | membro).</td></tr>
+            <tr><td class="k">user_modules</td><td><code>(user_id, workspace_id, module)</code>, allowed</td><td>Liga/desliga módulos e capacidades por funcionário.</td></tr>
+            <tr><td class="k">invite</td><td><code>token</code>, workspace_id, role, status</td><td>Convite por link + aprovação. Só o service-role manipula.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Marketplace</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tabela</th><th>Colunas-chave</th><th>Papel</th></tr></thead>
+          <tbody>
+            <tr><td class="k">vagas</td><td><code>id</code>, workspace_id, titulo, categoria, cidade, valor_diaria, status, local_aprox_*</td><td>Vaga de diária. Coração do marketplace.</td></tr>
+            <tr><td class="k">vaga_local</td><td><code>vaga_id</code>, lat, lng</td><td>Coordenada <strong>exata</strong>; lê só equipe dona ou ajudante aceito. <span class="tag rls">RLS estrita</span></td></tr>
+            <tr><td class="k">candidaturas</td><td><code>(vaga_id, ajudante_id)</code>, status</td><td>Candidatura de um ajudante. Insert só em vaga aberta.</td></tr>
+            <tr><td class="k">avaliacoes</td><td><code>vaga_id</code>, avaliador_id, avaliado_id, nota</td><td>1–5 estrelas entre partes da diária. Alimenta a média por trigger.</td></tr>
+            <tr><td class="k">demanda_servico</td><td><code>(user_id, categoria, cidade)</code></td><td>Demanda reprimida em busca sem resultado.</td></tr>
+            <tr><td class="k">categorias_servico</td><td><code>slug</code>, nome, ordem</td><td>Catálogo de categorias (seed).</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Comunicação</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tabela</th><th>Colunas-chave</th><th>Papel</th></tr></thead>
+          <tbody>
+            <tr><td class="k">conversas</td><td><code>id</code>, workspace_id, tipo, ajudante_id</td><td>Canal da equipe · DM interna · DM externa (com ajudante).</td></tr>
+            <tr><td class="k">conversa_membros</td><td><code>(conversa_id, user_id)</code>, lido_ate</td><td>Membros + ponteiro de leitura (não-lidas).</td></tr>
+            <tr><td class="k">mensagens</td><td><code>id</code>, conversa_id, remetente_id, conteudo</td><td>Mensagens do chat. <span class="tag rt">Realtime</span></td></tr>
+            <tr><td class="k">notificacoes</td><td><code>id</code>, user_id, tipo, titulo, link</td><td>Notificações in-app. <span class="tag rt">Realtime</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Agenda · moderação · admin</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Tabela</th><th>Colunas-chave</th><th>Papel</th></tr></thead>
+          <tbody>
+            <tr><td class="k">bloqueio_agenda</td><td><code>(ajudante_id, data)</code></td><td>Dias de indisponibilidade do ajudante (privado por dono).</td></tr>
+            <tr><td class="k">denuncias</td><td><code>id</code>, denunciante_id, alvo_tipo, alvo_id, motivo, status</td><td>Moderação; alvo polimórfico. Só sysadmin resolve.</td></tr>
+            <tr><td class="k">home_banner</td><td><code>id=1</code>, texto, ativo</td><td>Banner único da home (singleton), editável pelo sysadmin.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout brand"><span class="b">🔗</span><p>Convenção: toda coluna <code>*_id</code> referencia <code>auth.users(id)</code> salvo indicação; <code>created_at</code> é <code>timestamptz default now()</code>. Chaves primárias em <span class="pk">amarelo</span> nas migrations.</p></div>
+    </section>
+
+    <!-- 05 ─────────────────────────────────────────────────────────────────── -->
+    <section id="seguranca">
+      <h2><span class="num">05</span> Segurança &amp; RLS</h2>
+      <p class="sub">A regra de acesso é do banco. O código só orquestra.</p>
+      <p>Todas as tabelas têm <strong>Row-Level Security</strong> ativa. O papel do usuário viaja no JWT (<code>app_metadata.app_role</code>), injetado pelo auth hook <code>custom_access_token_hook</code> a partir de <code>profiles.tipo_base</code>. As políticas leem esse papel via <code>current_app_role()</code>.</p>
+      <p>Para evitar recursão entre políticas (uma política de <code>vagas</code> que consulta <code>candidaturas</code>, e vice-versa), a checagem de participação fica em funções <span class="tag rls">SECURITY DEFINER</span> — elas não disparam RLS por dentro:</p>
+      <div class="tbl-wrap">
+        <table>
+          <caption>Helpers de RLS (todas comentadas no banco).</caption>
+          <thead><tr><th>Função</th><th>Responde</th></tr></thead>
+          <tbody>
+            <tr><td class="k">current_app_role()</td><td>Papel do usuário logado, lido do JWT.</td></tr>
+            <tr><td class="k">is_workspace_member(ws)</td><td>Pertence à empresa?</td></tr>
+            <tr><td class="k">can_manage_vaga(vaga)</td><td>É da equipe dona da vaga?</td></tr>
+            <tr><td class="k">is_candidato(vaga)</td><td>Tem candidatura nesta vaga?</td></tr>
+            <tr><td class="k">is_parte_vaga(vaga, user)</td><td>É candidato OU equipe da vaga? (gate de mensagem/avaliação)</td></tr>
+            <tr><td class="k">vaga_aberta(vaga)</td><td>Vaga existe e está aberta? (gate de candidatura)</td></tr>
+            <tr><td class="k">is_ajudante_aceito(vaga, user)</td><td>É o ajudante aceito? (libera coordenada exata)</td></tr>
+            <tr><td class="k">is_conversa_membro(conversa)</td><td>Participa da conversa? (núcleo da RLS do chat)</td></tr>
+            <tr><td class="k">has_capability(user, ws, cap)</td><td>Tem a capacidade liberada na empresa?</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cards">
+        <div class="card"><h4>🪪 PII separada</h4><p><code>profiles_pii</code> guarda telefone/e-mail; lê só o dono ou o sysadmin. CPF foi descartado da coleta.</p></div>
+        <div class="card"><h4>📍 Local exato protegido</h4><p>Mapa público usa coordenada arredondada (~1 km). O ponto exato (<code>vaga_local</code>) só aparece para a equipe e o ajudante aceito.</p></div>
+        <div class="card"><h4>👁 Contas demo read-only</h4><p>Toda escrita passa por <code>requireWriter()</code>; contas de demonstração são bloqueadas para não alterarem dados compartilhados.</p></div>
+        <div class="card"><h4>🕵️ Denúncia anônima</h4><p>O denunciante fica gravado, mas só a moderação o vê — jamais exposto ao denunciado.</p></div>
+      </div>
+    </section>
+
+    <!-- 06 ─────────────────────────────────────────────────────────────────── -->
+    <section id="rbac">
+      <h2><span class="num">06</span> Papéis &amp; permissões (RBAC)</h2>
+      <p class="sub">Quatro papéis globais + módulos e capacidades por funcionário.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Papel</th><th>É…</th><th>Pode</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tag">sysadmin</span></td><td>Dono da plataforma</td><td>Modera denúncias, gerencia usuários e banner; enxerga tudo (god-mode das policies).</td></tr>
+            <tr><td><span class="tag">admin</span></td><td>Profissional / dono de empresa</td><td>Publica vagas, gere equipe, convida, liga/desliga módulos dos funcionários.</td></tr>
+            <tr><td><span class="tag">funcionario</span></td><td>Subordinado ao admin</td><td>Acessa apenas os módulos/capacidades liberados pelo dono da empresa.</td></tr>
+            <tr><td><span class="tag">ajudante</span></td><td>Mão de obra</td><td>Candidata-se, conversa, avalia, gerencia a própria agenda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Módulos e capacidades (tabela <code>user_modules</code>)</h3>
+      <p><strong>Módulos de painel</strong> — <code>vagas</code>, <code>equipe</code>, <code>financeiro</code>, <code>relatorios</code>, <code>mapa</code>. Ausência de linha = default do papel.<br>
+      <strong>Capacidades de ação</strong> — <code>publicar_vagas</code>, <code>chat_ajudantes</code>. Ausência de linha = <em>OFF</em> (menor privilégio).</p>
+      <p>Guards em <code>lib/auth/</code>: <code>requireModule</code> / <code>guardModule</code> (server action / página) e <code>requireCapability</code>. sysadmin e admin recebem tudo; funcionário depende das linhas explícitas.</p>
+    </section>
+
+    <!-- 07 ─────────────────────────────────────────────────────────────────── -->
+    <section id="fluxos">
+      <h2><span class="num">07</span> Fluxos principais</h2>
+      <p class="sub">Do anúncio à reputação, em cinco passos.</p>
+      <div class="flow arrows">
+        <div class="step"><span class="s">01</span><b>Publicar</b><span>Profissional anuncia a diária</span></div>
+        <div class="step"><span class="s">02</span><b>Candidatar</b><span>Ajudante se candidata</span></div>
+        <div class="step"><span class="s">03</span><b>Aceitar</b><span>Contato + chat liberados</span></div>
+        <div class="step"><span class="s">04</span><b>Conversar</b><span>Combinam pela DM externa</span></div>
+        <div class="step"><span class="s">05</span><b>Avaliar</b><span>Nota 1–5 dos dois lados</span></div>
+      </div>
+      <h3>Ciclo de vida da vaga</h3>
+      <p>O status da vaga guia a interface e dispara notificações a cada transição:</p>
+      <div class="flow">
+        <div class="step"><b>aberta</b><span>no ar para ajudantes próximos</span></div>
+        <div class="step"><b>em_andamento</b><span>candidato aceito; dia do serviço</span></div>
+        <div class="step"><b>finalizada</b><span>serviço entregue → libera avaliação</span></div>
+        <div class="step"><b>cancelada</b><span>avisa quem se candidatou</span></div>
+      </div>
+      <p>A candidatura tem o seu próprio ciclo: <code>aguardando → aceito | recusado | cancelado</code>. Aceitar coloca a vaga em andamento e abre (ou reaproveita) a DM externa equipe↔ajudante, que persiste entre diárias.</p>
+    </section>
+
+    <!-- 08 ─────────────────────────────────────────────────────────────────── -->
+    <section id="actions">
+      <h2><span class="num">08</span> Server Actions</h2>
+      <p class="sub">A superfície de escrita, em <code>lib/actions/</code>. Cada uma valida com Zod, passa pelos guards e revalida os caminhos afetados.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Domínio</th><th>Ações</th></tr></thead>
+          <tbody>
+            <tr><td>Autenticação</td><td><code>cadastrar</code>, <code>entrar</code>, <code>recuperarSenha</code>, <code>definirSenha</code>, <code>trocarMeuPapel</code>, <code>logout</code></td></tr>
+            <tr><td>Vagas</td><td><code>publicarVaga</code>, <code>editarVaga</code>, <code>mudarStatusVaga</code></td></tr>
+            <tr><td>Candidaturas</td><td><code>candidatar</code>, <code>cancelarCandidatura</code>, <code>responderCandidatura</code></td></tr>
+            <tr><td>Avaliações</td><td><code>avaliar</code></td></tr>
+            <tr><td>Chat &amp; leitura</td><td><code>enviarMensagem</code>, <code>marcarNotificacoesVistas</code>, <code>marcarMensagensLidas</code></td></tr>
+            <tr><td>Perfil</td><td><code>salvarPerfil</code>, <code>removerFoto</code></td></tr>
+            <tr><td>Empresa</td><td><code>setActiveWorkspace</code>, <code>criarEmpresa</code>, <code>excluirEquipe</code>, <code>convidarMembro</code></td></tr>
+            <tr><td>Convites</td><td><code>criarConvite</code>, <code>aceitarConvite</code>, <code>aprovarConvite</code>, <code>recusarConvite</code></td></tr>
+            <tr><td>Equipe</td><td><code>setModuloFuncionario</code></td></tr>
+            <tr><td>Admin</td><td><code>definirPapel</code>, <code>criarAdmin</code></td></tr>
+            <tr><td>Moderação</td><td><code>criarDenuncia</code>, <code>moderarDenuncia</code></td></tr>
+            <tr><td>Outros</td><td><code>registrarDemanda</code>, <code>salvarBanner</code>, <code>alternarBloqueio</code>, <code>geocodeAddress</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><span class="b">✍️</span><p>Padrão: ações ligadas a <code>&lt;form&gt;</code> recebem <code>FormData</code> e devolvem <code>EstadoForm</code> (erro + valores preservados, nunca senha). Ações de botão devolvem <code>ActionResult</code> (<code>{ ok, erro? }</code>).</p></div>
+    </section>
+
+    <!-- 09 ─────────────────────────────────────────────────────────────────── -->
+    <section id="rotas">
+      <h2><span class="num">09</span> Rotas &amp; telas</h2>
+      <p class="sub">App Router, agrupado por área. Cada arquivo de rota tem um doc-comment de topo.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Grupo</th><th>Rotas</th></tr></thead>
+          <tbody>
+            <tr><td>Público</td><td><code>/</code> landing + demo · <code>/convite/[token]</code></td></tr>
+            <tr><td>(auth)</td><td><code>/login</code> · <code>/cadastro</code> · <code>/recuperar-senha</code> · <code>/nova-senha</code></td></tr>
+            <tr><td>(app) comum</td><td><code>/inicio</code> · <code>/vagas</code> · <code>/vagas/[id]</code> · <code>/mapa</code> · <code>/mensagens</code> · <code>/chat/[conversaId]</code> · <code>/notificacoes</code> · <code>/perfil/[id]</code> · <code>/perfil/editar</code></td></tr>
+            <tr><td>(app) profissional</td><td><code>/publicar</code> · <code>/minhas-vagas</code> · <code>/minhas-vagas/[id]/candidatos</code> · <code>/equipe</code> · <code>/financeiro</code> · <code>/relatorios</code></td></tr>
+            <tr><td>(app) ajudante</td><td><code>/minhas-diarias</code> · <code>/agenda</code> · <code>/avaliar/[vagaId]</code></td></tr>
+            <tr><td>(app) admin</td><td><code>/admin/usuarios</code> · <code>/admin/denuncias</code> · <code>/admin/demanda</code></td></tr>
+            <tr><td>(legal)</td><td><code>/termos</code> · <code>/privacidade</code></td></tr>
+            <tr><td>API</td><td><code>/api/demo/enter</code> · <code>/auth/confirmar</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 10 ─────────────────────────────────────────────────────────────────── -->
+    <section id="setup">
+      <h2><span class="num">10</span> Setup &amp; execução</h2>
+      <p class="sub">Do clone ao navegador.</p>
+      <h3>Rodar localmente</h3>
+<pre><span class="k">npm</span> install
+<span class="k">npm</span> run dev      <span class="c"># http://localhost:3000</span></pre>
+      <p>O <code>.env.local</code> aponta para o projeto Supabase <code>meajudaai-mvp</code>. Para outro ambiente, veja <code>.env.example</code> (URL, anon key, service-role key, <code>NEXT_PUBLIC_SITE_URL</code>).</p>
+      <h3>Scripts</h3>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Comando</th><th>Faz</th></tr></thead>
+          <tbody>
+            <tr><td class="k">npm run dev</td><td>Servidor de desenvolvimento</td></tr>
+            <tr><td class="k">npm run build</td><td>Build de produção</td></tr>
+            <tr><td class="k">npm run typecheck</td><td><code>tsc --noEmit</code></td></tr>
+            <tr><td class="k">npm run lint</td><td>ESLint (next lint)</td></tr>
+            <tr><td class="k">npm test</td><td>Vitest (unidade)</td></tr>
+            <tr><td class="k">npm run test:integration</td><td>Isolamento RLS no Supabase real (opt-in)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Passo único no Supabase</h3>
+      <p>Registre o auth hook para o papel entrar no JWT:<br>
+      <strong>Dashboard → Authentication → Hooks → Custom Access Token → <code>public.custom_access_token_hook</code></strong>.<br>
+      O app funciona sem isso (lê o papel do banco como fallback), mas o hook é o caminho oficial.</p>
+      <div class="callout brand"><span class="b">🧱</span><p>As migrations <code>0001–0019</code> descrevem o schema, a RLS, os seeds e os comentários. No protótipo elas são aplicadas via conector Supabase MCP; a <code>0019</code> anexa os <code>COMMENT ON</code> de tabelas, colunas e funções.</p></div>
+    </section>
+
+    <!-- 11 ─────────────────────────────────────────────────────────────────── -->
+    <section id="demo">
+      <h2><span class="num">11</span> Contas de demonstração</h2>
+      <p class="sub">A landing (<code>/</code>) tem cards «Explore sem cadastro». O clique entra por <code>/api/demo/enter?who=…</code> com cookies session-only. Tudo <strong>somente leitura</strong>.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Quem</th><th>Papel</th><th>E-mail</th></tr></thead>
+          <tbody>
+            <tr><td>João Eletricista</td><td>Profissional</td><td><code>joao.demo@meajudaai.app</code></td></tr>
+            <tr><td>Carlos Silva</td><td>Ajudante</td><td><code>carlos.demo@meajudaai.app</code></td></tr>
+            <tr><td>Ana Assistente</td><td>Funcionário</td><td><code>ana.demo@meajudaai.app</code></td></tr>
+            <tr><td>Rafael Nunes</td><td>Moderador</td><td><code>admin.demo@meajudaai.app</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Os dados de exemplo (vagas, candidatura aceita, conversa, avaliações e denúncias) são semeados pelas migrations <code>0005</code> e <code>0007</code>.</p>
+    </section>
+
+    <!-- 12 ─────────────────────────────────────────────────────────────────── -->
+    <section id="roadmap">
+      <h2><span class="num">12</span> Roadmap</h2>
+      <p class="sub">O que fica para depois do protótipo.</p>
+      <ul>
+        <li><strong>Validação por SMS/OTP</strong> — o fluxo de telefone já existe no código; liga quando um provedor de SMS for configurado (Authentication → Providers → Phone).</li>
+        <li><strong>Testes E2E</strong> do fluxo completo (Playwright).</li>
+        <li><strong>Monetização</strong> — plano premium, destaque de vaga, perfil destacado, banners patrocinados (ver especificação §9).</li>
+        <li><strong>App mobile nativo</strong> (Android/iOS) — a proposta original em FlutterFlow + Firebase, mantida como evolução futura.</li>
+      </ul>
+      <footer>
+        <p>Documentação gerada a partir do código e do schema do MeAjuda Aí. Identidade visual conforme <code>design/MeAjudaAi_styleguide.html</code>. Veja também a <a href="./apresentacao.html">apresentação do site</a> e a <a href="../ESPECIFICACOES_MeAjudaAi.md">especificação oficial</a>. A fonte Poppins carrega via Google Fonts (requer internet na primeira abertura).</p>
+      </footer>
+    </section>
+  </div>
+  </main>
+</div>
+
+<script>
+// Tema: alterna e persiste a escolha explícita.
+(function(){
+  var root=document.documentElement, btn=document.getElementById('tt');
+  try{var s=localStorage.getItem('maa-doc-theme'); if(s) root.setAttribute('data-theme',s);}catch(e){}
+  btn.addEventListener('click',function(){
+    var cur=root.getAttribute('data-theme');
+    var next = cur==='dark' ? 'light' : cur==='light' ? 'dark'
+      : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('maa-doc-theme',next);}catch(e){}
+  });
+})();
+// Menu do índice no mobile.
+(function(){
+  var b=document.getElementById('menubtn'), t=document.getElementById('toc');
+  if(!b) return;
+  b.addEventListener('click',function(){
+    var open=t.classList.toggle('open');
+    b.setAttribute('aria-expanded', open?'true':'false');
+  });
+  t.addEventListener('click',function(e){ if(e.target.tagName==='A' && window.innerWidth<=920){ t.classList.remove('open'); b.setAttribute('aria-expanded','false'); }});
+})();
+// Scrollspy: marca a seção ativa no índice.
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a[href^="#"]'));
+  var map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+  var obs=new IntersectionObserver(function(es){
+    es.forEach(function(en){
+      if(en.isIntersecting){ links.forEach(function(l){l.classList.remove('on');}); var a=map[en.target.id]; if(a)a.classList.add('on'); }
+    });
+  },{rootMargin:'-15% 0px -75% 0px'});
+  document.querySelectorAll('section[id]').forEach(function(s){obs.observe(s);});
+})();
+</script>
+</body>
+</html>

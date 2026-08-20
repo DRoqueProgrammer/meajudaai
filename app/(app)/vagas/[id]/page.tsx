@@ -13,6 +13,7 @@ import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
 
+/** Rota `/vagas/[id]`: detalhe da vaga e ação de candidatar-se (ou gerir, se for o dono). */
 export default async function VagaDetalhePage({
   params,
   searchParams,

@@ -47,11 +47,13 @@ export const DEMO_EMAILS: ReadonlySet<string> = new Set(
 export const DEMO_READONLY_MESSAGE =
   "Modo demo · você está vendo dados de exemplo. Crie uma conta para editar.";
 
+/** `true` se o e-mail é de uma conta de demonstração (case-insensitive). */
 export function isDemoEmail(email: string | null | undefined): boolean {
   if (!email) return false;
   return DEMO_EMAILS.has(email.trim().toLowerCase());
 }
 
+/** `true` se o usuário logado é uma conta demo — usado para barrar escrita. */
 export function isDemo(user: Pick<CurrentUser, "email"> | null | undefined): boolean {
   return isDemoEmail(user?.email);
 }

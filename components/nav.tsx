@@ -148,6 +148,7 @@ function PendenteOuIcone({ icon }: { icon: string }) {
   return <NavIcon name={icon} className="h-[22px] w-[22px]" />;
 }
 
+/** Navegação principal: sidebar no desktop e barra inferior no mobile, com itens filtrados por papel e módulos liberados. */
 export function Nav({
   role,
   userId,

@@ -5,6 +5,7 @@ import { TelaComHeader } from "@/components/ui";
 import { PublicarForm } from "@/components/publicar-form";
 import { editarVagaAction } from "@/lib/actions/vagas";
 
+/** Rota `/minhas-vagas/[id]/editar`: edição de uma vaga ainda aberta. */
 export default async function EditarVagaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await guardModule("vagas");

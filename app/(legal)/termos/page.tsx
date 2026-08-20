@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "As regras de uso do MeAjuda Aí.",
 };
 
+/** Rota `/termos`: Termos de Uso. */
 export default function TermosPage() {
   return (
     <article className="legal">

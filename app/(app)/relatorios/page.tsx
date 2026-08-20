@@ -23,6 +23,7 @@ function Kpi({ label, valor, nota }: { label: string; valor: string; nota?: stri
   );
 }
 
+/** Rota `/relatorios` (módulo relatorios): indicadores da empresa por período. */
 export default async function RelatoriosPage({
   searchParams,
 }: {

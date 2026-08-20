@@ -8,6 +8,7 @@ import { Nav } from "@/components/nav";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 import { DemoBanner } from "@/components/demo-banner";
 
+/** Layout das rotas autenticadas `(app)`: exige sessão, resolve papel/módulos e monta a navegação e os banners. */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");

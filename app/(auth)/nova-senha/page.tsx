@@ -15,6 +15,7 @@ import { BotaoEnviar } from "@/components/botao-enviar";
  * A conferência das duas senhas passou a existir TAMBÉM no servidor: antes era
  * só no cliente, então sem JS ela não acontecia.
  */
+/** Rota `/nova-senha`: define a senha nova a partir da sessão criada pelo link de recuperação. */
 export default function NovaSenhaPage() {
   const [estado, formAction] = useActionState(definirSenhaAction, null);
   const [senha, setSenha] = useState("");

@@ -9,6 +9,11 @@ import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 import type { ActionResult } from "./auth";
 
+/**
+ * Registra uma avaliação (1–5 estrelas) de uma diária. Insere pelo client de
+ * sessão — a RLS exige que os dois tenham trabalhado juntos e barra
+ * auto-avaliação; o trigger recalcula a média do avaliado. Notifica e volta às diárias.
+ */
 export async function avaliarAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const preserva = valoresPreservados(fd);
   const parsed = AvaliacaoSchema.safeParse({

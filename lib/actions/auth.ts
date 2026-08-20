@@ -12,11 +12,18 @@ import { getSiteUrl } from "@/lib/site-url";
 import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
+/** Retorno padrão das actions imperativas (botões): sucesso ou mensagem de erro pronta para o cliente. */
 export interface ActionResult {
   ok: boolean;
   erro?: string;
 }
 
+/**
+ * Cria a conta (form sem JS). Dois caminhos: via convite, o papel vem do convite
+ * e o usuário entra na empresa de quem convidou (fica pendente de aprovação);
+ * fora dele, admin ganha uma empresa própria. Cria auth user + profiles +
+ * profiles_pii (checando telefone/e-mail únicos) e já inicia a sessão.
+ */
 export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   // `cidadeUf` chega como "Niterói|RJ" do <select>.
   const [cidade, estado] = campo(fd, "cidadeUf").split("|");
@@ -300,6 +307,7 @@ export async function trocarMeuPapelAction(novo: "admin" | "ajudante"): Promise<
   return { ok: true };
 }
 
+/** Encerra a sessão do usuário. */
 export async function logoutAction(): Promise<void> {
   const sb = await createServerClient();
   await sb.auth.signOut();

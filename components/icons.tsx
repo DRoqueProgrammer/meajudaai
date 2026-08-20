@@ -1,3 +1,6 @@
+// Conjunto de ícones SVG inline do app (capacete, categorias, navegação…).
+// Inline em vez de biblioteca: um traço só, herdam `currentColor` e não somam
+// peso de dependência. Cada export é um ícone; todos aceitam `className`.
 import type { ReactElement } from "react";
 
 type IconProps = { className?: string };

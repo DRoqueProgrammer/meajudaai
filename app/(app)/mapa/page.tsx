@@ -10,6 +10,7 @@ import { VagasMap, type VagaPonto } from "@/components/maps/vagas-map-dynamic";
  * (vagas.local_aprox_*). Sócio/funcionário liberado → vagas da própria equipe
  * com o ponto EXATO (vaga_local, liberado pela RLS). Sysadmin não usa mapa.
  */
+/** Rota `/mapa` (módulo mapa): vagas abertas plotadas por coordenada aproximada. */
 export default async function MapaPage() {
   const user = await requireUser();
   if (user.role === "funcionario") await guardModule("mapa");

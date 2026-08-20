@@ -26,6 +26,7 @@ type VagaLike = {
  * badge, empilhar no mobile) vive aqui; o que varia por tela entra pelos slots
  * `subtitle`, `meta` e `actions`.
  */
+/** Card resumido de uma vaga (título, categoria, local, data/valor e status) usado nas listas e na agenda. */
 export function VagaCard({
   vaga,
   href,

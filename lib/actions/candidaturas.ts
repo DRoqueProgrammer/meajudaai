@@ -8,6 +8,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureDmExterna } from "@/lib/actions/conversas";
 import type { ActionResult } from "./auth";
 
+/**
+ * O ajudante se candidata a uma vaga. Insere pelo client de sessão (a RLS exige
+ * vaga aberta e barra o próprio gestor) e notifica quem publicou. Erro 23505 =
+ * candidatura duplicada.
+ */
 export async function candidatarAction(vagaId: string): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
@@ -81,6 +86,11 @@ export async function cancelarCandidaturaAction(candidaturaId: string): Promise<
   return { ok: true };
 }
 
+/**
+ * O gestor aceita ou recusa uma candidatura. Ao aceitar, coloca a vaga em
+ * andamento e abre (ou reaproveita) a DM externa equipe↔ajudante. Sempre
+ * notifica o ajudante com o link certo (chat quando aceito, vaga quando recusado).
+ */
 export async function responderCandidaturaAction(
   candidaturaId: string,
   decisao: "aceito" | "recusado",

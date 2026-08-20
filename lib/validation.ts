@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { ALVOS_DENUNCIA, MOTIVOS_DENUNCIA } from "./denuncias";
 
+/** Validação do cadastro de conta. `funcionario` só passa no fluxo via convite (a action barra fora dele). */
 export const CadastroSchema = z.object({
   nome: z.string().min(2, "Informe seu nome"),
   email: z.string().email("E-mail inválido"),
@@ -13,6 +14,7 @@ export const CadastroSchema = z.object({
 });
 export type CadastroInput = z.infer<typeof CadastroSchema>;
 
+/** Validação de publicação/edição de vaga. Data/hora obrigatórias e sem passado; teto de valor contra digitação errada. */
 export const VagaSchema = z.object({
   titulo: z.string().min(3, "Título muito curto"),
   categoria: z.string().min(2, "Selecione a categoria"),
@@ -35,6 +37,7 @@ export const VagaSchema = z.object({
 });
 export type VagaInput = z.infer<typeof VagaSchema>;
 
+/** Validação de avaliação: nota inteira de 1 a 5 e comentário opcional. */
 export const AvaliacaoSchema = z.object({
   vagaId: z.string().uuid(),
   avaliadoId: z.string().uuid(),
@@ -42,6 +45,7 @@ export const AvaliacaoSchema = z.object({
   comentario: z.string().optional(),
 });
 
+/** Validação de denúncia: alvo, motivo (slugs do check da tabela) e detalhe opcional. */
 export const DenunciaSchema = z.object({
   alvo_tipo: z.enum(ALVOS_DENUNCIA),
   alvo_id: z.string().uuid(),
@@ -49,6 +53,7 @@ export const DenunciaSchema = z.object({
   detalhe: z.string().max(1000, "Detalhe muito longo").optional(),
 });
 
+/** Validação de mensagem do chat: 1–2000 caracteres, com erros em PT-BR. */
 export const MensagemSchema = z.object({
   conversaId: z.string().uuid(),
   // Mensagem escrita: o texto padrão do Zod ("String must contain at most

@@ -1,6 +1,7 @@
 import { requireUser, type CurrentUser } from "./roles";
 import { isDemo, DEMO_READONLY_MESSAGE } from "./demo";
 
+/** Lançada quando uma conta demo tenta uma operação de escrita. */
 export class DemoReadOnlyError extends Error {
   constructor() {
     super(DEMO_READONLY_MESSAGE);

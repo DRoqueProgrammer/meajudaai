@@ -3,6 +3,7 @@
 // conta e o rodapé da landing apontam.
 export const SUPORTE_EMAIL = "suporte@meajudaai.com.br";
 
+/** Monta um `mailto:` para o suporte, com assunto opcional já codificado. */
 export function mailtoSuporte(assunto?: string) {
   return assunto
     ? `mailto:${SUPORTE_EMAIL}?subject=${encodeURIComponent(assunto)}`

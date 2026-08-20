@@ -7,6 +7,7 @@ import Link from "next/link";
 import { formatBRL, formatData } from "@/lib/format";
 import { jaPassou } from "@/lib/periodo";
 
+/** Rota `/avaliar/[vagaId]`: formulário de avaliação (1–5) da contraparte após a diária concluída. */
 export default async function AvaliarPage({ params }: { params: Promise<{ vagaId: string }> }) {
   const { vagaId } = await params;
   const user = await getCurrentUser();

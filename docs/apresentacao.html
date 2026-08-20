@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeAjuda Aí — Apresentação</title>
+<meta name="description" content="Apresentação do MeAjuda Aí: o marketplace de diárias que conecta profissionais da construção a ajudantes — problema, solução, fluxo e recursos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0D47A1; --brand-2:#0A3A85; --brand-3:#083073;
+  --accent:#FFC107; --accent-ink:#3a2f00; --action:#43A047; --action-dark:#388E3C;
+  --ink:#16202E; --muted:#5B6472; --bg:#F5F7FA; --panel:#FFFFFF; --line:#E2E6EC;
+  --font:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--font); background:var(--brand-3); color:var(--ink);
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ─── Deck ────────────────────────────────────────────────────────────────── */
+.deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;display:grid;place-items:center;
+  padding:clamp(28px,6vw,84px);
+  opacity:0;visibility:hidden;transform:translateY(14px) scale(.99);
+  transition:opacity .5s ease, transform .5s ease, visibility .5s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.prev{transform:translateY(-14px) scale(.99)}
+.inner{width:100%;max-width:1000px}
+
+/* grounds */
+.slide.light{background:var(--bg);color:var(--ink)}
+.slide.dark{background:
+  radial-gradient(1100px 600px at 82% -10%, rgba(255,193,7,.14), transparent 60%),
+  radial-gradient(900px 700px at -8% 110%, rgba(67,160,71,.16), transparent 55%),
+  linear-gradient(160deg, var(--brand) 0%, var(--brand-3) 100%);
+  color:#fff}
+/* blueprint grid on dark slides */
+.slide.dark::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);
+  background-size:52px 52px;mask-image:radial-gradient(circle at 50% 42%, #000 55%, transparent 100%);
+}
+.slide.dark .inner,.slide.light .inner{position:relative;z-index:1}
+
+/* ─── Type ────────────────────────────────────────────────────────────────── */
+.kicker{font-family:var(--mono);font-size:clamp(11px,1.4vw,13px);letter-spacing:.22em;text-transform:uppercase;font-weight:500;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.light .kicker{color:var(--brand)}
+.dark .kicker{color:var(--accent)}
+h1{font-size:clamp(38px,8.2vw,86px);font-weight:800;line-height:1.02;letter-spacing:-.03em;text-wrap:balance}
+h1 .hl{color:var(--accent)}
+h2{font-size:clamp(28px,5.4vw,54px);font-weight:700;line-height:1.06;letter-spacing:-.02em;text-wrap:balance}
+.big{font-size:clamp(22px,3.6vw,38px);font-weight:600;line-height:1.2;letter-spacing:-.01em}
+.lede{font-size:clamp(16px,2.3vw,23px);line-height:1.5;font-weight:400;max-width:36ch}
+.light .lede{color:var(--muted)}
+.dark .lede{color:rgba(255,255,255,.86)}
+.muted{color:var(--muted)}
+.dim{color:rgba(255,255,255,.7)}
+.mt{margin-top:22px}.mt-s{margin-top:12px}.mt-l{margin-top:34px}
+
+/* ─── Cover ───────────────────────────────────────────────────────────────── */
+.cover-brand{display:flex;align-items:center;gap:18px;margin-bottom:30px}
+.helm{width:clamp(56px,9vw,84px);aspect-ratio:1;border-radius:20px;background:var(--accent);display:grid;place-items:center;font-size:clamp(30px,5vw,46px);box-shadow:0 18px 40px -14px rgba(0,0,0,.5)}
+.cover-name{font-size:clamp(30px,6vw,60px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.cover-name span{color:var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.pill{font-size:clamp(12px,1.5vw,14px);font-weight:500;padding:8px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);backdrop-filter:blur(4px)}
+
+/* ─── Layout helpers ──────────────────────────────────────────────────────── */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,54px);align-items:center}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:14px}
+@media (max-width:760px){.split,.grid3,.grid2{grid-template-columns:1fr}.hide-sm{display:none}}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+.card{border-radius:18px;padding:22px 22px 24px;background:var(--panel);border:1px solid var(--line);box-shadow:0 1px 2px rgba(16,24,40,.05),0 20px 40px -30px rgba(13,71,161,.4)}
+.dark .card{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);box-shadow:none;backdrop-filter:blur(6px)}
+.card .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;margin-bottom:14px;background:var(--bg)}
+.dark .card .ic{background:rgba(255,255,255,.12)}
+.card h3{font-size:clamp(17px,2.2vw,21px);font-weight:600;letter-spacing:-.01em}
+.card p{font-size:clamp(13px,1.7vw,15px);line-height:1.5;margin-top:7px}
+.light .card p{color:var(--muted)}
+.dark .card p{color:rgba(255,255,255,.8)}
+.card .tagline{font-size:12px;font-weight:600;color:var(--action-dark);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
+.dark .card .tagline{color:var(--accent)}
+
+/* ─── Steps (flow) ────────────────────────────────────────────────────────── */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}
+@media (max-width:760px){.steps{grid-template-columns:repeat(2,1fr)}}
+.step{border-radius:16px;padding:18px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);position:relative}
+.step .n{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500}
+.step b{display:block;font-size:clamp(15px,2vw,18px);font-weight:600;margin:8px 0 4px}
+.step span{font-size:13px;color:rgba(255,255,255,.75);line-height:1.35}
+
+/* ─── Stats ───────────────────────────────────────────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat .num{font-size:clamp(34px,6vw,60px);font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.light .stat .num{color:var(--brand)}
+.dark .stat .num{color:var(--accent)}
+.stat .lbl{font-size:clamp(12px,1.6vw,14px);margin-top:8px}
+.light .stat .lbl{color:var(--muted)}
+.dark .stat .lbl{color:rgba(255,255,255,.8)}
+
+/* ─── Demo table ──────────────────────────────────────────────────────────── */
+.demo{margin-top:22px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.18)}
+.demo .r{display:grid;grid-template-columns:1.1fr 1fr 1.4fr;gap:8px;padding:13px 18px;font-size:clamp(12px,1.7vw,15px);align-items:center}
+.demo .r+.r{border-top:1px solid rgba(255,255,255,.12)}
+.demo .r.head{background:rgba(255,255,255,.1);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.75)}
+.demo .r b{font-weight:600}
+.demo .r code{font-family:var(--mono);font-size:.86em;color:var(--accent)}
+.tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(255,255,255,.14)}
+
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.chip{font-size:clamp(12px,1.7vw,15px);font-weight:500;padding:9px 15px;border-radius:12px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;gap:9px}
+.chip .e{font-size:18px}
+
+.cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:clamp(15px,2vw,18px);padding:15px 26px;border-radius:14px;box-shadow:0 16px 34px -14px rgba(255,193,7,.6)}
+
+.problem-list{list-style:none;margin-top:22px;display:flex;flex-direction:column;gap:16px}
+.problem-list li{display:flex;gap:14px;align-items:flex-start;font-size:clamp(16px,2.2vw,21px);line-height:1.4}
+.problem-list .x{flex:none;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:rgba(229,57,53,.14);color:#E53935;font-weight:700;font-size:17px}
+.dark .problem-list .x{background:rgba(255,120,116,.18);color:#ff8f8b}
+
+/* ─── Chrome: progress, nav, counter ──────────────────────────────────────── */
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:30;transition:width .4s ease}
+.chrome{position:fixed;bottom:18px;right:20px;z-index:30;display:flex;align-items:center;gap:14px}
+.counter{font-family:var(--mono);font-size:12.5px;color:rgba(255,255,255,.75);font-variant-numeric:tabular-nums}
+.light-ui .counter{color:var(--muted)}
+.navbtns{display:flex;gap:8px}
+.navbtns button{width:42px;height:42px;border-radius:11px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center;transition:background .2s,border-color .2s;backdrop-filter:blur(4px)}
+.navbtns button:hover{background:rgba(255,255,255,.2)}
+.navbtns button:disabled{opacity:.35;cursor:default}
+.light-ui .navbtns button{border-color:var(--line);background:var(--panel);color:var(--brand)}
+.light-ui .navbtns button:hover{background:var(--bg)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.dots{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:9px}
+.dots button{width:9px;height:9px;border-radius:50%;border:none;padding:0;cursor:pointer;background:rgba(255,255,255,.35);transition:transform .2s,background .2s}
+.dots button.on{background:var(--accent);transform:scale(1.35)}
+.light-ui .dots button{background:rgba(13,71,161,.25)}
+.light-ui .dots button.on{background:var(--brand)}
+.hint{position:fixed;bottom:20px;left:20px;z-index:30;font-size:12px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:7px}
+.light-ui .hint{color:var(--muted)}
+.kbd{font-family:var(--mono);font-size:11px;border:1px solid currentColor;border-radius:5px;padding:1px 6px;opacity:.8}
+@media (max-width:760px){.hint{display:none}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · Cover -->
+  <section class="slide dark active" data-ui="dark">
+    <div class="inner">
+      <div class="cover-brand">
+        <div class="helm" aria-hidden="true">👷</div>
+        <div class="cover-name">MeAjuda <span>Aí</span></div>
+      </div>
+      <h1>A ajuda que você precisa,<br><span class="hl">no momento</span> que mais precisa.</h1>
+      <p class="lede mt">O marketplace que conecta profissionais da construção e manutenção a ajudantes disponíveis para trabalho por diária.</p>
+      <div class="pills">
+        <span class="pill">🛡️ Segurança</span>
+        <span class="pill">🤝 Confiança</span>
+        <span class="pill">🏅 Qualidade</span>
+        <span class="pill">🧰 Praticidade</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Problema -->
+  <section class="slide light" data-ui="light">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> O problema</div>
+      <h2>Falta mão de obra combinada<br>para <span style="color:var(--brand)">amanhã de manhã</span>.</h2>
+      <ul class="problem-list">
+        <li><span class="x">!</span><div>O <b>profissional</b> fecha um serviço e descobre na véspera que precisa de um ajudante — e não sabe em quem confiar.</div></li>
+        <li><span class="x">!</span><div>O <b>ajudante</b> tem o dia livre e capacidade de sobra, mas nenhum canal para achar diária perto de casa.</div></li>
+        <li><span class="x">!</span><div>A combinação hoje acontece no boca a boca e no grupo de WhatsApp: <b>sem histórico, sem reputação, sem garantia</b>.</div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 · Solução -->
+  <section class="slide dark" data-ui="dark">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> A solução</div>
+      <div class="split">
+        <div>
+          <h2>Um lugar só para publicar, escolher <span style="color:var(--accent)">pela nota</span> e combinar.</h2>
+          <p class="lede mt">Aplicação web responsiva (PWA) — abre no navegador do celular e do computador, sem instalar nada. O profissional publica a diária; o ajudante se candidata; os dois conversam e se avaliam.</p>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="ic">📢</div><h3>Publicou</h3><p>Vaga no ar em segundos, com valor, local e horário.</p></div>
+          <div class="card"><div class="ic">⭐</div><h3>Escolheu</h3><p>Candidatos com nota, perfil e verificação.</p></div>
+          <div class="card"><div class="ic">💬</div><h3>Combinou</h3><p>Chat em tempo real para acertar os detalhes.</p></div>
+          <div class="card"><div class="ic">🤝</div><h3>Avaliou</h3><p>Reputação que se constrói a cada diária.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Como funciona -->
+  <section class="slide dark" data-ui="dark">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Como funciona</div>
+      <h2>Do anúncio à reputação, em cinco passos.</h2>
+      <div class="steps">
+        <div class="step"><span class="n">01</span><b>Publicar</b><span>O profissional anuncia a diária.</span></div>
+        <div class="step"><span class="n">02</span><b>Candidatar</b><span>O ajudante se candidata à vaga.</span></div>
+        <div class="step"><span class="n">03</span><b>Aceitar</b><span>Contato e chat são liberados.</span></div>
+        <div class="step"><span class="n">04</span><b>Conversar</b><span>Combinam o serviço pela DM.</span></div>
+        <div class="step"><span class="n">05</span><b>Avaliar</b><span>Nota de 1 a 5, dos dois lados.</span></div>
+      </div>
+      <p class="lede mt-l dim">A vaga percorre <b style="color:#fff">aberta → em andamento → finalizada</b>, e cada passo dispara a notificação certa para quem está esperando.</p>
+    </div>
+  </section>
+
+  <!-- 5 · Para quem -->
+  <section class="slide light" data-ui="light">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Para quem é</div>
+      <h2>Três papéis, um ecossistema.</h2>
+      <div class="grid3">
+        <div class="card"><div class="ic">🧰</div><div class="tagline">Profissional</div><h3>Precisa de ajudante</h3><p>Publica vagas, avalia candidatos, seleciona, conversa e avalia. É dono de uma empresa com sua equipe.</p></div>
+        <div class="card"><div class="ic">👷</div><div class="tagline">Ajudante</div><h3>Quer trabalhar</h3><p>Busca vagas na região, candidata-se, combina pelo chat, executa a diária e avalia o profissional.</p></div>
+        <div class="card"><div class="ic">🛡️</div><div class="tagline">Administrador</div><h3>Cuida da plataforma</h3><p>Modera denúncias, gerencia usuários e o conteúdo da home. Mantém a comunidade confiável.</p></div>
+      </div>
+      <p class="mt-l muted">Há ainda o papel <b>funcionário</b>, subordinado a um profissional, com acesso liberado módulo a módulo pelo dono da empresa.</p>
+    </div>
+  </section>
+
+  <!-- 6 · Confiança & segurança -->
+  <section class="slide dark" data-ui="dark">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Confiança &amp; segurança</div>
+      <h2>Deixar um estranho entrar na obra <span style="color:var(--accent)">exige garantias</span>.</h2>
+      <div class="grid2 mt">
+        <div class="card"><div class="ic">⭐</div><h3>Reputação real</h3><p>Avaliação de 1 a 5 só entre quem trabalhou junto. Zero avaliações nunca vira "nota zero".</p></div>
+        <div class="card"><div class="ic">🪪</div><h3>Dados protegidos</h3><p>Telefone e e-mail ficam isolados; o local exato da obra só aparece para o ajudante contratado.</p></div>
+        <div class="card"><div class="ic">🕵️</div><h3>Denúncia anônima</h3><p>Quem denuncia fica invisível para o denunciado — condição para denunciar sem medo.</p></div>
+        <div class="card"><div class="ic">🔒</div><h3>Regra no banco</h3><p>Cada acesso é validado por políticas no próprio banco de dados (RLS), não só no código.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · Recursos -->
+  <section class="slide light" data-ui="light">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Recursos</div>
+      <h2>Tudo que a combinação de uma diária pede.</h2>
+      <div class="grid3">
+        <div class="card"><div class="ic">💬</div><h3>Chat em tempo real</h3><p>Canal da equipe e conversa direta com o ajudante, com aviso de não-lidas.</p></div>
+        <div class="card"><div class="ic">🗺️</div><h3>Mapa de vagas</h3><p>Diárias próximas no mapa, com o local exato revelado só na hora certa.</p></div>
+        <div class="card"><div class="ic">📅</div><h3>Agenda</h3><p>O ajudante marca os dias livres; o app avisa conflitos de diária.</p></div>
+        <div class="card"><div class="ic">🔔</div><h3>Notificações</h3><p>Nova candidatura, aceite, mensagem, avaliação — tudo in-app, na hora.</p></div>
+        <div class="card"><div class="ic">👥</div><h3>Equipe &amp; módulos</h3><p>O profissional convida funcionários e libera acesso módulo a módulo.</p></div>
+        <div class="card"><div class="ic">📊</div><h3>Financeiro &amp; relatórios</h3><p>Totais por período para a empresa acompanhar as diárias.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · Tecnologia -->
+  <section class="slide dark" data-ui="dark">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Tecnologia</div>
+      <div class="split">
+        <div>
+          <h2>Feito para rodar leve<br>no 4G da obra.</h2>
+          <p class="lede mt">Base moderna e enxuta: os formulários funcionam até sem JavaScript, e a segurança mora no banco de dados. Pronto para escalar do protótipo ao app nativo.</p>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="ic">▲</div><h3>Next.js 15</h3><p>App Router · React 19 · TypeScript.</p></div>
+          <div class="card"><div class="ic">🗄️</div><h3>Supabase</h3><p>Postgres + Auth + Realtime + Storage.</p></div>
+          <div class="card"><div class="ic">🎨</div><h3>Tailwind</h3><p>Design system próprio · fonte Poppins.</p></div>
+          <div class="card"><div class="ic">🗺️</div><h3>Leaflet</h3><p>Mapas com OpenStreetMap.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · Status / números -->
+  <section class="slide light" data-ui="light">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Onde estamos</div>
+      <h2>Protótipo funcional, ponta a ponta.</h2>
+      <div class="stats">
+        <div class="stat"><div class="num">20</div><div class="lbl">telas do fluxo completo</div></div>
+        <div class="stat"><div class="num">19</div><div class="lbl">tabelas com RLS ativa</div></div>
+        <div class="stat"><div class="num">4</div><div class="lbl">papéis de usuário</div></div>
+        <div class="stat"><div class="num">5★</div><div class="lbl">avaliação bilateral</div></div>
+      </div>
+      <p class="mt-l muted">Publicar vaga, candidatura, chat, avaliação, notificações, denúncias e painel administrativo — todos implementados e testados. Próximos passos: OTP por SMS, testes E2E e monetização.</p>
+    </div>
+  </section>
+
+  <!-- 10 · CTA / demo -->
+  <section class="slide dark" data-ui="dark">
+    <div class="inner">
+      <div class="kicker"><span class="dot"></span> Experimente</div>
+      <h2>Explore sem cadastro.</h2>
+      <p class="lede mt">A página inicial abre com contas de demonstração. Um clique e você está dentro — vendo dados de exemplo, em modo somente leitura.</p>
+      <div class="demo">
+        <div class="r head"><span>Quem</span><span>Papel</span><span>Entrar como</span></div>
+        <div class="r"><b>João Eletricista</b><span><span class="tag">Profissional</span></span><code>joao.demo@meajudaai.app</code></div>
+        <div class="r"><b>Carlos Silva</b><span><span class="tag">Ajudante</span></span><code>carlos.demo@meajudaai.app</code></div>
+        <div class="r"><b>Ana Assistente</b><span><span class="tag">Funcionário</span></span><code>ana.demo@meajudaai.app</code></div>
+        <div class="r"><b>Rafael Nunes</b><span><span class="tag">Moderador</span></span><code>admin.demo@meajudaai.app</code></div>
+      </div>
+      <div class="cta">MeAjuda Aí — a obra não pode esperar 👷</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- chrome -->
+<div class="dots" id="dots" aria-label="Ir para slide"></div>
+<div class="chrome" id="chrome">
+  <span class="counter" id="counter">01 / 10</span>
+  <div class="navbtns">
+    <button id="prev" aria-label="Slide anterior">‹</button>
+    <button id="next" aria-label="Próximo slide">›</button>
+  </div>
+</div>
+<div class="hint"><span class="kbd">←</span><span class="kbd">→</span> navegar · <span class="kbd">F</span> tela cheia</div>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var n=slides.length, i=0;
+  var progress=document.getElementById('progress');
+  var counter=document.getElementById('counter');
+  var prevB=document.getElementById('prev'), nextB=document.getElementById('next');
+  var dotsWrap=document.getElementById('dots');
+  var pad=function(x){return String(x).padStart(2,'0');};
+
+  // dots
+  slides.forEach(function(_,k){
+    var b=document.createElement('button'); b.setAttribute('aria-label','Slide '+(k+1));
+    b.addEventListener('click',function(){go(k);}); dotsWrap.appendChild(b);
+  });
+  var dots=[].slice.call(dotsWrap.children);
+
+  function render(){
+    slides.forEach(function(s,k){
+      s.classList.toggle('active',k===i);
+      s.classList.toggle('prev',k<i);
+    });
+    dots.forEach(function(d,k){d.classList.toggle('on',k===i);});
+    progress.style.width=((i)/(n-1)*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(n);
+    prevB.disabled=(i===0); nextB.disabled=(i===n-1);
+    // UI contrast follows the active slide's ground
+    document.body.classList.toggle('light-ui', slides[i].dataset.ui==='light');
+  }
+  function go(k){ i=Math.max(0,Math.min(n-1,k)); render(); }
+  function next(){ go(i+1); } function prev(){ go(i-1); }
+
+  nextB.addEventListener('click',next); prevB.addEventListener('click',prev);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(n-1);}
+    else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();} else {document.exitFullscreen&&document.exitFullscreen();} }
+  });
+  // swipe (touch)
+  var x0=null;
+  document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  document.addEventListener('touchend',function(e){
+    if(x0===null)return; var dx=e.changedTouches[0].clientX-x0;
+    if(Math.abs(dx)>50){ dx<0?next():prev(); } x0=null;
+  },{passive:true});
+  // click on right/left third to navigate (ignore interactive/nav zones)
+  document.getElementById('deck').addEventListener('click',function(e){
+    if(e.target.closest('button,a,code')) return;
+    var r=(e.clientX/window.innerWidth); if(r>0.66)next(); else if(r<0.34)prev();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

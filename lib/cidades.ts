@@ -1,3 +1,5 @@
+// Catálogo curto de cidades atendidas no protótipo (autocomplete de cadastro e
+// de publicação de vaga). Cresce conforme a operação; sem tabela no banco por ora.
 export interface Cidade {
   nome: string;
   uf: string;

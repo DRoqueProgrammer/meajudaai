@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "Quais dados o MeAjuda Aí coleta, para quê, e o que nunca é público.",
 };
 
+/** Rota `/privacidade`: Política de Privacidade. */
 export default function PrivacidadePage() {
   return (
     <article className="legal">

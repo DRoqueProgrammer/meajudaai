@@ -13,6 +13,7 @@ export interface Msg {
   created_at: string;
 }
 
+/** Thread de chat de uma conversa: escuta mensagens por Realtime, envia de forma otimista e marca como lida ao abrir. */
 export function ChatThread({
   conversaId,
   meId,

@@ -5,6 +5,7 @@ import { nomeCategoria } from "@/lib/categorias";
 import { agregarDemanda } from "@/lib/demanda-agregada";
 import { BannerForm } from "@/components/banner-form";
 
+/** Rota `/admin/demanda` (sysadmin): demanda reprimida agregada por categoria/cidade e editor do banner da home. */
 export default async function AdminDemandaPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "sysadmin") redirect("/inicio");

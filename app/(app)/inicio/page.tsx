@@ -72,6 +72,7 @@ function AcaoCard({
   );
 }
 
+/** Rota `/inicio`: home pós-login, com atalhos e conteúdo adaptados ao papel do usuário. */
 export default async function InicioPage() {
   const user = await getCurrentUser();
   const sb = await createServerClient();

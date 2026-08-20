@@ -9,6 +9,7 @@ import { CIDADES } from "@/lib/cidades";
  * Fica em /perfil/editar, antes de /perfil/[id] no roteamento do App Router
  * (segmento estático ganha do dinâmico), então não colide com o perfil público.
  */
+/** Rota `/perfil/editar`: edição do próprio perfil (nome, bio, disponibilidade, cidade e foto). */
 export default async function EditarPerfilPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");

@@ -17,6 +17,7 @@ const TABS = [
 
 const ALVO: Record<string, string> = ALVO_LABEL;
 
+/** Rota `/admin/denuncias` (sysadmin): fila de denúncias com filtro por status e ações de moderação. */
 export default async function AdminDenunciasPage({
   searchParams,
 }: {

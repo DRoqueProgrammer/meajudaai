@@ -13,6 +13,7 @@ export const CATEGORIAS: Categoria[] = [
   { slug: "ajudante_geral", nome: "Ajudante Geral" },
 ];
 
+/** Rótulo legível de uma categoria pelo slug; devolve o próprio slug se desconhecido. */
 export function nomeCategoria(slug: string): string {
   return CATEGORIAS.find((c) => c.slug === slug)?.nome ?? slug;
 }

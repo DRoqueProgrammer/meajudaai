@@ -1,7 +1,6 @@
 # Documento Técnico Oficial — MeAjuda Aí
 
 **Versão:** 1.0
-**Proprietário do Projeto:** Henrique
 **Data do documento:** 23/07/2026
 
 ---

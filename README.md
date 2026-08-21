@@ -6,9 +6,13 @@ Marketplace que conecta profissionais autônomos da construção/manutenção (c
 
 ## Documentação
 
-- **[docs/documentacao.html](./docs/documentacao.html)** — documentação técnica completa (arquitetura, modelo de dados, RLS, papéis, fluxos, server actions, rotas e setup). HTML autocontido, abre no navegador.
-- **[docs/apresentacao.html](./docs/apresentacao.html)** — apresentação do produto em slides (deck navegável por teclado/clique).
-- No banco, toda tabela, coluna e função tem `COMMENT` (migration `0019`); no código, as funções de `lib/`, os componentes e as rotas têm docstrings.
+Publicada no **GitHub Pages** (deploy automático via `.github/workflows/deploy-docs.yml` a cada push na `main` que toque em `docs/`):
+
+- 📘 **Documentação técnica** — <https://droqueprogrammer.github.io/meajudaai/documentacao.html> (arquitetura, modelo de dados, RLS, papéis, fluxos, server actions, rotas e setup)
+- 🖥️ **Apresentação do produto** — <https://droqueprogrammer.github.io/meajudaai/apresentacao.html> (deck navegável por teclado/clique)
+- 🏠 **Central com os dois** — <https://droqueprogrammer.github.io/meajudaai/>
+
+Os arquivos-fonte ficam em [`docs/`](./docs/) (`documentacao.html`, `apresentacao.html`) e também abrem direto no navegador. No banco, toda tabela, coluna e função tem `COMMENT` (migration `0019`); no código, as funções de `lib/`, os componentes e as rotas têm docstrings.
 
 ## Contas de demonstração
 

@@ -1,6 +1,6 @@
 # Contexto do Projeto — MeAjuda Aí
 
-App mobile (Android/iOS) que conecta profissionais autônomos da construção civil e manutenção com ajudantes para trabalho por diária. Proprietário: Henrique. Fase atual: protótipo.
+App mobile (Android/iOS) que conecta profissionais autônomos da construção civil e manutenção com ajudantes para trabalho por diária. Fase atual: protótipo.
 
 **Especificação completa:** [ESPECIFICACOES_MeAjudaAi.md](./ESPECIFICACOES_MeAjudaAi.md)
 **Referência visual:** [REFERENCIA_VISUAL_MeAjudaAi.md](./REFERENCIA_VISUAL_MeAjudaAi.md) · style guide em [design/MeAjudaAi_styleguide.html](./design/MeAjudaAi_styleguide.html). Identidade: azul `#0D47A1`, amarelo `#FFC107`, verde `#43A047`, fonte Poppins.

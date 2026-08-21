@@ -7,7 +7,7 @@
 Quero fazer o **brainstorm (Fase 0 / SDD)** do protótipo do app **MeAjuda Aí**.
 
 ## O produto
-Marketplace que conecta **profissionais autônomos da construção civil e manutenção** (eletricista, pedreiro, pintor, encanador, etc.) com **ajudantes** disponíveis para trabalho por **diária**. Proprietário: Henrique. Fase atual: protótipo. Idioma do produto: **português (BR)**. Spec completa em `ESPECIFICACOES_MeAjudaAi.md`.
+Marketplace que conecta **profissionais autônomos da construção civil e manutenção** (eletricista, pedreiro, pintor, encanador, etc.) com **ajudantes** disponíveis para trabalho por **diária**. Fase atual: protótipo. Idioma do produto: **português (BR)**. Spec completa em `ESPECIFICACOES_MeAjudaAi.md`.
 
 Três papéis: **Profissional** (publica vagas de diária, seleciona e avalia ajudantes), **Ajudante** (vê e se candidata a vagas, avalia profissionais) e **Administrador** (modera usuários, vagas, avaliações e denúncias).
 

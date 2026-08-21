@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MeAjuda Aí — Central de docs</title>
+<meta name="description" content="Central de documentação do MeAjuda Aí: documentação técnica e apresentação do produto.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0D47A1; --accent:#FFC107; --action:#43A047;
+  --bg:#F5F7FA; --panel:#FFFFFF; --ink:#16202E; --muted:#5B6472; --line:#E2E6EC;
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 22px 44px -30px rgba(13,71,161,.45);
+  --font:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --brand:#5B9BF3; --accent:#FFCE3A;
+    --bg:#0C1420; --panel:#111C2C; --ink:#E7ECF3; --muted:#9AA7B8; --line:#22303F;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 22px 44px -30px rgba(0,0,0,.8);
+  }
+}
+*{box-sizing:border-box;margin:0}
+body{
+  font-family:var(--font); background:var(--bg); color:var(--ink);
+  min-height:100vh; display:grid; place-items:center; padding:32px 20px;
+  -webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:46px 46px;
+}
+.wrap{width:100%;max-width:860px}
+.brand{display:flex;align-items:center;gap:16px;margin-bottom:26px}
+.helm{width:60px;height:60px;border-radius:16px;background:var(--accent);display:grid;place-items:center;font-size:32px;box-shadow:var(--shadow)}
+.brand h1{font-size:clamp(28px,5vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1}
+.brand h1 span{color:var(--accent)}
+.brand p{color:var(--muted);font-size:14px;margin-top:5px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:620px){.cards{grid-template-columns:1fr}}
+.card{
+  display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;
+  box-shadow:var(--shadow);transition:transform .18s ease,border-color .18s ease;
+}
+.card:hover{transform:translateY(-3px);border-color:var(--brand)}
+.card:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.card .ic{width:52px;height:52px;border-radius:13px;display:grid;place-items:center;font-size:27px;background:var(--bg);margin-bottom:6px}
+.card h2{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.card p{font-size:14px;color:var(--muted);line-height:1.5}
+.card .go{margin-top:8px;font-weight:600;color:var(--brand);font-size:14px}
+.foot{margin-top:26px;color:var(--muted);font-size:12.5px;text-align:center}
+.foot a{color:var(--brand)}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="brand">
+      <div class="helm" aria-hidden="true">👷</div>
+      <div>
+        <h1>MeAjuda <span>Aí</span></h1>
+        <p>Central de documentação do protótipo</p>
+      </div>
+    </div>
+    <div class="cards">
+      <a class="card" href="./documentacao.html">
+        <span class="ic" aria-hidden="true">📘</span>
+        <h2>Documentação técnica</h2>
+        <p>Arquitetura, modelo de dados, RLS, papéis, fluxos, server actions, rotas e setup.</p>
+        <span class="go">Abrir documentação →</span>
+      </a>
+      <a class="card" href="./apresentacao.html">
+        <span class="ic" aria-hidden="true">🖥️</span>
+        <h2>Apresentação do produto</h2>
+        <p>Deck em slides: problema, solução, fluxo, recursos e contas de demonstração.</p>
+        <span class="go">Abrir apresentação →</span>
+      </a>
+    </div>
+    <p class="foot">Marketplace de diárias para construção e manutenção · <a href="https://github.com/DRoqueProgrammer/meajudaai">repositório no GitHub</a></p>
+  </main>
+</body>
+</html>

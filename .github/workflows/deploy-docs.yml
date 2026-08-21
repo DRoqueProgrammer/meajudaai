@@ -1,0 +1,49 @@
+# Publica a pasta docs/ (documentação e apresentação, HTML estático) no GitHub
+# Pages. Roda a cada push na main que toque em docs/, e sob demanda.
+name: Deploy docs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/deploy-docs.yml"
+  workflow_dispatch:
+
+# Permissões mínimas para o deploy-pages publicar via OIDC.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez; não cancela um deploy em andamento.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # enablement: true liga o Pages (source = GitHub Actions) na primeira
+      # execução, se o repositório ainda não tiver o Pages habilitado.
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # Sobe só a pasta docs/ como artefato do Pages (servida como raiz do site).
+      - name: Empacotar docs/
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Publicar no Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

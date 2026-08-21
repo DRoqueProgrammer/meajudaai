@@ -77,7 +77,3 @@ npm test          # unidade (formatadores + validação zod) — 14 testes
 ```
 
 Há também um teste de **isolamento RLS** (`tests/rls.test.ts`) que bate no Supabase real: cria dois usuários/workspaces e verifica que um não enxerga a vaga em andamento nem a PII do outro. É opt-in (cria e apaga dados no banco). Para rodá-lo, adicione `RUN_INTEGRATION=1` ao `.env.local` e rode `npm test` novamente.
-
-## Próximos passos
-
-Testes E2E do fluxo (Playwright), provedor de SMS para OTP, denúncias/moderação, painel admin, monetização — todos fora do MVP (ver `.claude/sdd/features/DEFINE_MEAJUDAAI_MVP.md`).

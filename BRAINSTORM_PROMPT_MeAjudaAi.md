@@ -26,8 +26,8 @@ Os três compartilham a **mesma arquitetura em camadas**: UI Components → App 
 | Necessidade do MeAjuda Aí | Padrão nas referências |
 |---|---|
 | Papéis Profissional/Ajudante/Admin | RBAC: `user_roles` / `user_module_permissions` + RLS (petvarejo, foco-contabil) |
-| Autenticação + validação SMS | Supabase Auth (telefone/OTP); `lib/auth` guards |
-| Perfil com CPF/telefone privados | Separação de PII: `paciente_pii` (careconnect) |
+| Autenticação | Supabase Auth (e-mail/senha); `lib/auth` guards |
+| Perfil com dados privados (telefone/e-mail) | Separação de PII: `paciente_pii` (careconnect) |
 | Publicar vaga / candidatura | Modelo de pipeline/status: `deals`+`pipeline_stages` / status enum (foco, petvarejo) |
 | Avaliação 1–5 ⭐ + média | `profissional_feedback` (careconnect) |
 | Chat / mensagens | Supabase Realtime + tabela `mensagens` |
@@ -62,12 +62,10 @@ Ao propor a fatia de MVP e as telas, **respeite essa identidade** (mesmas cores/
 
 ## Decisões em aberto para explorar
 - **Multi-tenant?** As refs são multi-tenant por empresa; o MeAjuda Aí parece ser marketplace P2P (papéis, não workspaces). Confirmar se RBAC simples basta.
-- **Auth:** telefone + OTP como método primário? Regras de unicidade CPF/telefone/email.
-- **Escopo do protótipo:** monetização (Premium, destaque de vaga, anúncios) fica fora do MVP?
-- **Mobile:** web responsivo/PWA agora e wrapper nativo depois, ou já pensar em nativo?
+- **Auth:** e-mail e senha; regras de unicidade telefone/e-mail.
 - **Localização/matching:** como o ajudante encontra vagas próximas?
 
 ## Restrições
-Português (BR) em todo o produto. Dados pessoais sensíveis (CPF, telefone) → considerar **LGPD** e separação de PII. É um **protótipo**, não produção — priorizar o caminho mais curto para validar o fluxo Profissional↔Ajudante (publicar vaga → candidatar → aceitar → avaliar).
+Português (BR) em todo o produto. Dados pessoais sensíveis (telefone, e-mail) → considerar **LGPD** e separação de PII. É um **protótipo**, não produção — priorizar o caminho mais curto para validar o fluxo Profissional↔Ajudante (publicar vaga → candidatar → aceitar → avaliar).
 
 Ao final, gere o documento BRAINSTORM e sugira seguir para `/agentspec:sdd-define`.

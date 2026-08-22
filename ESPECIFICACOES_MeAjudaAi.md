@@ -7,7 +7,7 @@
 
 ## 1. Resumo do Projeto
 
-O **MeAjuda Aí** conecta profissionais autônomos da construção civil e manutenção com ajudantes disponíveis para trabalho por diária. **Nesta fase, o produto é entregue como aplicação web responsiva (PWA)** — acessível pelo navegador no celular e no desktop. Um **app mobile nativo (Android e iOS)** permanece como evolução futura, sem previsão por ora.
+O **MeAjuda Aí** conecta profissionais autônomos da construção civil e manutenção com ajudantes disponíveis para trabalho por diária. O produto é entregue como **aplicação web responsiva (PWA)** — acessível pelo navegador no celular e no desktop.
 
 ### Stack tecnológica
 
@@ -20,8 +20,6 @@ Fase atual (protótipo web):
 | Autenticação | Supabase Auth |
 | Notificações | Supabase Realtime (in-app) |
 | Mapas | Leaflet · OpenStreetMap |
-
-> **Recomendação original do documento:** FlutterFlow (frontend) + Firebase (backend, Cloud Firestore, Authentication, Cloud Messaging) + Google Maps API — mantida como referência para uma futura versão mobile nativa.
 
 ---
 
@@ -39,7 +37,7 @@ Exemplos de perfis: Eletricista, Pedreiro, Pintor, Encanador, Gesseiro, Azulejis
 
 ### 2.3 Administrador
 
-**Permissões:** bloquear usuários, excluir vagas, excluir avaliações, receber denúncias, gerenciar categorias, visualizar relatórios, gerenciar anúncios.
+**Permissões:** bloquear usuários, excluir vagas, excluir avaliações, receber denúncias, gerenciar categorias, visualizar relatórios, gerenciar o banner da home.
 
 ---
 
@@ -69,8 +67,6 @@ Cadastro → Perfil aprovado → Publicar vaga → Receber candidatos → Seleci
 ### 4.2 Fluxo do Ajudante
 
 Cadastro → Perfil aprovado → Visualizar vagas → Candidatar-se → Aguardar resposta → Ser aprovado → Receber contato → Executar serviço → Avaliar profissional → Finalizar diária.
-
-> **Fora da fase atual (planejado):** a validação por SMS/OTP entre o cadastro e o uso da conta ainda não está ativa — no protótipo web o acesso é por e-mail e senha.
 
 ---
 
@@ -133,33 +129,16 @@ Nova vaga, Nova candidatura, Candidatura aceita, Mensagem recebida, Avaliação 
 
 ## 8. Segurança
 
-Telefone único, Email único, Autenticação Supabase, Bloqueio por administrador, Logs de atividades.
-
-> **CPF descartado** da coleta de dados. **Validação por SMS/OTP:** planejada, fora da fase atual (a autenticação hoje é por e-mail e senha).
+Telefone único, Email único, Autenticação Supabase, Bloqueio por administrador, Logs de atividades. A autenticação é por e-mail e senha.
 
 ---
 
-## 9. Monetização Futura
-
-| Item | Valor |
-|---|---|
-| Plano Premium | R$ 19,90/mês |
-| Destaque de vaga | R$ 4,90 |
-| Perfil destacado | R$ 9,90 |
-| Publicidade | Banners patrocinados |
-
-**Parcerias com lojas:** materiais elétricos, ferramentas, EPIs, cursos profissionalizantes.
-
----
-
-## 10. Critérios de Entrega
+## 9. Critérios de Entrega
 
 Aplicação web responsiva (PWA) funcional e publicada (deploy web); código-fonte entregue; banco de dados Supabase configurado; painel administrativo funcional; documentação básica; garantia mínima de 30 dias.
 
-> **Adiado para uma fase mobile futura (sem previsão por ora):** app nativo em FlutterFlow, backend Firebase e publicação na Google Play / App Store.
-
 ---
 
-## 11. Objetivo Final
+## 10. Objetivo Final
 
 Criar a principal plataforma brasileira de conexão entre profissionais da construção civil e ajudantes para serviços por diária, oferecendo segurança, confiança e praticidade.

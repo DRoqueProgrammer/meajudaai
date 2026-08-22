@@ -240,7 +240,7 @@ footer a{font-weight:500}
     <section id="visao">
       <h2><span class="num">01</span> Visão geral</h2>
       <p class="sub">O que é o produto e para quem.</p>
-      <p>O <strong>MeAjuda Aí</strong> resolve um encontro do dia a dia da obra: o profissional que precisa de um par de mãos <em>amanhã</em> e o ajudante que procura diária na região. A entrega desta fase é uma <strong>aplicação web responsiva (PWA)</strong> — abre no navegador do celular e do desktop, sem instalação. Um app mobile nativo permanece como evolução futura.</p>
+      <p>O <strong>MeAjuda Aí</strong> resolve um encontro do dia a dia da obra: o profissional que precisa de um par de mãos <em>amanhã</em> e o ajudante que procura diária na região. A entrega desta fase é uma <strong>aplicação web responsiva (PWA)</strong> — abre no navegador do celular e do desktop, sem instalação.</p>
       <p>Cada profissional é dono de uma <strong>empresa (workspace)</strong> com sua equipe; o marketplace de vagas cruza essas empresas com os ajudantes. Tudo é isolado por empresa via Row-Level Security no banco.</p>
       <div class="cards">
         <div class="card">
@@ -299,7 +299,7 @@ footer a{font-weight:500}
           <tbody>
             <tr><td>Frontend / rotas</td><td>Next.js 15 (App Router) · React 19 · TypeScript · Tailwind (Poppins)</td></tr>
             <tr><td>Backend / banco</td><td>Supabase · PostgreSQL com RLS</td></tr>
-            <tr><td>Autenticação</td><td>Supabase Auth (e-mail/senha; telefone/OTP pronto no código)</td></tr>
+            <tr><td>Autenticação</td><td>Supabase Auth (e-mail/senha)</td></tr>
             <tr><td>Tempo real</td><td>Supabase Realtime (mensagens e notificações in-app)</td></tr>
             <tr><td>Mapas</td><td>Leaflet + OpenStreetMap · geocoding via Nominatim</td></tr>
             <tr><td>Validação</td><td>Zod (schemas em <code>lib/validation.ts</code>)</td></tr>
@@ -415,7 +415,7 @@ footer a{font-weight:500}
         </table>
       </div>
       <div class="cards">
-        <div class="card"><h4>🪪 PII separada</h4><p><code>profiles_pii</code> guarda telefone/e-mail; lê só o dono ou o sysadmin. CPF foi descartado da coleta.</p></div>
+        <div class="card"><h4>🪪 PII separada</h4><p><code>profiles_pii</code> guarda telefone/e-mail; lê só o dono ou o sysadmin.</p></div>
         <div class="card"><h4>📍 Local exato protegido</h4><p>Mapa público usa coordenada arredondada (~1 km). O ponto exato (<code>vaga_local</code>) só aparece para a equipe e o ajudante aceito.</p></div>
         <div class="card"><h4>👁 Contas demo read-only</h4><p>Toda escrita passa por <code>requireWriter()</code>; contas de demonstração são bloqueadas para não alterarem dados compartilhados.</p></div>
         <div class="card"><h4>🕵️ Denúncia anônima</h4><p>O denunciante fica gravado, mas só a moderação o vê — jamais exposto ao denunciado.</p></div>

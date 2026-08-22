@@ -32,9 +32,9 @@ comment on column public.profiles.disponibilidade is 'Ex.: "Dias de semana, a pa
 -- profiles_pii — dados pessoais sensíveis, isolados numa tabela com RLS estrita
 -- ─────────────────────────────────────────────────────────────────────────────
 comment on table public.profiles_pii is
-  'PII do usuário isolada do perfil público. Leitura só pelo próprio dono ou sysadmin (RLS). Split proposital: RLS row-level não esconde coluna, então o dado sensível vive numa tabela à parte. CPF foi removido do escopo (0018).';
+  'PII do usuário isolada do perfil público. Leitura só pelo próprio dono ou sysadmin (RLS). Split proposital: RLS row-level não esconde coluna, então o dado sensível vive numa tabela à parte.';
 comment on column public.profiles_pii.user_id is 'PK e FK para auth.users(id).';
-comment on column public.profiles_pii.telefone is 'Telefone (citext, único). Base para futuro login/OTP por telefone.';
+comment on column public.profiles_pii.telefone is 'Telefone de contato (citext, único).';
 comment on column public.profiles_pii.email is 'E-mail de contato (citext, único). Espelha o e-mail de autenticação.';
 comment on column public.profiles_pii.created_at is 'Data de criação do registro de PII.';
 

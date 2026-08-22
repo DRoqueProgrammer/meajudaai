@@ -1,6 +1,6 @@
 # Contexto do Projeto — MeAjuda Aí
 
-App mobile (Android/iOS) que conecta profissionais autônomos da construção civil e manutenção com ajudantes para trabalho por diária. Fase atual: protótipo.
+Aplicação web responsiva (PWA) que conecta profissionais autônomos da construção civil e manutenção com ajudantes para trabalho por diária. Fase atual: protótipo.
 
 **Especificação completa:** [ESPECIFICACOES_MeAjudaAi.md](./ESPECIFICACOES_MeAjudaAi.md)
 **Referência visual:** [REFERENCIA_VISUAL_MeAjudaAi.md](./REFERENCIA_VISUAL_MeAjudaAi.md) · style guide em [design/MeAjudaAi_styleguide.html](./design/MeAjudaAi_styleguide.html). Identidade: azul `#0D47A1`, amarelo `#FFC107`, verde `#43A047`, fonte Poppins.
@@ -25,10 +25,10 @@ Spec original: FlutterFlow + Firebase (mobile). **Decisão para o protótipo:** 
 `usuarios`, `vagas`, `candidaturas`, `avaliacoes`, `mensagens`, `notificacoes`, `denuncias`.
 
 ## Regras de segurança
-Telefone/email únicos · autenticação Supabase · bloqueio por admin · logs de atividade. Validação SMS/OTP planejada (fora da fase atual); CPF descartado da coleta.
+Telefone/email únicos · autenticação Supabase (e-mail e senha) · bloqueio por admin · logs de atividade.
 
 ## Supabase (protótipo)
-Projeto `meajudaai-mvp` · ref `zisvxszjrylnuqplkrlm` · região us-east-1 · org DRoqueProgrammer. URL/anon em `.env.local` (não comitado). Conector Supabase MCP ativo — migrations/SQL aplicáveis via conector. Schema em `supabase/migrations/0001–0019` (19 tabelas, todas com RLS; a `0019` anexa os comentários de schema). `service_role` key presente em `.env.local` (integração passa: `npm run test:integration`). Falta: provedor SMS p/ OTP (opcional), registrar auth hook após migration 0002.
+Projeto `meajudaai-mvp` · ref `zisvxszjrylnuqplkrlm` · região us-east-1 · org DRoqueProgrammer. URL/anon em `.env.local` (não comitado). Conector Supabase MCP ativo — migrations/SQL aplicáveis via conector. Schema em `supabase/migrations/0001–0019` (19 tabelas, todas com RLS; a `0019` anexa os comentários de schema). `service_role` key presente em `.env.local` (integração passa: `npm run test:integration`). Falta: registrar auth hook após migration 0002.
 
 ## Idioma
 Comunicação e conteúdo do produto em **português (BR)**.

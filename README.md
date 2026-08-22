@@ -41,7 +41,7 @@ Registre o auth hook para o papel do usuário entrar no JWT:
 **Dashboard → Authentication → Hooks → Custom Access Token → `public.custom_access_token_hook`**.
 O app funciona sem isso (o papel é lido do banco como fallback), mas o hook é o caminho oficial.
 
-Login por **e-mail** está ativo. Telefone/OTP está pronto no código e liga quando um provedor de SMS for configurado (Authentication → Providers → Phone).
+O acesso é por **e-mail e senha**.
 
 ## Estrutura
 

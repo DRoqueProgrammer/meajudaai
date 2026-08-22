@@ -53,8 +53,8 @@ lib/
   auth/         guards de usuário e workspace
   actions/      server actions (escrita, com zod + service-role)
   *.ts          utilitários BR, cidades, categorias, validação
-supabase/       (schema aplicado via conector — ver .claude/sdd)
-.claude/sdd/    documentos SDD (brainstorm → define → design → build report)
+supabase/       migrations do schema (aplicadas via conector)
+docs/           documentação e apresentação (HTML) + guias
 refs/           3 codebases de referência (não versionar)
 ```
 

@@ -102,11 +102,11 @@ export function AgendaCalendar({
               disabled={pending}
               className={`min-h-[64px] rounded-lg border p-1 text-left align-top transition ${
                 isConf ? "border-danger" : "border-line"
-              } ${isBloco ? "bg-surface opacity-70" : "bg-white"}`}
+              } ${isBloco ? "bg-surface opacity-70" : "bg-card"}`}
             >
               <span
                 className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
-                  isHoje ? "bg-brand font-bold text-white" : "text-muted"
+                  isHoje ? "bg-brand-fill font-bold text-white" : "text-muted"
                 }`}
               >
                 {d}

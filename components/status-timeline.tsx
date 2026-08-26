@@ -22,7 +22,7 @@ export function StatusTimeline({
 }) {
   if (terminal) {
     return (
-      <div className="card border-danger/30 bg-[#fdeaea]">
+      <div className="card border-danger bg-tint-danger">
         <p className="text-sm font-semibold text-danger">{terminal}</p>
         <p className="mt-1 text-xs text-muted">Esta diária não seguiu adiante.</p>
       </div>
@@ -47,8 +47,8 @@ export function StatusTimeline({
                     done
                       ? "bg-action-dark text-white"
                       : active
-                        ? "bg-brand text-white"
-                        : "border border-line bg-white text-muted"
+                        ? "bg-brand-fill text-white"
+                        : "border border-line bg-card text-muted"
                   }`}
                 >
                   {done ? "✓" : i + 1}
@@ -68,7 +68,7 @@ export function StatusTimeline({
                 >
                   {s.label}
                   {active && (
-                    <span className="rounded-full bg-[#e6effb] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand">
+                    <span className="rounded-full bg-tint-info px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand">
                       você está aqui
                     </span>
                   )}

@@ -67,7 +67,7 @@ function AcaoCard({
     >
       <p className="text-base font-semibold">{titulo}</p>
       <p className="mt-1 text-sm leading-relaxed text-muted">{desc}</p>
-      <p className={`mt-3 text-sm font-semibold ${tone === "action" ? "text-action-dark" : "text-brand"}`}>{cta}</p>
+      <p className={`mt-3 text-sm font-semibold ${tone === "action" ? "text-ok" : "text-brand"}`}>{cta}</p>
     </Link>
   );
 }
@@ -127,7 +127,7 @@ export default async function InicioPage() {
   return (
     <div className="flex flex-col gap-5">
       {banner?.texto ? (
-        <div className="rounded-2xl border border-accent bg-accent/15 px-4 py-3 text-sm text-[#3a2f00]">
+        <div className="rounded-2xl border border-accent bg-tint-warn px-4 py-3 text-sm text-tint-warn-ink">
           {banner.texto}
         </div>
       ) : null}
@@ -191,7 +191,7 @@ export default async function InicioPage() {
               <Link
                 key={m.key}
                 href={m.href}
-                className="flex min-h-11 items-center justify-center rounded-xl border border-line bg-white px-3 py-3 text-center text-sm font-medium transition hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                className="flex min-h-11 items-center justify-center rounded-xl border border-line bg-card px-3 py-3 text-center text-sm font-medium transition hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
               >
                 {m.label}
               </Link>

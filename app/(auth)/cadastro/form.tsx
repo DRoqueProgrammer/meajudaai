@@ -55,11 +55,11 @@ export function CadastroForm({
       <h1 className="text-2xl font-semibold text-brand">Criar conta</h1>
       <form
         action={formAction}
-        className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
+        className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
       >
         {convite ? (
           // Cadastro via convite: o papel é definido pelo convite, não escolhido.
-          <div className="rounded-xl border border-brand bg-[#e6effb] p-3">
+          <div className="rounded-xl border border-brand bg-tint-info p-3">
             <input type="hidden" name="convite_token" value={convite.token} />
             <p className="text-sm">
               Você foi convidado para <strong className="font-semibold">{convite.equipeNome}</strong>{" "}
@@ -74,7 +74,7 @@ export function CadastroForm({
               {PAPEIS.map((p) => (
                 <label
                   key={p.valor}
-                  className="flex min-h-[76px] cursor-pointer flex-col justify-center gap-0.5 rounded-xl border-2 border-line bg-white px-4 py-3 text-left transition hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand"
+                  className="flex min-h-[76px] cursor-pointer flex-col justify-center gap-0.5 rounded-xl border-2 border-line bg-card px-4 py-3 text-left transition hover:border-brand has-[:checked]:border-brand has-[:checked]:bg-brand-fill has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand"
                 >
                   <input
                     type="radio"

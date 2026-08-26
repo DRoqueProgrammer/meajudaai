@@ -158,7 +158,7 @@ export function PublicarForm({
         {estado?.erro ? <FormError>{estado.erro}</FormError> : null}
         {valorAlto !== null ? (
           // Passo de confirmação: valor muito alto quase sempre é typo.
-          <div className="flex flex-col gap-3 rounded-xl border border-brand bg-[#e6effb] p-3">
+          <div className="flex flex-col gap-3 rounded-xl border border-brand bg-tint-info p-3">
             <p className="text-sm">
               <strong className="font-semibold">{formatBRL(valorAlto)}</strong> é um valor alto para
               uma diária. Confirma esse valor?

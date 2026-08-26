@@ -50,7 +50,7 @@ export function ResponderCandidatura({
 
   if (confirmando) {
     return (
-      <div className="flex flex-col gap-3 rounded-xl border border-brand bg-[#e6effb] p-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-brand bg-tint-info p-3">
         <p className="text-sm">
           Confirmar <strong className="font-semibold">{nome}</strong> para a diária
           {dataServico ? ` de ${formatData(dataServico)}` : ""}

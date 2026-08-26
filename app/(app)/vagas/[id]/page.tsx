@@ -87,7 +87,7 @@ export default async function VagaDetalhePage({
         ) : null}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-tint-info text-brand">
               <CategoriaIcon slug={vaga.categoria} className="h-5 w-5" />
             </span>
             <div>

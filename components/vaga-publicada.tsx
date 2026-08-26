@@ -12,8 +12,8 @@ import Link from "next/link";
  */
 export function VagaPublicada({ cidade, ajudantes }: { cidade: string; ajudantes: number }) {
   return (
-    <section className="rounded-2xl border border-action-dark bg-[#e7f5e9] p-5">
-      <p className="text-base font-bold text-action-deep">
+    <section className="rounded-2xl border border-ok bg-tint-ok p-5">
+      <p className="text-base font-bold text-ok">
         Sua diária está no ar <span aria-hidden="true">✓</span>
       </p>
       <p className="mt-1 text-sm leading-relaxed text-ink">

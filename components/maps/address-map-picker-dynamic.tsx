@@ -9,7 +9,7 @@ export const AddressMapPicker = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="grid h-[320px] place-items-center rounded-2xl border border-line bg-white text-sm text-muted">
+      <div className="grid h-[320px] place-items-center rounded-2xl border border-line bg-card text-sm text-muted">
         Carregando mapa…
       </div>
     ),

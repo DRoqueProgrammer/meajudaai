@@ -19,7 +19,7 @@ export function AvisarDemanda({
 
   if (feito) {
     return (
-      <p className="mt-4 text-sm font-medium text-action-dark">
+      <p className="mt-4 text-sm font-medium text-ok">
         ✓ Anotado — avisaremos quando aparecer {nomeCategoria(categoria).toLowerCase()} em {cidade}.
       </p>
     );

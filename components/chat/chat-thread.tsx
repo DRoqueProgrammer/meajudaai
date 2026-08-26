@@ -97,7 +97,7 @@ export function ChatThread({
             <div key={m.id} className={`flex flex-col ${meu ? "items-end" : "items-start"}`}>
               <span
                 className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed shadow-[0_1px_2px_rgba(15,23,42,0.06)] ${
-                  meu ? "rounded-br-md bg-brand text-white" : "rounded-bl-md border border-line bg-white"
+                  meu ? "rounded-br-md bg-brand-fill text-white" : "rounded-bl-md border border-line bg-card"
                 } ${enviando ? "opacity-70" : ""}`}
               >
                 {m.conteudo}

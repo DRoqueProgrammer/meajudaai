@@ -138,11 +138,11 @@ export default async function BuscarVagasPage({
         ))}
       </div>
 
-      <details open={refinos > 0} className="rounded-xl border border-line bg-white">
+      <details open={refinos > 0} className="rounded-xl border border-line bg-card">
         <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 text-sm font-medium marker:content-['']">
           Filtros
           {refinos > 0 ? (
-            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-brand px-1.5 text-xs font-semibold text-white">
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-brand-fill px-1.5 text-xs font-semibold text-white">
               {refinos}
             </span>
           ) : null}

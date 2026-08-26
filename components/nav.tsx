@@ -87,6 +87,11 @@ const NAV_ICONS: Record<string, ReactNode> = {
       <path d="M8 15v-3M12 15V8M16 15v-5" />
     </>
   ),
+  pulse: (
+    <>
+      <path d="M3 12h4l2.5-6 4 12 2.5-6H21" />
+    </>
+  ),
   map: (
     <>
       <path d="M9 4 3.5 6.5v13L9 17l6 2.5 5.5-2.5v-13L15 6.5 9 4z" />
@@ -178,6 +183,7 @@ export function Nav({
           { href: "/admin/usuarios", label: "Usuários", icon: "users" },
           { href: "/admin/denuncias", label: "Denúncias", icon: "shield" },
           { href: "/admin/demanda", label: "Demanda", icon: "chart" },
+          { href: "/admin/metricas", label: "Métricas", icon: "pulse" },
         ]
       : role === "admin" || role === "funcionario"
         ? empresaItems

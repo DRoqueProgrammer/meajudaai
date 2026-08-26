@@ -6,7 +6,11 @@ const config: Config = {
     extend: {
       colors: {
         brand: { DEFAULT: "#0D47A1", dark: "#0A3A85" },
-        accent: { DEFAULT: "#FFC107" },
+        // DEFAULT é o amarelo da identidade (#FFC107) e só serve para preenchimento
+        // decorativo — sobre branco dá 1,63:1 e reprova até em 1.4.11. `strong`
+        // (#B8860B, ~3,4:1) é o amarelo escuro para quando a estrela precisa
+        // CARREGAR informação sobre branco (nota no StarRating).
+        accent: { DEFAULT: "#FFC107", strong: "#B8860B" },
         // DEFAULT é o verde da identidade (#43A047) e só vale para preenchimento
         // decorativo — sobre branco ele dá 3,3:1 e reprova em AA. Texto branco sobre
         // verde, ou verde sobre branco, usa `dark` (5,1:1); `deep` é o hover de `dark`.

@@ -53,6 +53,13 @@ describe("VagaSchema", () => {
     expect(VagaSchema.safeParse({ ...base, valor_diaria: -5 }).success).toBe(false);
   });
 
+  // Diária gratuita não existe no modelo: campo vazio (coerção → 0) e R$0 param
+  // no schema, em vez de publicar oferta grátis por engano.
+  it("rejeita valor zero e campo vazio", () => {
+    expect(VagaSchema.safeParse({ ...base, valor_diaria: 0 }).success).toBe(false);
+    expect(VagaSchema.safeParse({ ...base, valor_diaria: "" }).success).toBe(false);
+  });
+
   // Vaga sem data/hora renderiza vazia no feed e não dá para se candidatar
   // com consciência — a regra vive no schema, não só no `required` do form.
   it("rejeita vaga sem data do serviço", () => {

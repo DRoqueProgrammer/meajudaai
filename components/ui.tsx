@@ -9,10 +9,10 @@ import { iniciais } from "@/lib/format";
  * mal avaliado. Zero avaliações não é nota zero, e o card de candidato é onde
  * essa diferença decide quem trabalha.
  *
- * O amarelo #FFC107 é fixado pela referência visual e dá 1,63:1 sobre branco —
- * abaixo de AA. Como não posso trocar a cor, a estrela cheia recebe contorno
- * (`text-shadow`) para ter borda legível, e o valor numérico ao lado (5,98:1)
- * carrega a mesma informação em texto.
+ * O amarelo #FFC107 da identidade dá 1,63:1 sobre branco — reprova em AA e até
+ * no 1.4.11 (contraste de objeto gráfico). A estrela cheia, que aqui CARREGA a
+ * nota, usa o amarelo escuro `accent-strong` (#B8860B, ~3,4:1); o `#FFC107` fica
+ * só para enfeite. O valor numérico ao lado (5,98:1) reforça a mesma informação.
  */
 export function StarRating({ nota, total }: { nota: number; total?: number }) {
   if (typeof total === "number" && total === 0) {
@@ -25,9 +25,9 @@ export function StarRating({ nota, total }: { nota: number; total?: number }) {
   const full = Math.round(nota);
   return (
     <span className="inline-flex items-center gap-1 text-sm">
-      <span aria-hidden="true" className="text-accent [text-shadow:0_0_1px_#8a6d00]">
+      <span aria-hidden="true" className="text-accent-strong">
         {"★".repeat(full)}
-        <span className="text-line-strong [text-shadow:none]">{"★".repeat(Math.max(0, 5 - full))}</span>
+        <span className="text-line-strong">{"★".repeat(Math.max(0, 5 - full))}</span>
       </span>
       <span className="text-muted">
         <span className="sr-only">Nota </span>

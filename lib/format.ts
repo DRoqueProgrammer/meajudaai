@@ -29,6 +29,16 @@ export function iniciais(nome: string): string {
   return (partes[0]![0]! + partes[partes.length - 1]![0]!).toUpperCase();
 }
 
+/**
+ * Arredonda uma coordenada a 2 casas decimais (~1,1 km) para a localização
+ * APROXIMADA da vaga. É o borrão que protege o endereço da obra: o pino cai na
+ * vizinhança, não na porta, enquanto o `vaga_local` guarda o ponto exato só para
+ * quem a RLS libera. Vivia inline e duplicada em publicar e editar vaga.
+ */
+export function arredCoord(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
 /** Remove tudo que não for dígito. Base das máscaras e da normalização de telefone. */
 export function soDigitos(v: string): string {
   return v.replace(/\D/g, "");

@@ -137,8 +137,18 @@ export default async function VagaDetalhePage({
           <div className="flex flex-col gap-2">
             <h2 className="text-xs font-semibold uppercase tracking-wide text-muted">Local da obra</h2>
             <VagasMap
+              filtros={false}
               points={[
-                { id: vaga.id, lat: local.lat, lng: local.lng, titulo: vaga.titulo, valor: vaga.valor_diaria, cidade: vaga.cidade },
+                {
+                  id: vaga.id,
+                  lat: local.lat,
+                  lng: local.lng,
+                  titulo: vaga.titulo,
+                  valor: vaga.valor_diaria,
+                  cidade: vaga.cidade,
+                  categoria: vaga.categoria,
+                  data: vaga.data_servico,
+                },
               ]}
             />
             <CompartilharLocal modo="obra" lat={local.lat} lng={local.lng} />

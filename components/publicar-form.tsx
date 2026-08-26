@@ -133,7 +133,7 @@ export function PublicarForm({
             <label className="label" htmlFor="valor_diaria">
               Valor da diária (R$)
             </label>
-            <input id="valor_diaria" name="valor_diaria" className="input" type="number" inputMode="decimal" min="0" step="0.01" defaultValue={v.valor_diaria ?? ""} aria-describedby="valor-referencia" required />
+            <input id="valor_diaria" name="valor_diaria" className="input" type="number" inputMode="decimal" min="1" step="0.01" defaultValue={v.valor_diaria ?? ""} aria-describedby="valor-referencia" required />
           </div>
           <div className="w-28">
             <label className="label" htmlFor="quantidade_vagas">

@@ -1,0 +1,49 @@
+# Portão de qualidade: roda em cada push e em cada PR contra a main. Os testes
+# existiam e eram bons, mas dependiam da disciplina do dev — sem CI, nada
+# garantia que typecheck, lint e testes passavam antes do merge. Este workflow
+# fecha essa lacuna (parecer do Conselho, Eng. de Software).
+#
+# Só a suíte unitária roda aqui (npm test). A de integração (test:integration)
+# fica de fora de propósito: ela cria usuários reais no Supabase e precisa de
+# service_role — não é para rodar em cada PR. Ver docs/adr/0010.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Um PR que recebe vários pushes só mantém a checagem mais recente rodando.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # npm ci: instalação limpa e reprodutível a partir do package-lock.
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Testes unitários
+        run: npm test

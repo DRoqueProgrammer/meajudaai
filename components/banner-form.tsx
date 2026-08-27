@@ -33,7 +33,7 @@ export function BannerForm({ texto, ativo }: { texto: string; ativo: boolean }) 
           setSalvando(false);
           setMsg(r.ok ? "Salvo." : (r.erro ?? "Erro."));
         }}
-        className="self-start rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        className="self-start rounded-lg bg-brand-fill px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
       >
         Salvar
       </button>

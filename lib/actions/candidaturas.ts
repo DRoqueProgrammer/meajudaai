@@ -6,6 +6,8 @@ import { requireWorkspaceRole } from "@/lib/auth/workspace";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ensureDmExterna } from "@/lib/actions/conversas";
+import { rateLimit } from "@/lib/rate-limit";
+import { logAction } from "@/lib/log";
 import type { ActionResult } from "./auth";
 
 /**
@@ -17,6 +19,14 @@ export async function candidatarAction(vagaId: string): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
   const user = w.user;
+
+  // Candidatura é a ação mais fácil de automatizar em massa: 20/min por usuário
+  // é folgado para uma pessoa e barra o bot antes do banco.
+  if (!rateLimit(`candidatar:${user.id}`, 20, 60_000).ok) {
+    logAction("candidatar", { userId: user.id, vagaId, result: "rate_limited" });
+    return { ok: false, erro: "Você está indo rápido demais. Espere um instante e tente de novo." };
+  }
+
   // Client de sessão: a policy cand_insert_self (0010) exige vaga aberta e
   // impede que o gestor se candidate à própria vaga.
   const sb = await createServerClient();
@@ -26,6 +36,7 @@ export async function candidatarAction(vagaId: string): Promise<ActionResult> {
     .select("id")
     .single();
   if (error) {
+    logAction("candidatar", { userId: user.id, vagaId, result: "erro", code: error.code });
     return {
       ok: false,
       erro:
@@ -50,6 +61,7 @@ export async function candidatarAction(vagaId: string): Promise<ActionResult> {
       link: `/minhas-vagas/${vagaId}/candidatos`,
     });
   }
+  logAction("candidatar", { userId: user.id, vagaId, result: "ok" });
   revalidatePath("/vagas");
   revalidatePath("/minhas-diarias");
   return { ok: true };

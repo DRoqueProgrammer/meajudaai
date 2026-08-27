@@ -31,7 +31,7 @@ export default function NovaSenhaPage() {
       </div>
       <form
         action={formAction}
-        className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
+        className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
       >
         <h1 className="text-lg font-semibold">Criar senha nova</h1>
         <p className="text-sm leading-relaxed text-muted">

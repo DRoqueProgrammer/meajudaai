@@ -44,7 +44,7 @@ export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "ajudante" }
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-brand bg-[#e6effb] p-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-brand bg-tint-info p-3">
       <p className="text-sm">
         Trocar para{" "}
         <strong className="font-semibold">

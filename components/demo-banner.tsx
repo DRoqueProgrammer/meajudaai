@@ -6,9 +6,9 @@ export function DemoBanner({ nome }: { nome: string | null }) {
     // Não é sticky: disputava o topo com o PageHeader (z-30 contra z-10, ambos
     // em top-0) e o header da página ficava atrás. O aviso é de contexto, não
     // precisa acompanhar a rolagem — e a 375px ele custava altura que falta.
-    <div className="border-b border-accent/50 bg-[#fff8e1]">
+    <div className="border-b border-accent/50 bg-tint-warn">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-2 px-4">
-        <p className="py-1.5 text-[12px] text-[#7a5d00]">
+        <p className="py-1.5 text-[12px] text-tint-warn-ink">
           <span aria-hidden="true">👁</span> <span className="font-medium">Modo demo</span> — você
           está como <span className="font-medium">{nome?.trim() || "visitante"}</span> vendo dados
           de exemplo. Nada que você clicar é salvo.

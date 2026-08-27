@@ -119,7 +119,7 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
       </div>
 
       {hits.length > 1 ? (
-        <ul className="rounded-xl border border-line bg-white text-sm">
+        <ul className="rounded-xl border border-line bg-card text-sm">
           {hits.map((h, i) => (
             <li key={i}>
               <button

@@ -32,7 +32,7 @@ export function CancelarVaga({ vagaId, candidatos }: { vagaId: string; candidato
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-danger bg-[#fdeaea] p-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-danger bg-tint-danger p-3">
       <p className="text-sm">
         Cancelar esta diária?{" "}
         {candidatos > 0

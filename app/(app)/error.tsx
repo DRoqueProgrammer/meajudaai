@@ -16,7 +16,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error]);
 
   return (
-    <div className="flex flex-col items-start gap-3 rounded-2xl border border-line bg-white p-6">
+    <div className="flex flex-col items-start gap-3 rounded-2xl border border-line bg-card p-6">
       <h1 className="text-lg font-semibold">Essa tela não carregou</h1>
       <p className="text-sm leading-relaxed text-muted">
         Pode ter sido a internet. Tente de novo — nada do que você já fez foi perdido.

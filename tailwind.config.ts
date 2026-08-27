@@ -4,22 +4,46 @@ const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      // Tokens semânticos apontam para CSS variables (ver app/globals.css): virar
+      // o tema é trocar a variável, não a classe. Papéis separados por contraste —
+      // `brand`/`ok`/`danger` são a TINTA sobre superfície (viram no escuro);
+      // `*-fill` são o PREENCHIMENTO com texto branco (fixos nos dois temas).
       colors: {
-        brand: { DEFAULT: "#0D47A1", dark: "#0A3A85" },
-        accent: { DEFAULT: "#FFC107" },
-        // DEFAULT é o verde da identidade (#43A047) e só vale para preenchimento
-        // decorativo — sobre branco ele dá 3,3:1 e reprova em AA. Texto branco sobre
-        // verde, ou verde sobre branco, usa `dark` (5,1:1); `deep` é o hover de `dark`.
+        brand: {
+          DEFAULT: "var(--brand-ink)", // text/border/outline da marca sobre superfície
+          dark: "var(--brand-ink-strong)", // hover de texto/borda
+          fill: "var(--brand-fill)", // fundo de botão/badge (texto branco por cima)
+          fillhover: "var(--brand-fill-hover)",
+        },
+        // #FFC107 é o amarelo da identidade, só preenchimento decorativo (some no
+        // contraste sobre branco). `strong` é a estrela que CARREGA a nota: amarelo
+        // escuro no claro, brilhante no escuro (var --star).
+        accent: { DEFAULT: "#FFC107", strong: "var(--star)" },
+        // Preenchimentos verdes fixos (texto branco por cima passa nos dois temas).
         action: { DEFAULT: "#43A047", dark: "#2E7D32", deep: "#1B5E20" },
-        surface: "#F5F7FA",
-        ink: "#212121",
-        muted: "#5B6472",
-        // `line` é divisória decorativa (1,25:1). Contorno de controle interativo usa
-        // `line-strong` (3,07:1), o mínimo do WCAG 1.4.11 para limite de componente.
-        line: { DEFAULT: "#E2E6EC", strong: "#8A94A3" },
-        // #E53935 dava 4,23:1 sobre branco e reprovava em AA — todo uso de `danger`
-        // no app é texto de erro, então o token inteiro escureceu (5,6:1).
-        danger: "#C62828",
+        // Verde como TINTA sobre superfície (texto/borda de sucesso) — vira no escuro.
+        ok: "var(--ok-ink)",
+        surface: "var(--surface)",
+        // Fundo de card/input, em canais RGB para o `bg-card/90` dos headers.
+        card: "rgb(var(--card-rgb) / <alpha-value>)",
+        ink: "var(--ink)",
+        muted: "var(--muted)",
+        // `line` é divisória decorativa; `line-strong` é o contorno de controle
+        // interativo (mínimo do WCAG 1.4.11). Ambos viram no escuro.
+        line: { DEFAULT: "var(--line)", strong: "var(--line-strong)" },
+        // `danger` é a TINTA do erro (vira no escuro); `danger-fill` é o badge
+        // vermelho com texto branco (fixo).
+        danger: { DEFAULT: "var(--danger-ink)", fill: "var(--danger-fill)" },
+        // Tints de status (fundo pastel). `warn-ink` é a tinta do amarelo, que não
+        // reusa nenhum ink existente.
+        tint: {
+          info: "var(--tint-info)",
+          ok: "var(--tint-ok)",
+          warn: "var(--tint-warn)",
+          "warn-ink": "var(--tint-warn-ink)",
+          neutral: "var(--tint-neutral)",
+          danger: "var(--tint-danger)",
+        },
       },
       fontFamily: {
         sans: ["Poppins", "system-ui", "sans-serif"],

@@ -44,7 +44,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen md:flex">
       <a
         href="#conteudo"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-brand focus:px-4 focus:py-3 focus:text-sm focus:text-white"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-brand-fill focus:px-4 focus:py-3 focus:text-sm focus:text-white"
       >
         Pular para o conteúdo
       </a>

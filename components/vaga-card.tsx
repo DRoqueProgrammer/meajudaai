@@ -59,7 +59,7 @@ export function VagaCard({
           sm+ há espaço de sobra e ela volta pro canto superior direito. */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand/10 text-brand">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-tint-info text-brand">
             <CategoriaIcon slug={vaga.categoria} className="h-5 w-5" />
           </span>
           <div className="min-w-0">
@@ -109,7 +109,7 @@ export function VagaCard({
   );
 
   const base =
-    "block rounded-2xl border border-line bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]";
+    "block rounded-2xl border border-line bg-card p-5 shadow-[0_1px_3px_rgba(15,23,42,0.06)]";
   return href ? (
     <Link href={href} className={`${base} transition hover:border-brand`}>
       {conteudo}

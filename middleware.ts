@@ -16,6 +16,9 @@ const PUBLIC_PREFIXES = [
   "/favicon",
   "/api/health",
   "/api/demo",
+  // O cron do lembrete de avaliação se autentica por bearer secret (CRON_SECRET),
+  // não por sessão — o middleware não deve tentar redirecioná-lo para /login.
+  "/api/cron",
 ];
 
 /**

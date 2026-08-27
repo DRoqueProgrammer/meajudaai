@@ -42,7 +42,7 @@ export function ConvidarForm() {
           </button>
         </div>
         {link ? (
-          <div className="flex items-center gap-2 rounded-xl border border-line bg-white p-2 text-xs">
+          <div className="flex items-center gap-2 rounded-xl border border-line bg-card p-2 text-xs">
             <span className="min-w-0 flex-1 truncate text-muted">{link}</span>
             <button
               type="button"
@@ -79,7 +79,7 @@ export function ConvidarForm() {
         {estado ? (
           <p
             role={estado.ok ? "status" : "alert"}
-            className={`text-sm ${estado.ok ? "text-action-dark" : "text-danger"}`}
+            className={`text-sm ${estado.ok ? "text-ok" : "text-danger"}`}
           >
             {estado.ok ? "Membro adicionado à equipe." : estado.erro}
           </p>

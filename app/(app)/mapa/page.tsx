@@ -26,7 +26,7 @@ export default async function MapaPage() {
     descricao = "Diárias abertas na região. A localização é aproximada até você ser contratado.";
     const { data } = await sb
       .from("vagas")
-      .select("id, titulo, valor_diaria, cidade, local_aprox_lat, local_aprox_lng")
+      .select("id, titulo, valor_diaria, cidade, categoria, data_servico, local_aprox_lat, local_aprox_lng")
       .eq("status", "aberta")
       .not("local_aprox_lat", "is", null);
     points = (data ?? [])
@@ -38,6 +38,8 @@ export default async function MapaPage() {
         titulo: v.titulo,
         valor: v.valor_diaria,
         cidade: v.cidade,
+        categoria: v.categoria,
+        data: v.data_servico,
       }));
   } else {
     titulo = "Mapa da equipe";
@@ -46,7 +48,7 @@ export default async function MapaPage() {
     if (ws) {
       const { data: vagas } = await sb
         .from("vagas")
-        .select("id, titulo, valor_diaria, cidade")
+        .select("id, titulo, valor_diaria, cidade, categoria, data_servico")
         .eq("workspace_id", ws.workspace_id);
       const ids = (vagas ?? []).map((v) => v.id);
       const { data: locais } = ids.length
@@ -57,7 +59,16 @@ export default async function MapaPage() {
         .map((v) => {
           const l = locDe.get(v.id);
           return l
-            ? { id: v.id, lat: l.lat, lng: l.lng, titulo: v.titulo, valor: v.valor_diaria, cidade: v.cidade }
+            ? {
+                id: v.id,
+                lat: l.lat,
+                lng: l.lng,
+                titulo: v.titulo,
+                valor: v.valor_diaria,
+                cidade: v.cidade,
+                categoria: v.categoria,
+                data: v.data_servico,
+              }
             : null;
         })
         .filter((p): p is VagaPonto => p !== null);

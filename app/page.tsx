@@ -42,8 +42,8 @@ export default async function HomePage() {
   const fotoDe = new Map((perfisDemo ?? []).map((p) => [p.nome, p.foto_url]));
 
   return (
-    <div className="flex min-h-screen flex-col bg-white tabular-nums text-ink">
-      <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between gap-6 border-b border-line bg-white/90 px-4 backdrop-blur md:px-8">
+    <div className="flex min-h-screen flex-col bg-card tabular-nums text-ink">
+      <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between gap-6 border-b border-line bg-card/90 px-4 backdrop-blur md:px-8">
         <Logo />
         <div className="flex items-center gap-3">
           <Link href="/login" className="text-[13px] font-semibold text-muted hover:text-ink">
@@ -51,7 +51,7 @@ export default async function HomePage() {
           </Link>
           <Link
             href="/cadastro"
-            className="rounded-[10px] bg-brand px-[18px] py-[11px] text-[13px] font-semibold text-white hover:bg-brand-dark"
+            className="rounded-[10px] bg-brand-fill px-[18px] py-[11px] text-[13px] font-semibold text-white hover:bg-brand-fillhover"
           >
             Criar conta
           </Link>
@@ -82,7 +82,7 @@ export default async function HomePage() {
               <div className="mt-1 flex flex-wrap gap-3">
                 <Link
                   href="/cadastro?papel=admin"
-                  className="rounded-xl bg-brand px-[26px] py-4 text-[15px] font-semibold text-white hover:bg-brand-dark"
+                  className="rounded-xl bg-brand-fill px-[26px] py-4 text-[15px] font-semibold text-white hover:bg-brand-fillhover"
                 >
                   Preciso de ajudante
                 </Link>
@@ -108,13 +108,13 @@ export default async function HomePage() {
                 <a
                   key={who}
                   href={`/api/demo/enter?who=${who}`}
-                  className="group flex items-center gap-3.5 rounded-xl border border-line bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,.07)] hover:border-brand"
+                  className="group flex items-center gap-3.5 rounded-xl border border-line bg-card p-4 shadow-[0_1px_3px_rgba(15,23,42,.07)] hover:border-brand"
                 >
                   <Avatar nome={c.nome} fotoUrl={fotoDe.get(c.nome) ?? null} />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-[14.5px] font-semibold">{c.nome}</p>
-                      <span className="rounded-full bg-[#e8eff9] px-2 py-0.5 text-[11px] font-semibold text-brand">
+                      <span className="rounded-full bg-tint-info px-2 py-0.5 text-[11px] font-semibold text-brand">
                         {c.papel}
                       </span>
                     </div>
@@ -137,7 +137,7 @@ export default async function HomePage() {
             <p className="mb-[22px] text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
               Como funciona
             </p>
-            <div className="grid overflow-hidden rounded-[14px] border border-line bg-white md:grid-cols-3">
+            <div className="grid overflow-hidden rounded-[14px] border border-line bg-card md:grid-cols-3">
               {COMO_FUNCIONA.map(([num, tit, desc], i) => (
                 <div key={num} className={`p-[30px] ${i < 2 ? "md:border-r md:border-line" : ""}`}>
                   <p className="text-3xl font-extrabold leading-none text-line">{num}</p>
@@ -172,7 +172,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="bg-brand">
+        <section className="bg-brand-fill">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-7 px-8 py-10">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
@@ -184,7 +184,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/cadastro"
-              className="rounded-[10px] bg-white px-[22px] py-[13px] text-[13px] font-semibold text-ink hover:bg-accent"
+              className="rounded-[10px] bg-white px-[22px] py-[13px] text-[13px] font-semibold text-brand-fill hover:bg-accent"
             >
               Criar conta
             </Link>
@@ -192,7 +192,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-white">
+      <footer className="border-t border-line bg-card">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-8 py-[26px] text-[12.5px] text-muted">
           <span>MeAjuda Aí · a ajuda que você precisa, no momento que você mais precisa.</span>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">

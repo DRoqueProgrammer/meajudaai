@@ -80,7 +80,7 @@ export function Denunciar({
           if (e.target === ref.current) fechar();
         }}
         aria-labelledby="denunciar-titulo"
-        className="w-[min(92vw,26rem)] rounded-2xl border border-line bg-white p-0 text-ink backdrop:bg-black/40"
+        className="w-[min(92vw,26rem)] rounded-2xl border border-line bg-card p-0 text-ink backdrop:bg-black/40"
       >
         {enviada ? (
           <div className="flex flex-col gap-3 p-5">

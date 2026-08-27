@@ -22,7 +22,7 @@ export function RecuperarSenhaForm({ expirado }: { expirado: boolean }) {
       </div>
 
       {enviado ? (
-        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]">
+        <div className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]">
           <h1 className="text-lg font-semibold">Confira seu e-mail</h1>
           {/* Mensagem neutra de propósito: confirmar que o e-mail existe
               transformaria esta tela num verificador de quem está na base. */}
@@ -47,7 +47,7 @@ export function RecuperarSenhaForm({ expirado }: { expirado: boolean }) {
       ) : (
         <form
           action={formAction}
-          className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
+          className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
         >
           <h1 className="text-lg font-semibold">Esqueci minha senha</h1>
           <p className="text-sm leading-relaxed text-muted">

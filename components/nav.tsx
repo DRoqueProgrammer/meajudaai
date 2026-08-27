@@ -87,6 +87,11 @@ const NAV_ICONS: Record<string, ReactNode> = {
       <path d="M8 15v-3M12 15V8M16 15v-5" />
     </>
   ),
+  pulse: (
+    <>
+      <path d="M3 12h4l2.5-6 4 12 2.5-6H21" />
+    </>
+  ),
   map: (
     <>
       <path d="M9 4 3.5 6.5v13L9 17l6 2.5 5.5-2.5v-13L15 6.5 9 4z" />
@@ -128,7 +133,7 @@ function Badge({ n, rotulo }: { n: number; rotulo: string }) {
   return (
     <span
       aria-label={`${n} ${n === 1 ? "novo" : "novos"} em ${rotulo}`}
-      className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-danger px-1 text-[10px] font-bold leading-none text-white"
+      className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-danger-fill px-1 text-[10px] font-bold leading-none text-white"
     >
       {n > 9 ? "9+" : n}
     </span>
@@ -178,6 +183,7 @@ export function Nav({
           { href: "/admin/usuarios", label: "Usuários", icon: "users" },
           { href: "/admin/denuncias", label: "Denúncias", icon: "shield" },
           { href: "/admin/demanda", label: "Demanda", icon: "chart" },
+          { href: "/admin/metricas", label: "Métricas", icon: "pulse" },
         ]
       : role === "admin" || role === "funcionario"
         ? empresaItems
@@ -217,7 +223,7 @@ export function Nav({
 
   return (
     <>
-      <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line bg-white p-4 md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line bg-card p-4 md:flex">
         <div className="mb-4 px-2">
           <Logo />
         </div>
@@ -227,7 +233,7 @@ export function Nav({
             href={it.href}
             aria-current={active(it.href) ? "page" : undefined}
             className={`flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
-              active(it.href) ? "bg-brand text-white" : "text-muted hover:bg-surface"
+              active(it.href) ? "bg-brand-fill text-white" : "text-muted hover:bg-surface"
             }`}
           >
             <NavIcon name={it.icon} className="h-5 w-5 shrink-0" />
@@ -247,7 +253,7 @@ export function Nav({
 
       <nav
         aria-label="Navegação principal"
-        className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-line bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-line bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {rodape.map((it) => (
           <Link

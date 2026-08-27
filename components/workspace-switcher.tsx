@@ -51,7 +51,7 @@ export function WorkspaceSwitcher({ workspaces, active }: { workspaces: Ws[]; ac
   const [estadoCriar, criarAction] = useActionState(criarEmpresaAction, null);
 
   return (
-    <div className="mb-4 flex flex-col gap-2 rounded-xl border border-line bg-white p-3">
+    <div className="mb-4 flex flex-col gap-2 rounded-xl border border-line bg-card p-3">
       <div className="flex items-center gap-2">
         <label
           htmlFor="workspace-ativo"

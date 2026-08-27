@@ -579,6 +579,7 @@ export type Database = {
     };
     Functions: {
       current_app_role: { Args: Record<PropertyKey, never>; Returns: string };
+      enfileirar_lembretes_avaliacao: { Args: Record<PropertyKey, never>; Returns: number };
       has_capability: { Args: { v_user: string; v_ws: string; v_cap: string }; Returns: boolean };
       is_ajudante_aceito: { Args: { v_vaga: string; v_user: string }; Returns: boolean };
       is_conversa_membro: { Args: { v_conversa: string }; Returns: boolean };

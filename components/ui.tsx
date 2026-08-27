@@ -9,15 +9,15 @@ import { iniciais } from "@/lib/format";
  * mal avaliado. Zero avaliações não é nota zero, e o card de candidato é onde
  * essa diferença decide quem trabalha.
  *
- * O amarelo #FFC107 é fixado pela referência visual e dá 1,63:1 sobre branco —
- * abaixo de AA. Como não posso trocar a cor, a estrela cheia recebe contorno
- * (`text-shadow`) para ter borda legível, e o valor numérico ao lado (5,98:1)
- * carrega a mesma informação em texto.
+ * O amarelo #FFC107 da identidade dá 1,63:1 sobre branco — reprova em AA e até
+ * no 1.4.11 (contraste de objeto gráfico). A estrela cheia, que aqui CARREGA a
+ * nota, usa o amarelo escuro `accent-strong` (#B8860B, ~3,4:1); o `#FFC107` fica
+ * só para enfeite. O valor numérico ao lado (5,98:1) reforça a mesma informação.
  */
 export function StarRating({ nota, total }: { nota: number; total?: number }) {
   if (typeof total === "number" && total === 0) {
     return (
-      <span className="inline-flex items-center rounded-full bg-[#e6effb] px-2 py-0.5 text-xs font-medium text-brand">
+      <span className="inline-flex items-center rounded-full bg-tint-info px-2 py-0.5 text-xs font-medium text-brand">
         Novo no app
       </span>
     );
@@ -25,9 +25,9 @@ export function StarRating({ nota, total }: { nota: number; total?: number }) {
   const full = Math.round(nota);
   return (
     <span className="inline-flex items-center gap-1 text-sm">
-      <span aria-hidden="true" className="text-accent [text-shadow:0_0_1px_#8a6d00]">
+      <span aria-hidden="true" className="text-accent-strong">
         {"★".repeat(full)}
-        <span className="text-line-strong [text-shadow:none]">{"★".repeat(Math.max(0, 5 - full))}</span>
+        <span className="text-line-strong">{"★".repeat(Math.max(0, 5 - full))}</span>
       </span>
       <span className="text-muted">
         <span className="sr-only">Nota </span>
@@ -40,15 +40,15 @@ export function StarRating({ nota, total }: { nota: number; total?: number }) {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  aberta: "bg-[#e7f5e9] text-action-dark",
-  aguardando: "bg-[#fff5da] text-[#8a6d00]",
-  em_andamento: "bg-[#e6effb] text-brand",
-  aceito: "bg-[#e7f5e9] text-action-dark",
-  finalizada: "bg-[#eef1f5] text-muted",
-  concluida: "bg-[#eef1f5] text-muted",
-  recusado: "bg-[#fdeaea] text-danger",
-  cancelada: "bg-[#fdeaea] text-danger",
-  cancelado: "bg-[#fdeaea] text-danger",
+  aberta: "bg-tint-ok text-ok",
+  aguardando: "bg-tint-warn text-tint-warn-ink",
+  em_andamento: "bg-tint-info text-brand",
+  aceito: "bg-tint-ok text-ok",
+  finalizada: "bg-tint-neutral text-muted",
+  concluida: "bg-tint-neutral text-muted",
+  recusado: "bg-tint-danger text-danger",
+  cancelada: "bg-tint-danger text-danger",
+  cancelado: "bg-tint-danger text-danger",
 };
 
 /**
@@ -69,7 +69,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {
-  const cls = STATUS_STYLE[status] ?? "bg-[#eef1f5] text-muted";
+  const cls = STATUS_STYLE[status] ?? "bg-tint-neutral text-muted";
   // `label` sobrescreve quando o rótulo padrão (POV do ajudante, ex.: "Você foi
   // aceito") não cabe no contexto — na lista de candidatos o profissional vê
   // "Confirmado", não "Você foi aceito".
@@ -120,7 +120,7 @@ export function Avatar({
   return (
     <span
       aria-hidden="true"
-      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-action font-semibold text-white ${cls}`}
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-fill to-action font-semibold text-white ${cls}`}
     >
       {iniciais(nome)}
     </span>
@@ -129,7 +129,7 @@ export function Avatar({
 
 export function Verificado() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#e7f5e9] px-2 py-0.5 text-xs font-medium text-action-dark">
+    <span className="inline-flex items-center gap-1 rounded-full bg-tint-ok px-2 py-0.5 text-xs font-medium text-ok">
       {/* O ✔ era lido em voz alta ("marca de seleção") antes do rótulo. */}
       <span aria-hidden="true">✔</span> Perfil verificado
     </span>
@@ -152,7 +152,7 @@ export function FormError({ children, className = "" }: { children: React.ReactN
 
 export function PageHeader({ titulo, voltar }: { titulo: string; voltar?: string }) {
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-white/90 px-4 py-3 backdrop-blur">
+    <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-card/90 px-4 py-3 backdrop-blur">
       {voltar ? (
         <Link
           href={voltar}

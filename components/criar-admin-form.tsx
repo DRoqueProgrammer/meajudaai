@@ -96,7 +96,7 @@ export function CriarAdminForm() {
         <button type="button" onClick={() => setOpen(false)} className="btn-ghost px-3 py-2 text-sm">
           Cancelar
         </button>
-        {ok ? <span className="text-xs text-action-dark">Admin criado <span aria-hidden="true">✓</span></span> : null}
+        {ok ? <span className="text-xs text-ok">Admin criado <span aria-hidden="true">✓</span></span> : null}
         {estado?.erro ? <FormError className="text-xs">{estado.erro}</FormError> : null}
       </div>
     </form>

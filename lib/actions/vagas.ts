@@ -6,6 +6,9 @@ import { requireModule, requireCapability } from "@/lib/auth/modules";
 import { requireWorkspaceRole, getActiveWorkspace } from "@/lib/auth/workspace";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { VagaSchema } from "@/lib/validation";
+import { arredCoord } from "@/lib/format";
+import { rateLimit } from "@/lib/rate-limit";
+import { logAction } from "@/lib/log";
 import { geocodeAddress } from "./geocode";
 import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
@@ -27,7 +30,7 @@ export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Pro
     bairro: campo(fd, "bairro"),
     data_servico: campo(fd, "data_servico"),
     hora_inicio: campo(fd, "hora_inicio"),
-    valor_diaria: campo(fd, "valor_diaria") || "0",
+    valor_diaria: campo(fd, "valor_diaria"),
     quantidade_vagas: campo(fd, "quantidade_vagas") || "1",
   });
   if (!parsed.success) {
@@ -36,6 +39,10 @@ export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Pro
   const w = await tryWriter();
   if ("erro" in w) return { erro: w.erro, valores: preserva };
   const user = w.user;
+  if (!rateLimit(`publicar:${user.id}`, 15, 60_000).ok) {
+    logAction("publicar_vaga", { userId: user.id, result: "rate_limited" });
+    return { erro: "Muitas publicações em sequência. Espere um instante e tente de novo.", valores: preserva };
+  }
   await requireModule("vagas");
   const ws = await getActiveWorkspace();
   if (!ws) {
@@ -71,16 +78,18 @@ export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Pro
     })
     .select("id")
     .single();
-  if (error) return { erro: "Não foi possível publicar a vaga.", valores: preserva };
+  if (error) {
+    logAction("publicar_vaga", { userId: user.id, workspaceId: ws.workspace_id, result: "erro" });
+    return { erro: "Não foi possível publicar a vaga.", valores: preserva };
+  }
 
   const localLat = Number(campo(fd, "local_lat")) || null;
   const localLng = Number(campo(fd, "local_lng")) || null;
   if (localLat && localLng) {
-    const arred = (n: number) => Math.round(n * 100) / 100; // ~1,1 km
     await db.from("vaga_local").insert({ vaga_id: data.id, lat: localLat, lng: localLng });
     await db
       .from("vagas")
-      .update({ local_aprox_lat: arred(localLat), local_aprox_lng: arred(localLng) })
+      .update({ local_aprox_lat: arredCoord(localLat), local_aprox_lng: arredCoord(localLng) })
       .eq("id", data.id);
   } else {
     // Sem pino: geocoda bairro/cidade só para a localização APROXIMADA (sem exato).
@@ -93,6 +102,7 @@ export async function publicarVagaAction(_estado: EstadoForm, fd: FormData): Pro
     }
   }
 
+  logAction("publicar_vaga", { userId: user.id, workspaceId: ws.workspace_id, vagaId: data.id, result: "ok" });
   revalidatePath("/minhas-vagas");
   revalidatePath("/vagas");
 
@@ -122,7 +132,7 @@ export async function editarVagaAction(
     bairro: campo(fd, "bairro"),
     data_servico: campo(fd, "data_servico"),
     hora_inicio: campo(fd, "hora_inicio"),
-    valor_diaria: campo(fd, "valor_diaria") || "0",
+    valor_diaria: campo(fd, "valor_diaria"),
     quantidade_vagas: campo(fd, "quantidade_vagas") || "1",
   });
   if (!parsed.success) {
@@ -169,11 +179,10 @@ export async function editarVagaAction(
   const localLat = Number(campo(fd, "local_lat")) || null;
   const localLng = Number(campo(fd, "local_lng")) || null;
   if (localLat && localLng) {
-    const arred = (n: number) => Math.round(n * 100) / 100;
     await db.from("vaga_local").upsert({ vaga_id: vagaId, lat: localLat, lng: localLng });
     await db
       .from("vagas")
-      .update({ local_aprox_lat: arred(localLat), local_aprox_lng: arred(localLng) })
+      .update({ local_aprox_lat: arredCoord(localLat), local_aprox_lng: arredCoord(localLng) })
       .eq("id", vagaId);
   }
 

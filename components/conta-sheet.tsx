@@ -45,7 +45,7 @@ export function ContaSheet({
           if (e.target === ref.current) fechar();
         }}
         aria-labelledby="conta-titulo"
-        className="mb-0 w-full max-w-lg rounded-t-2xl border border-line bg-white p-0 text-ink backdrop:bg-black/40 sm:mb-auto sm:rounded-2xl"
+        className="mb-0 w-full max-w-lg rounded-t-2xl border border-line bg-card p-0 text-ink backdrop:bg-black/40 sm:mb-auto sm:rounded-2xl"
       >
         <div className="flex flex-col gap-1 p-4">
           <h2 id="conta-titulo" className="px-2 pb-2 text-sm font-semibold text-muted">

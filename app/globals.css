@@ -2,12 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Tema por CSS variables. Só o que muda de VALOR entre claro e escuro mora aqui;
+ * o tailwind.config aponta os tokens semânticos para estas variáveis, então
+ * virar o tema é trocar as variáveis, não reescrever classe.
+ *
+ * Regra do dark: cor de PREENCHIMENTO com texto branco (botão da marca, badge
+ * verde) fica FIXA nos dois temas — inverter quebraria o contraste do texto
+ * branco. O que vira é a cor de TINTA/BORDA sobre superfície (texto da marca, do
+ * erro, estrela, tints de status), porque azul/vermelho/verde escuros somem no
+ * escuro. Ver ADR 0011.
+ */
 :root {
-  --brand: #0d47a1;
-  --accent: #ffc107;
-  --action: #43a047;
+  color-scheme: light;
+
+  /* Superfícies e texto */
   --surface: #f5f7fa;
+  --card-rgb: 255 255 255; /* em canais p/ o bg-card/90 dos headers translúcidos */
   --ink: #212121;
+  --muted: #5b6472;
+  --line: #e2e6ec;
+  --line-strong: #8a94a3;
+
+  /* Marca/ação/erro como TINTA sobre superfície (viram no escuro) */
+  --brand-ink: #0d47a1;
+  --brand-ink-strong: #0a3a85; /* hover de texto/borda da marca */
+  --danger-ink: #c62828;
+  --ok-ink: #2e7d32;
+
+  /* Preenchimentos fixos (texto branco por cima — iguais nos dois temas) */
+  --brand-fill: #0d47a1;
+  --brand-fill-hover: #0a3a85;
+  --danger-fill: #c62828;
+
+  /* Estrela que CARREGA a nota (escura no claro, brilhante no escuro) */
+  --star: #b8860b;
+
+  /* Tints de status: fundo + a tinta do amarelo (as demais tintas reusam os inks) */
+  --tint-info: #e6effb;
+  --tint-ok: #e7f5e9;
+  --tint-warn: #fff5da;
+  --tint-warn-ink: #8a6d00;
+  --tint-neutral: #eef1f5;
+  --tint-danger: #fdeaea;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --surface: #0f172a; /* slate-900 */
+    --card-rgb: 30 41 59; /* slate-800 */
+    --ink: #e7ecf3;
+    --muted: #9aa6b6;
+    --line: #334155; /* slate-700 */
+    --line-strong: #64748b;
+
+    --brand-ink: #7cb0f0; /* azul claro legível sobre o escuro */
+    --brand-ink-strong: #a9cbf6;
+    --danger-ink: #fca5a5;
+    --ok-ink: #86efac;
+
+    /* preenchimentos seguem fixos: branco sobre eles passa nos dois temas */
+
+    --star: #ffd24d;
+
+    --tint-info: #17314f;
+    --tint-ok: #14351f;
+    --tint-warn: #3a2f0a;
+    --tint-warn-ink: #f0d27a;
+    --tint-neutral: #26303e;
+    --tint-danger: #40232a;
+  }
 }
 
 html,
@@ -51,7 +117,7 @@ body {
   @apply disabled:cursor-not-allowed disabled:opacity-60;
 }
 .btn-brand {
-  @apply btn bg-brand text-white hover:bg-brand-dark;
+  @apply btn bg-brand-fill text-white hover:bg-brand-fillhover;
 }
 .btn-accent {
   @apply btn bg-accent text-[#3a2f00] hover:brightness-95;
@@ -60,17 +126,17 @@ body {
   @apply btn bg-action-dark text-white hover:bg-action-deep;
 }
 .btn-ghost {
-  @apply btn border border-brand bg-white text-brand hover:bg-surface;
+  @apply btn border border-brand bg-card text-brand hover:bg-surface;
 }
 /* 16px no card, 12px em controle: a diferença precisa ser visível para a escala
    significar alguma coisa. Antes o `.card` usava o mesmo raio dos botões. */
 .card {
-  @apply rounded-2xl border border-line bg-white p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)];
+  @apply rounded-2xl border border-line bg-card p-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)];
 }
 /* Estado vazio. Estava copiado em 4 telas, e em outras 2 aparecia como um <p>
    solto sem caixa — três formatos diferentes para a mesma situação. */
 .card-vazio {
-  @apply rounded-2xl border border-dashed border-line bg-white p-6 text-center text-sm text-muted;
+  @apply rounded-2xl border border-dashed border-line bg-card p-6 text-center text-sm text-muted;
 }
 /* Chip de filtro. Estava duplicado em status-tabs, periodo-tabs, modulos-funcionario
    e no Chip de /vagas, os quatro a 30px de altura. */
@@ -79,7 +145,7 @@ body {
   @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
 }
 .chip-on {
-  @apply border-brand bg-brand text-white;
+  @apply border-brand bg-brand-fill text-white;
 }
 .chip-off {
   @apply border-line-strong text-muted hover:border-brand;
@@ -91,7 +157,7 @@ body {
   @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
 }
 .input {
-  @apply min-h-11 w-full rounded-xl border border-line-strong bg-white px-3 py-3 text-sm;
+  @apply min-h-11 w-full rounded-xl border border-line-strong bg-card px-3 py-3 text-sm;
   @apply focus:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
 }
 .label {

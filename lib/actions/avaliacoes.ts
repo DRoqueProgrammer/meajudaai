@@ -5,9 +5,10 @@ import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AvaliacaoSchema } from "@/lib/validation";
+import { rateLimit } from "@/lib/rate-limit";
+import { logAction } from "@/lib/log";
 import { redirect } from "next/navigation";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
-import type { ActionResult } from "./auth";
 
 /**
  * Registra uma avaliação (1–5 estrelas) de uma diária. Insere pelo client de
@@ -33,6 +34,11 @@ export async function avaliarAction(_estado: EstadoForm, fd: FormData): Promise<
   const user = w.user;
   const d = parsed.data;
 
+  if (!rateLimit(`avaliar:${user.id}`, 20, 60_000).ok) {
+    logAction("avaliar", { userId: user.id, vagaId: d.vagaId, result: "rate_limited" });
+    return { erro: "Aguarde um instante antes de enviar outra avaliação.", valores: preserva };
+  }
+
   // Client de sessão: a policy aval_insert_self (0010) exige que os dois tenham
   // participado da diária e barra a auto-avaliação.
   const sb = await createServerClient();
@@ -44,6 +50,7 @@ export async function avaliarAction(_estado: EstadoForm, fd: FormData): Promise<
     comentario: d.comentario ?? null,
   });
   if (error) {
+    logAction("avaliar", { userId: user.id, vagaId: d.vagaId, result: "erro", code: error.code });
     return {
       erro:
         error.code === "23505"
@@ -52,6 +59,7 @@ export async function avaliarAction(_estado: EstadoForm, fd: FormData): Promise<
       valores: preserva,
     };
   }
+  logAction("avaliar", { userId: user.id, vagaId: d.vagaId, result: "ok", nota: d.nota });
 
   const db = createAdminClient();
   await db.from("notificacoes").insert({

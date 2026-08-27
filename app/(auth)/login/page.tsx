@@ -31,7 +31,7 @@ export default function LoginPage() {
       </div>
       <form
         action={formAction}
-        className="flex flex-col gap-3 rounded-2xl border border-line bg-white p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
+        className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
       >
         <div>
           <label className="label" htmlFor="email">

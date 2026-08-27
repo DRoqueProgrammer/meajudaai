@@ -53,7 +53,7 @@ export function ConcluirDiaria({
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-action-dark bg-[#e7f5e9] p-3">
+    <div className="flex flex-col gap-3 rounded-xl border border-ok bg-tint-ok p-3">
       <p className="text-sm">
         O serviço {ajudante ? <>de <strong className="font-semibold">{ajudante}</strong></> : null} foi
         entregue?

@@ -133,7 +133,7 @@ export function PublicarForm({
             <label className="label" htmlFor="valor_diaria">
               Valor da diária (R$)
             </label>
-            <input id="valor_diaria" name="valor_diaria" className="input" type="number" inputMode="decimal" min="0" step="0.01" defaultValue={v.valor_diaria ?? ""} aria-describedby="valor-referencia" required />
+            <input id="valor_diaria" name="valor_diaria" className="input" type="number" inputMode="decimal" min="1" step="0.01" defaultValue={v.valor_diaria ?? ""} aria-describedby="valor-referencia" required />
           </div>
           <div className="w-28">
             <label className="label" htmlFor="quantidade_vagas">
@@ -158,7 +158,7 @@ export function PublicarForm({
         {estado?.erro ? <FormError>{estado.erro}</FormError> : null}
         {valorAlto !== null ? (
           // Passo de confirmação: valor muito alto quase sempre é typo.
-          <div className="flex flex-col gap-3 rounded-xl border border-brand bg-[#e6effb] p-3">
+          <div className="flex flex-col gap-3 rounded-xl border border-brand bg-tint-info p-3">
             <p className="text-sm">
               <strong className="font-semibold">{formatBRL(valorAlto)}</strong> é um valor alto para
               uma diária. Confirma esse valor?

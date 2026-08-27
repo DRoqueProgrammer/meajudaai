@@ -29,9 +29,12 @@ export const VagaSchema = z.object({
     .min(1, "Informe a data do serviço")
     .refine((d) => d >= new Date().toLocaleDateString("sv-SE"), "A data do serviço não pode estar no passado"),
   hora_inicio: z.string().min(1, "Informe o horário de início"),
+  // Mínimo R$1: o modelo não tem diária gratuita, e o fallback antigo ("0" no
+  // campo vazio) publicava vaga a R$0 sem querer. Zero e vazio agora param aqui
+  // com mensagem clara, em vez de virar oferta grátis silenciosa.
   valor_diaria: z.coerce
     .number()
-    .min(0, "Valor inválido")
+    .min(1, "Informe quanto a diária paga (a partir de R$1).")
     .max(99999, "Valor muito alto — confira se não digitou um zero a mais."),
   quantidade_vagas: z.coerce.number().int().min(1).default(1),
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Chrome compartilhado das páginas legais (Termos, Privacidade). Públicas — o
@@ -22,6 +23,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
             <Link href="/privacidade" className="text-muted hover:text-brand">
               Privacidade
             </Link>
+            <ThemeToggle className="grid h-10 w-10 place-items-center rounded-xl text-muted hover:bg-surface hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" />
           </nav>
         </div>
       </header>

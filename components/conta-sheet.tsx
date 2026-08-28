@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logoutAction } from "@/lib/actions/auth";
 import { mailtoSuporte } from "@/lib/contato";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 /**
  * Folha de conta do rodapé mobile.
@@ -88,6 +89,11 @@ export function ContaSheet({
           >
             Termos e privacidade
           </Link>
+          {/* Não fecha a folha ao alternar: assim a pessoa vê o tema mudar na hora. */}
+          <ThemeToggle
+            mostrarRotulo
+            className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-sm hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          />
           <button
             type="button"
             disabled={pending}

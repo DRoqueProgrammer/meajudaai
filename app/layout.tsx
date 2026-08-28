@@ -19,8 +19,19 @@ export const viewport: Viewport = {
 /** Root layout: metadata, fonte Poppins, viewport e casca PWA aplicados a todas as rotas. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    // suppressHydrationWarning: o script abaixo põe data-theme no <html> antes da
+    // hidratação, então o atributo diverge do HTML do servidor de propósito.
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        {/* Reaplica o tema salvo ANTES da pintura (sem flash). Padrão é claro:
+            só marca o <html> quando a escolha salva é "dark". A chave precisa
+            casar com CHAVE_TEMA em components/theme-toggle.tsx. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(localStorage.getItem('maa-tema')==='dark')document.documentElement.dataset.theme='dark'}catch(e){}",
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

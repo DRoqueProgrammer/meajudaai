@@ -8,6 +8,7 @@ import { Logo } from "@/components/logo";
 import type { AppRole } from "@/lib/auth/roles";
 import { PANEL_MODULES } from "@/lib/modules";
 import { ContaSheet } from "@/components/conta-sheet";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LinkPendente } from "@/components/link-pendente";
 import { useLinkStatus } from "next/link";
 
@@ -243,12 +244,18 @@ export function Nav({
             </span>
           </Link>
         ))}
-        <button
-          onClick={sair}
-          className="mt-auto flex min-h-11 items-center rounded-xl px-3 text-left text-sm text-danger hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-        >
-          Sair
-        </button>
+        <div className="mt-auto flex flex-col gap-1 pt-1">
+          <ThemeToggle
+            mostrarRotulo
+            className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          />
+          <button
+            onClick={sair}
+            className="flex min-h-11 items-center rounded-xl px-3 text-left text-sm text-danger hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            Sair
+          </button>
+        </div>
       </aside>
 
       <nav

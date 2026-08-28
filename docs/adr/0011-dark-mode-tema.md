@@ -56,3 +56,23 @@ usam a tinta que vira, não o preenchimento fixo, para não sumirem no escuro.
   token que vira.
 - **−** O mapa (tiles do OpenStreetMap) continua claro no tema escuro — aceitável;
   trocar por tiles escuros fica para depois.
+
+## Atualização (2026-08-28) — alternador manual, claro como padrão
+
+O gatilho do tema deixou de ser `@media (prefers-color-scheme: dark)` e passou a
+ser o atributo `data-theme="dark"` no `<html>` — como esta ADR já previa ("é só
+sobrescrever as variáveis num `[data-theme]`"). Motivos e mecânica:
+
+- **Claro é o padrão explícito**, inclusive para quem tem o sistema no escuro:
+  sem escolha salva, nenhum atributo é posto e o ramo claro do `:root` vale. O
+  dark não segue mais a preferência do sistema — é opt-in pelo botão.
+- **Alternador** em `components/theme-toggle.tsx` (dois estados, claro ⇄ escuro):
+  grava a escolha em `localStorage['maa-tema']` e liga/desliga o `data-theme`. O
+  ícone (lua/sol) troca por CSS via `[data-theme]`, não por estado do React, para
+  não piscar nem descasar na hidratação.
+- **Sem flash (FOUC):** um script inline no `<head>` (layout raiz) reaplica a
+  escolha salva antes da pintura; o `<html>` leva `suppressHydrationWarning`
+  porque o script muta o atributo antes da hidratação.
+- **Onde fica o botão:** sidebar (desktop) e folha de conta (mobile) do app;
+  cabeçalho da landing e das páginas legais; e um botão fixo no canto das telas
+  de autenticação (que não têm cabeçalho próprio).

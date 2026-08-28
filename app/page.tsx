@@ -6,6 +6,7 @@ import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { mailtoSuporte } from "@/lib/contato";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +47,7 @@ export default async function HomePage() {
       <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between gap-6 border-b border-line bg-card/90 px-4 backdrop-blur md:px-8">
         <Logo />
         <div className="flex items-center gap-3">
+          <ThemeToggle className="grid h-10 w-10 place-items-center rounded-[10px] text-muted hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" />
           <Link href="/login" className="text-[13px] font-semibold text-muted hover:text-ink">
             Entrar
           </Link>

@@ -47,33 +47,38 @@
   --tint-danger: #fdeaea;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+/*
+ * Escuro só quando ESCOLHIDO. O padrão é claro — inclusive para quem tem o
+ * sistema no escuro — então o dark não segue mais `prefers-color-scheme`; vale
+ * pelo atributo `data-theme="dark"` no <html>, posto pelo alternador
+ * (components/theme-toggle.tsx) e reaplicado antes da pintura pelo script inline
+ * do layout raiz (evita flash). Ver ADR 0011.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
 
-    --surface: #0f172a; /* slate-900 */
-    --card-rgb: 30 41 59; /* slate-800 */
-    --ink: #e7ecf3;
-    --muted: #9aa6b6;
-    --line: #334155; /* slate-700 */
-    --line-strong: #64748b;
+  --surface: #0f172a; /* slate-900 */
+  --card-rgb: 30 41 59; /* slate-800 */
+  --ink: #e7ecf3;
+  --muted: #9aa6b6;
+  --line: #334155; /* slate-700 */
+  --line-strong: #64748b;
 
-    --brand-ink: #7cb0f0; /* azul claro legível sobre o escuro */
-    --brand-ink-strong: #a9cbf6;
-    --danger-ink: #fca5a5;
-    --ok-ink: #86efac;
+  --brand-ink: #7cb0f0; /* azul claro legível sobre o escuro */
+  --brand-ink-strong: #a9cbf6;
+  --danger-ink: #fca5a5;
+  --ok-ink: #86efac;
 
-    /* preenchimentos seguem fixos: branco sobre eles passa nos dois temas */
+  /* preenchimentos seguem fixos: branco sobre eles passa nos dois temas */
 
-    --star: #ffd24d;
+  --star: #ffd24d;
 
-    --tint-info: #17314f;
-    --tint-ok: #14351f;
-    --tint-warn: #3a2f0a;
-    --tint-warn-ink: #f0d27a;
-    --tint-neutral: #26303e;
-    --tint-danger: #40232a;
-  }
+  --tint-info: #17314f;
+  --tint-ok: #14351f;
+  --tint-warn: #3a2f0a;
+  --tint-warn-ink: #f0d27a;
+  --tint-neutral: #26303e;
+  --tint-danger: #40232a;
 }
 
 html,
@@ -188,4 +193,22 @@ body {
 }
 .legal a {
   @apply text-brand underline;
+}
+
+/* Ícones do alternador de tema (components/theme-toggle.tsx): a lua (ir para o
+   escuro) aparece no tema claro; o sol (ir para o claro) no escuro. A troca é
+   por [data-theme], não por estado do React — assim o ícone acompanha o tema
+   sem piscar nem descasar na hidratação: os dois SVGs ficam no DOM e o CSS
+   mostra o certo. */
+.tema-icone-lua {
+  display: block;
+}
+.tema-icone-sol {
+  display: none;
+}
+:root[data-theme="dark"] .tema-icone-lua {
+  display: none;
+}
+:root[data-theme="dark"] .tema-icone-sol {
+  display: block;
 }

@@ -264,14 +264,14 @@ export function Nav({
             </span>
           </Link>
         ))}
-        <div className="mt-auto flex flex-col gap-1 pt-1">
-          <ThemeToggle
-            mostrarRotulo
-            className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-muted hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-          />
+        {/* Antes ficava com `mt-auto`, grudado no rodapé do viewport — em
+            páginas com poucos itens de menu isso abria um vão enorme entre o
+            último item e esta faixa. Agora fica logo depois do menu. */}
+        <div className="mt-3 flex items-center gap-1 border-t border-line pt-3">
+          <ThemeToggle className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-muted hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" />
           <button
             onClick={sair}
-            className="flex min-h-11 items-center rounded-xl px-3 text-left text-sm text-danger hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="flex min-h-11 flex-1 items-center rounded-xl px-3 text-left text-sm text-danger hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             Sair
           </button>

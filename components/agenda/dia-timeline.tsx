@@ -78,15 +78,15 @@ export function DiaTimeline({
               key={e.slot.id}
               type="button"
               onClick={() => setSelecionadoId((atual) => (atual === e.slot.id ? null : e.slot.id))}
-              className={`absolute left-1 right-1 overflow-hidden rounded-md border-l-4 px-2 py-0.5 text-left transition ${
+              className={`absolute left-1 right-1 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md border-l-4 px-2 text-center transition ${
                 corPorStatus[status] ?? "border-line bg-card"
               } ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
               style={{ top, height: altura }}
             >
-              <span className="block text-[10px] text-muted">
+              <span className="text-[10px] text-muted">
                 {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
               </span>
-              <span className="block truncate text-sm font-medium text-ink">
+              <span className="max-w-full truncate text-sm font-medium text-ink">
                 {e.servico?.descricao ?? "Horário livre"}
               </span>
             </button>

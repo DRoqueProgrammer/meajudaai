@@ -1,4 +1,4 @@
-# MeAjuda Aí — Protótipo
+# Me Ajuda Aí — Protótipo
 
 Marketplace que conecta profissionais autônomos da construção/manutenção (cada um um workspace/empresa com equipe) a ajudantes por diária. Fluxo central: **publicar vaga → candidatar → aceitar → chat → avaliar**.
 

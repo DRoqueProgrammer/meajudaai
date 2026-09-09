@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { SUPORTE_EMAIL } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Termos de Uso · MeAjuda Aí",
-  description: "As regras de uso do MeAjuda Aí.",
+  title: "Termos de Uso · Me Ajuda Aí",
+  description: "As regras de uso do Me Ajuda Aí.",
 };
 
 /** Rota `/termos`: Termos de Uso. */
@@ -16,9 +16,9 @@ export default function TermosPage() {
         antes do lançamento.
       </p>
 
-      <h2>1. O que é o MeAjuda Aí</h2>
+      <h2>1. O que é o Me Ajuda Aí</h2>
       <p>
-        O MeAjuda Aí conecta profissionais autônomos da construção e da manutenção a ajudantes
+        O Me Ajuda Aí conecta profissionais autônomos da construção e da manutenção a ajudantes
         para trabalho por diária. Somos a ponte: quem contrata e quem trabalha se encontram aqui e
         combinam o serviço entre si.
       </p>
@@ -39,7 +39,7 @@ export default function TermosPage() {
 
       <h2>4. A diária é entre você e a outra pessoa</h2>
       <p>
-        O MeAjuda Aí <strong>não é empregador</strong>, não define o valor da diária e não processa
+        O Me Ajuda Aí <strong>não é empregador</strong>, não define o valor da diária e não processa
         pagamento. Combinar valor, horário, forma de pagamento e a execução do serviço é
         responsabilidade das partes. A plataforma apenas apresenta as pessoas.
       </p>

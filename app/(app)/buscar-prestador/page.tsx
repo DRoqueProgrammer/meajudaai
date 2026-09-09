@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { CATEGORIAS, nomeCategoria } from "@/lib/categorias";
 import { formatBRL } from "@/lib/format";
+import { PontosMap, type MapaPonto } from "@/components/maps/pontos-map-dynamic";
 
 /**
  * Rota `/buscar-prestador` (cliente): busca prestadores por categoria,
@@ -25,6 +26,20 @@ export default async function BuscarPrestadorPage({
     p_categoria: categoria || undefined,
   });
 
+  // Pino aproximado (nunca a coordenada exata — ver migration 0033); sem
+  // profile_local próprio ainda, o cliente não tem "quem busca" pra ordenar
+  // por distância e lat_aprox/lng_aprox vêm null pra todo mundo.
+  const pontos: MapaPonto[] = (resultados ?? [])
+    .filter((r) => r.lat_aprox != null && r.lng_aprox != null)
+    .map((r) => ({
+      id: r.prestador_id,
+      lat: r.lat_aprox!,
+      lng: r.lng_aprox!,
+      titulo: r.nome,
+      subtitulo: `${r.categoria ? nomeCategoria(r.categoria) : "Categoria não informada"}${r.distancia_km != null ? ` · ${r.distancia_km} km` : ""}`,
+      href: `/prestador/${r.prestador_id}`,
+    }));
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Buscar prestador</h1>
@@ -41,6 +56,8 @@ export default async function BuscarPrestadorPage({
           Buscar
         </button>
       </form>
+
+      {pontos.length > 0 ? <PontosMap pontos={pontos} /> : null}
 
       <div className="flex flex-col gap-2">
         {(resultados ?? []).length === 0 ? (

@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { ReativarForm } from "@/components/reativar-form";
-import { CIDADES } from "@/lib/cidades";
 
 /** Rota `/reativar`: confirma os dados antes de voltar a usar uma conta desativada (ROADMAP.md §3). */
 export default async function ReativarPage() {
@@ -14,9 +13,7 @@ export default async function ReativarPage() {
   if (p?.status !== "inativo") redirect("/inicio");
   const { data: pii } = await sb.from("profiles_pii").select("telefone").eq("user_id", user.id).maybeSingle();
 
-  const combinada = `${p.cidade ?? ""}|${p.estado ?? ""}`;
-  const conhecida = CIDADES.some((c) => `${c.nome}|${c.uf}` === combinada);
-  const cidadeUf = conhecida ? combinada : `${CIDADES[0]!.nome}|${CIDADES[0]!.uf}`;
+  const cidadeUf = `${p.cidade ?? ""}|${p.estado ?? ""}`;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6 py-10">

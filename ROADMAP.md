@@ -1,4 +1,4 @@
-# Roadmap — Evolução do MeAjuda Aí
+# Roadmap — Evolução do Me Ajuda Aí
 
 > Documento vivo. Captura a visão ditada por Leonardo (sessões de 09/09/2026) para a próxima fase do produto — um pivô/evolução do modelo atual de "vagas por diária" para um **marketplace de agendamento de serviços** com estrutura multi-empresa. Seções marcadas com ❓ são decisões em aberto para conversas futuras.
 
@@ -336,6 +336,6 @@ Depois de gerar 50 opções de ícone (script + galeria em `design/icon-options/
 Schema provável (a confirmar em sessão de design): campo em `workspaces` tipo `icone_padrao` (enum com os 2 ícones) + `logo_upload_path` (nullable, Supabase Storage — bucket por workspace, mesmo padrão de outros uploads do projeto). Quando `logo_upload_path` está preenchido, tem prioridade sobre `icone_padrao` na renderização.
 
 ❓ **A confirmar:**
-- O ícone/logo do **próprio app MeAjuda Aí** (fora de qualquer workspace — ex.: telas de login, marketing) continua fixo, ou o SysAdmin também define um logo padrão da plataforma nesse mesmo mecanismo?
+- O ícone/logo do **próprio app Me Ajuda Aí** (fora de qualquer workspace — ex.: telas de login, marketing) continua fixo, ou o SysAdmin também define um logo padrão da plataforma nesse mesmo mecanismo?
 - Formato e tamanho aceitos no upload (SVG? PNG/JPG? limite de tamanho, recorte/crop obrigatório?).
 - Onde exatamente essa configuração fica na UI do Administrador (provável: dentro de uma futura seção "Configurações do workspace").

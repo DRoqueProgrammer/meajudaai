@@ -3,7 +3,7 @@ import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { CriarSlotForm } from "@/components/agenda/criar-slot-form";
 import { AgendaCalendarV2, type AgendaEvento } from "@/components/agenda/agenda-calendar-v2";
-import { SlotDetalheCliente } from "@/components/agenda/slot-detalhe-cliente";
+import type { PerfilResumo } from "@/components/perfil-popover";
 
 /**
  * Rota `/agenda`: prestador vê/oferece os próprios horários (agenda v2:
@@ -39,8 +39,10 @@ export default async function AgendaPage() {
       : { data: [] };
     const prestadorDe = new Map((prestadores ?? []).map((p) => [p.user_id, p]));
 
-    const prestadorIdDeServico = new Map((servicos ?? []).map((s) => [s.id, s.prestador_id]));
     const eventos: AgendaEvento[] = [];
+    // Serializável — nunca uma função: este é um Server Component, e RSC não
+    // deixa passar closures pra um Client Component (só dados).
+    const prestadoresPorServico: Record<string, PerfilResumo> = {};
     for (const s of servicos ?? []) {
       const slot = slotDe.get(s.slot_id);
       if (!slot) continue;
@@ -56,35 +58,26 @@ export default async function AgendaPage() {
         },
         logs: [],
       });
+      const p = prestadorDe.get(s.prestador_id);
+      if (p) {
+        prestadoresPorServico[s.id] = {
+          userId: p.user_id,
+          nome: p.nome,
+          fotoUrl: p.foto_url,
+          genero: p.genero,
+          papel: p.tipo_base as AppRole,
+          notaMedia: p.nota_media,
+          totalAvaliacoes: p.total_avaliacoes,
+          verificado: p.verificado,
+        };
+      }
     }
 
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-xl font-semibold">Minha agenda</h1>
         <p className="text-sm text-muted">Os horários que você já reservou com prestadores.</p>
-        <AgendaCalendarV2
-          eventos={eventos}
-          renderDetalhe={(evento) => {
-            const prestadorId = evento.servico ? prestadorIdDeServico.get(evento.servico.id) : null;
-            const p = prestadorId ? prestadorDe.get(prestadorId) : null;
-            if (!evento.servico || !p) return <p className="text-sm text-muted">Horário livre.</p>;
-            return (
-              <SlotDetalheCliente
-                evento={evento}
-                prestador={{
-                  userId: p.user_id,
-                  nome: p.nome,
-                  fotoUrl: p.foto_url,
-                  genero: p.genero,
-                  papel: p.tipo_base as AppRole,
-                  notaMedia: p.nota_media,
-                  totalAvaliacoes: p.total_avaliacoes,
-                  verificado: p.verificado,
-                }}
-              />
-            );
-          }}
-        />
+        <AgendaCalendarV2 eventos={eventos} variant="cliente" prestadoresPorServico={prestadoresPorServico} />
       </div>
     );
   }

@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import Link from "next/link";
 import { cadastrarAction } from "@/lib/actions/auth";
-import { CIDADES } from "@/lib/cidades";
+import { CidadeSelect } from "@/components/cidade-select";
 import { AddressMapPicker } from "@/components/maps/address-map-picker-dynamic";
 import { mascaraTelefone } from "@/lib/format";
 import { Logo } from "@/components/logo";
@@ -186,19 +186,7 @@ export function CadastroForm({
           <label className="label" htmlFor="cidade">
             Cidade
           </label>
-          <select
-            id="cidade"
-            name="cidadeUf"
-            autoComplete="address-level2"
-            className="input"
-            defaultValue={v.cidadeUf ?? "Niterói|RJ"}
-          >
-            {CIDADES.map((c) => (
-              <option key={`${c.nome}|${c.uf}`} value={`${c.nome}|${c.uf}`}>
-                {c.nome} - {c.uf}
-              </option>
-            ))}
-          </select>
+          <CidadeSelect id="cidade" name="cidadeUf" defaultValue={v.cidadeUf ?? "Niterói|RJ"} />
         </div>
         {estado?.erro ? <FormError>{estado.erro}</FormError> : null}
         <p className="text-xs leading-relaxed text-muted">

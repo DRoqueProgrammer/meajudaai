@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { SUPORTE_EMAIL } from "@/lib/contato";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade · MeAjuda Aí",
-  description: "Quais dados o MeAjuda Aí coleta, para quê, e o que nunca é público.",
+  title: "Política de Privacidade · Me Ajuda Aí",
+  description: "Quais dados o Me Ajuda Aí coleta, para quê, e o que nunca é público.",
 };
 
 /** Rota `/privacidade`: Política de Privacidade. */

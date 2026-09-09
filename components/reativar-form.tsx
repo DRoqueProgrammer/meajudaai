@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { reativarContaAction } from "@/lib/actions/auth";
-import { CIDADES } from "@/lib/cidades";
+import { CidadeSelect } from "@/components/cidade-select";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
@@ -22,13 +22,7 @@ export function ReativarForm({ nome, telefone, cidadeUf }: { nome: string; telef
       </div>
       <div>
         <label className="label" htmlFor="cidadeUf">Cidade</label>
-        <select id="cidadeUf" name="cidadeUf" className="input" defaultValue={estado?.valores?.cidadeUf ?? cidadeUf}>
-          {CIDADES.map((c) => (
-            <option key={`${c.nome}|${c.uf}`} value={`${c.nome}|${c.uf}`}>
-              {c.nome} - {c.uf}
-            </option>
-          ))}
-        </select>
+        <CidadeSelect id="cidadeUf" name="cidadeUf" defaultValue={estado?.valores?.cidadeUf ?? cidadeUf} />
       </div>
       {estado?.erro ? <FormError>{estado.erro}</FormError> : null}
       <BotaoEnviar className="btn-brand" enviando="Reativando…">

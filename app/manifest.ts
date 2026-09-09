@@ -7,8 +7,8 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "MeAjuda Aí",
-    short_name: "MeAjuda Aí",
+    name: "Me Ajuda Aí",
+    short_name: "Me Ajuda Aí",
     description: "A ajuda que você precisa, no momento que você mais precisa.",
     start_url: "/inicio",
     display: "standalone",

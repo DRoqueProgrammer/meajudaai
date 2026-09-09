@@ -469,19 +469,25 @@ export type Database = {
       profile_local: {
         Row: {
           lat: number
+          lat_aprox: number | null
           lng: number
+          lng_aprox: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
           lat: number
+          lat_aprox?: number | null
           lng: number
+          lng_aprox?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
           lat?: number
+          lat_aprox?: number | null
           lng?: number
+          lng_aprox?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -895,6 +901,8 @@ export type Database = {
         Returns: {
           categoria: string
           distancia_km: number
+          lat_aprox: number
+          lng_aprox: number
           nome: string
           preco_tipo: string
           preco_valor: number
@@ -920,6 +928,17 @@ export type Database = {
         Returns: boolean
       }
       is_workspace_member: { Args: { ws: string }; Returns: boolean }
+      meus_clientes_no_mapa: {
+        Args: never
+        Returns: {
+          cliente_id: string
+          lat_aprox: number
+          lng_aprox: number
+          nome: string
+          servico_id: string
+          status: string
+        }[]
+      }
       tem_servico_com: { Args: { v_outro: string }; Returns: boolean }
       vaga_aberta: { Args: { v_vaga: string }; Returns: boolean }
     }

@@ -1,4 +1,4 @@
-# Contexto do Projeto — MeAjuda Aí
+# Contexto do Projeto — Me Ajuda Aí
 
 Aplicação web responsiva (PWA) que conecta profissionais autônomos da construção civil e manutenção com ajudantes para trabalho por diária. Fase atual: protótipo.
 

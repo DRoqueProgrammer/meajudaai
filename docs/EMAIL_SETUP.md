@@ -14,7 +14,7 @@ O SMTP padrão do Supabase é, na documentação deles, **best-effort, sem SLA d
 entrega ou uptime, e destinado a uso não-produtivo**. O limite por hora é baixo
 e, nas palavras da doc, "pode mudar sem aviso".
 
-Na prática, para o MeAjuda Aí isso significa: com uma dúzia de ajudantes
+Na prática, para o Me Ajuda Aí isso significa: com uma dúzia de ajudantes
 tentando recuperar a senha na mesma manhã, a maioria não recebe nada — e o app
 não tem como avisar, porque a resposta é neutra de propósito (ver abaixo).
 
@@ -69,7 +69,7 @@ bater com a allow-list (ver `lib/site-url.ts`).
 
 O template padrão vem em inglês. Sugestão:
 
-**Assunto:** `Criar uma senha nova — MeAjuda Aí`
+**Assunto:** `Criar uma senha nova — Me Ajuda Aí`
 
 ```html
 <h2>Esqueceu a senha?</h2>

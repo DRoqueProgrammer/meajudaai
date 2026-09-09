@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { SlotDetalhe, type SlotDetalheProps } from "@/components/agenda/slot-detalhe";
+import { SlotDetalheCliente } from "@/components/agenda/slot-detalhe-cliente";
+import type { PerfilResumo } from "@/components/perfil-popover";
 
 const HOUR_PX = 16; // 24h * 16px = 384px de altura total
 const MARCOS = [0, 4, 8, 12, 16, 20, 24];
@@ -28,11 +30,20 @@ export interface DiaTimelineEvento {
 /** Agenda do dia como linha do tempo — 00h no topo, meio-dia no meio, 00h nas próximas 24h embaixo; horário pequeno, descrição maior. Clique num bloco expande os detalhes. */
 export function DiaTimeline({
   eventos,
-  renderDetalhe,
+  variant = "prestador",
+  prestadoresPorServico,
 }: {
   eventos: DiaTimelineEvento[];
-  /** Card de detalhe do evento selecionado — padrão é o `SlotDetalhe` do prestador; o cliente passa sua própria versão. */
-  renderDetalhe?: (evento: DiaTimelineEvento) => React.ReactNode;
+  /**
+   * "prestador" (padrão) renderiza o `SlotDetalhe` original. "cliente" renderiza
+   * `SlotDetalheCliente` — sem ações de prestador (aceitar, log privado). Um
+   * componente por variante, não uma função passada de fora: o pai costuma ser
+   * um Server Component, e React Server Components não podem passar closures
+   * pra Client Components (só dados serializáveis).
+   */
+  variant?: "prestador" | "cliente";
+  /** Necessário só na variant "cliente": perfil resumido do prestador de cada serviço, por id do serviço. */
+  prestadoresPorServico?: Record<string, PerfilResumo>;
 }) {
   const [selecionadoId, setSelecionadoId] = useState<string | null>(null);
 
@@ -85,8 +96,12 @@ export function DiaTimeline({
       </div>
 
       {selecionado ? (
-        renderDetalhe ? (
-          renderDetalhe(selecionado)
+        variant === "cliente" ? (
+          selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
+            <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
+          ) : (
+            <p className="text-sm text-muted">Horário livre.</p>
+          )
         ) : (
           <SlotDetalhe slot={selecionado.slot} servico={selecionado.servico} logs={selecionado.logs} />
         )

@@ -21,7 +21,7 @@ function IconeChaveInglesa({ className }: { className?: string }) {
   );
 }
 
-/** Logomarca "MeAjuda Aí" (ícone + wordmark), com variação de tamanho e de fundo escuro. */
+/** Logomarca "Me Ajuda Aí" (ícone + wordmark), com variação de tamanho e de fundo escuro. */
 export function Logo({ onDark = false, size = "md" }: { onDark?: boolean; size?: "md" | "lg" }) {
   const badge = size === "lg" ? "h-16 w-16 rounded-2xl" : "h-10 w-10 rounded-xl";
   const text = size === "lg" ? "text-3xl" : "text-xl";
@@ -30,10 +30,10 @@ export function Logo({ onDark = false, size = "md" }: { onDark?: boolean; size?:
       {/* `shrink-0` no ícone: sem isso, num header apertado (zoom do navegador
           reduz a viewport em px CSS) o flexbox distribuía o aperto pro SVG —
           que não tem largura mínima de conteúdo — até ele sumir, e o texto
-          "MeAjuda Aí" ficava sozinho ou cortado. */}
+          "Me Ajuda Aí" ficava sozinho ou cortado. */}
       <IconeChaveInglesa className={`${badge} shrink-0`} />
       <span className={`whitespace-nowrap font-bold ${text} ${onDark ? "text-white" : "text-brand"}`}>
-        MeAjuda <span className="text-accent">Aí</span>
+        Me Ajuda <span className="text-accent">Aí</span>
       </span>
     </div>
   );

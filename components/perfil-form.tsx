@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { salvarPerfilAction } from "@/lib/actions/perfil";
-import { CIDADES } from "@/lib/cidades";
+import { CidadeSelect } from "@/components/cidade-select";
 import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar, FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
@@ -162,13 +162,7 @@ export function PerfilForm({
         <label className="label" htmlFor="cidadeUf">
           Cidade
         </label>
-        <select id="cidadeUf" name="cidadeUf" className="input" defaultValue={v.cidadeUf ?? cidadeUf}>
-          {CIDADES.map((c) => (
-            <option key={`${c.nome}|${c.uf}`} value={`${c.nome}|${c.uf}`}>
-              {c.nome} - {c.uf}
-            </option>
-          ))}
-        </select>
+        <CidadeSelect id="cidadeUf" name="cidadeUf" defaultValue={v.cidadeUf ?? cidadeUf} />
       </div>
 
       {estado?.erro ? <FormError>{estado.erro}</FormError> : null}

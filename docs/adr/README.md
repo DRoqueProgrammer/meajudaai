@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADR)
 
-Registro rastreável das decisões estruturais do MeAjuda Aí — o "porquê" das
+Registro rastreável das decisões estruturais do Me Ajuda Aí — o "porquê" das
 escolhas, com data, alternativas consideradas e tradeoffs. Até aqui essas
 decisões viviam dispersas em comentários de código e no `CLAUDE.md`; o parecer
 do Conselho do Mirante cobrou um registro formal, e é isto.

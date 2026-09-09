@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { SlotDetalheProps } from "@/components/agenda/slot-detalhe";
-import { DiaTimeline, type DiaTimelineEvento } from "@/components/agenda/dia-timeline";
+import { DiaTimeline } from "@/components/agenda/dia-timeline";
+import type { PerfilResumo } from "@/components/perfil-popover";
 
 const WD = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MES = [
@@ -32,10 +33,12 @@ function iso(d: Date): string {
 /** Agenda em calendário (mês ou semana), como no careconnect/vr-pilates: grade de dias, clique abre os horários daquele dia. */
 export function AgendaCalendarV2({
   eventos,
-  renderDetalhe,
+  variant = "prestador",
+  prestadoresPorServico,
 }: {
   eventos: AgendaEvento[];
-  renderDetalhe?: (evento: DiaTimelineEvento) => React.ReactNode;
+  variant?: "prestador" | "cliente";
+  prestadoresPorServico?: Record<string, PerfilResumo>;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -183,7 +186,7 @@ export function AgendaCalendarV2({
         <p className="text-xs font-semibold uppercase text-muted">
           {new Date(`${diaSelecionado}T00:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
         </p>
-        <DiaTimeline eventos={eventosDoSelecionado} renderDetalhe={renderDetalhe} />
+        <DiaTimeline eventos={eventosDoSelecionado} variant={variant} prestadoresPorServico={prestadoresPorServico} />
       </div>
     </div>
   );

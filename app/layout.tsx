@@ -3,9 +3,9 @@ import "./globals.css";
 import { CookieConsent } from "@/components/cookie-consent";
 
 export const metadata: Metadata = {
-  title: "MeAjuda Aí",
+  title: "Me Ajuda Aí",
   description: "A ajuda que você precisa, no momento que você mais precisa.",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "MeAjuda Aí" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Me Ajuda Aí" },
 };
 
 /** Pinta a barra do navegador com o azul da marca quando instalado. */

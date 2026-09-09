@@ -1,4 +1,4 @@
-# DESIGN: MeAjuda Aí v2 — Marketplace de Agendamento
+# DESIGN: Me Ajuda Aí v2 — Marketplace de Agendamento
 
 > Design técnico gerado a partir do [ROADMAP.md](./ROADMAP.md) (que consolidou brainstorm + define ao longo de várias sessões dictadas por Leonardo). Não existe um `DEFINE_*.md` formal separado — o ROADMAP cumpre esse papel. Adaptação do processo SDD do AgentSpec: sem `sdd-brainstorm` (já feito na conversa), sem spec-linter (este repo não tem o scaffold `.claude/sdd/` do agentspec).
 

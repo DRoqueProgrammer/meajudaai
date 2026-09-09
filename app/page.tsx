@@ -65,7 +65,7 @@ export default async function HomePage() {
           <div className="mx-auto grid max-w-[1200px] items-start gap-14 px-8 pb-16 pt-[72px] lg:grid-cols-[1.05fr_.95fr]">
             <div className="flex flex-col gap-[22px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
-                Marketplace de diária · construção e manutenção
+                Marketplace de Serviços de Manutenção Civil
               </p>
               <h1
                 className="font-extrabold leading-[1.08] tracking-[-0.03em]"
@@ -96,7 +96,7 @@ export default async function HomePage() {
                 </Link>
               </div>
               <div className="mt-[18px] flex flex-col gap-2.5 border-t border-line pt-[18px]">
-                <Leader label="Categorias de ajudante" value={String(CATEGORIAS.length)} />
+                <Leader label="Categorias de Prestadores de Serviços" value={String(CATEGORIAS.length)} />
                 <Leader label="Avaliação ao fim da diária" value="dos 2 lados" />
               </div>
             </div>
@@ -196,7 +196,7 @@ export default async function HomePage() {
 
       <footer className="border-t border-line bg-card">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-8 py-[26px] text-[12.5px] text-muted">
-          <span>MeAjuda Aí · a ajuda que você precisa, no momento que você mais precisa.</span>
+          <span>Me Ajuda Aí · a ajuda que você precisa, no momento que você mais precisa.</span>
           <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/termos" className="hover:text-brand">
               Termos

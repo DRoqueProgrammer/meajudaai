@@ -72,7 +72,7 @@ export default async function HomePage() {
                 style={{ fontSize: "clamp(38px,4.6vw,60px)", textWrap: "pretty" }}
               >
                 Quem precisa e quem faz,{" "}
-                <span className="[-webkit-box-decoration-break:clone] [box-decoration-break:clone] bg-[linear-gradient(transparent_58%,#FFC107_58%)] px-0.5">
+                <span className="[-webkit-box-decoration-break:clone] [box-decoration-break:clone] underline decoration-accent decoration-[0.14em] underline-offset-[6px]">
                   no mesmo lugar
                 </span>
                 .

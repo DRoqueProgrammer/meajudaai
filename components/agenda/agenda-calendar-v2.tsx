@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { SlotDetalhe, type SlotDetalheProps } from "@/components/agenda/slot-detalhe";
+import type { SlotDetalheProps } from "@/components/agenda/slot-detalhe";
+import { DiaTimeline } from "@/components/agenda/dia-timeline";
 
 const WD = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 const MES = [
@@ -176,11 +177,7 @@ export function AgendaCalendarV2({ eventos }: { eventos: AgendaEvento[] }) {
         <p className="text-xs font-semibold uppercase text-muted">
           {new Date(`${diaSelecionado}T00:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
         </p>
-        {eventosDoSelecionado.length === 0 ? (
-          <p className="text-sm text-muted">Nenhum horário nesse dia.</p>
-        ) : (
-          eventosDoSelecionado.map((e) => <SlotDetalhe key={e.slot.id} slot={e.slot} servico={e.servico} logs={e.logs} />)
-        )}
+        <DiaTimeline eventos={eventosDoSelecionado} />
       </div>
     </div>
   );

@@ -32,6 +32,49 @@ export async function criarSlotAction(input: {
 }
 
 /**
+ * Prestador oferece um bloco recorrente de horários: escolhe um intervalo de
+ * datas, quais dias da semana valem (ex.: segunda a sábado) e uma faixa de
+ * hora — um slot "livre" é criado pra cada data que cair num dia marcado.
+ */
+export async function criarSlotsRecorrentesAction(input: {
+  dataInicio: string;
+  dataFim: string;
+  diasSemana: number[]; // 0=domingo … 6=sábado
+  horaInicio: string;
+  horaFim: string;
+}): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  if (w.user.role !== "prestador_servico") return { ok: false, erro: "Só prestadores de serviço têm agenda." };
+  if (input.horaFim <= input.horaInicio) return { ok: false, erro: "Horário final precisa ser depois do inicial." };
+  if (input.diasSemana.length === 0) return { ok: false, erro: "Escolha pelo menos um dia da semana." };
+  if (input.dataFim < input.dataInicio) return { ok: false, erro: "Data final precisa ser depois da inicial." };
+
+  const dias = new Set(input.diasSemana);
+  const datas: string[] = [];
+  const cursor = new Date(`${input.dataInicio}T00:00:00`);
+  const fim = new Date(`${input.dataFim}T00:00:00`);
+  // Teto de 90 dias por lote — evita gerar milhares de linhas por engano.
+  for (let i = 0; i < 90 && cursor <= fim; i++, cursor.setDate(cursor.getDate() + 1)) {
+    if (dias.has(cursor.getDay())) datas.push(cursor.toLocaleDateString("sv-SE"));
+  }
+  if (datas.length === 0) return { ok: false, erro: "Nenhuma data no intervalo cai nos dias escolhidos." };
+
+  const sb = await createServerClient();
+  const { error } = await sb.from("agenda_slots").insert(
+    datas.map((data) => ({
+      prestador_id: w.user.id,
+      data,
+      hora_inicio: input.horaInicio,
+      hora_fim: input.horaFim,
+    })),
+  );
+  if (error) return { ok: false, erro: "Não foi possível criar os horários." };
+  revalidatePath("/agenda");
+  return { ok: true };
+}
+
+/**
  * Cliente reserva um slot livre — descreve o que precisa, o slot fica
  * "pendente" e nasce um serviço com o preço vigente do prestador naquele
  * instante (histórico não muda se o prestador reconfigurar o preço depois).

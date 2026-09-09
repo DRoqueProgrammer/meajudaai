@@ -17,7 +17,7 @@ export default async function EditarPerfilPage() {
   const sb = await createServerClient();
   const { data: p } = await sb
     .from("profiles")
-    .select("nome, bio, disponibilidade, cidade, estado, foto_url, tipo_base")
+    .select("nome, bio, disponibilidade, cidade, estado, foto_url, tipo_base, categoria, preco_tipo, preco_valor")
     .eq("user_id", user.id)
     .maybeSingle();
   if (!p) redirect("/inicio");
@@ -36,7 +36,10 @@ export default async function EditarPerfilPage() {
         disponibilidade={p.disponibilidade}
         cidadeUf={cidadeUf}
         fotoUrl={p.foto_url}
-        ehAjudante={p.tipo_base === "ajudante"}
+        ehPrestador={p.tipo_base === "prestador_servico"}
+        categoria={p.categoria}
+        precoTipo={p.preco_tipo}
+        precoValor={p.preco_valor}
       />
     </TelaComHeader>
   );

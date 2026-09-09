@@ -105,7 +105,7 @@ export default async function InicioPage() {
   // ajudante de Recife via cinco diárias em São Paulo. A cidade vem do cadastro
   // e já era usada no perfil e no recibo de publicação — faltava aqui.
   const hojeStr = new Date().toLocaleDateString("sv-SE");
-  let feed = !isEmpresa
+  let feed = user!.role === "prestador_servico"
     ? sb
         .from("vagas")
         .select("*")
@@ -119,10 +119,12 @@ export default async function InicioPage() {
 
   const painel =
     user!.role === "prestador_servico"
-      ? "Painel do ajudante"
-      : user!.role === "funcionario"
-        ? "Painel do funcionário"
-        : "Painel do profissional";
+      ? "Painel do prestador"
+      : user!.role === "cliente"
+        ? "Painel do cliente"
+        : user!.role === "funcionario"
+          ? "Painel do funcionário"
+          : "Painel do profissional";
 
   return (
     <div className="flex flex-col gap-5">
@@ -162,6 +164,22 @@ export default async function InicioPage() {
               tone="brand"
             />
           </>
+        ) : user!.role === "cliente" ? (
+          <>
+            <CtaGrande
+              href="/buscar-prestador"
+              titulo="PRECISO DE UM SERVIÇO"
+              desc="Busque um prestador perto de você e agende direto."
+              tone="accent"
+            />
+            <AcaoCard
+              href="/meus-servicos"
+              titulo="Meus serviços"
+              desc="Acompanhe os agendamentos que você fez."
+              cta="Abrir →"
+              tone="brand"
+            />
+          </>
         ) : (
           <>
             <CtaGrande
@@ -173,7 +191,7 @@ export default async function InicioPage() {
             <AcaoCard
               href="/agenda"
               titulo="Minha agenda"
-              desc="Suas diárias confirmadas, organizadas por data."
+              desc="Seus horários e serviços agendados."
               cta="Abrir →"
               tone="brand"
             />
@@ -200,7 +218,7 @@ export default async function InicioPage() {
         </div>
       ) : null}
 
-      {!isEmpresa ? (
+      {user!.role === "prestador_servico" ? (
         <div>
           {/* O título nomeia a cidade em vez de dizer "na sua região": o usuário
               precisa saber por qual filtro a lista passou para confiar nela. */}

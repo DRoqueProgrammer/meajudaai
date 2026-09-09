@@ -12,6 +12,10 @@ const PerfilSchema = z.object({
   bio: z.string().max(600, "Máximo de 600 caracteres").optional(),
   disponibilidade: z.string().max(120, "Máximo de 120 caracteres").optional(),
   cidadeUf: z.string().min(3, "Escolha a cidade"),
+  // Só o prestador de serviço preenche estes três — o form só os manda quando aplicável.
+  categoria: z.string().optional(),
+  precoTipo: z.enum(["hora", "servico"]).optional(),
+  precoValor: z.string().optional(),
 });
 
 const TIPOS_FOTO = ["image/jpeg", "image/png", "image/webp"];
@@ -35,6 +39,9 @@ export async function salvarPerfilAction(_estado: EstadoForm, fd: FormData): Pro
     bio: campo(fd, "bio"),
     disponibilidade: campo(fd, "disponibilidade"),
     cidadeUf: campo(fd, "cidadeUf"),
+    categoria: campo(fd, "categoria") || undefined,
+    precoTipo: (campo(fd, "precoTipo") || undefined) as "hora" | "servico" | undefined,
+    precoValor: campo(fd, "precoValor") || undefined,
   });
   if (!parsed.success) {
     return { erro: parsed.error.issues[0]?.message ?? "Dados inválidos", valores: preserva };
@@ -82,6 +89,9 @@ export async function salvarPerfilAction(_estado: EstadoForm, fd: FormData): Pro
       cidade,
       estado,
       ...(fotoUrl ? { foto_url: fotoUrl } : {}),
+      ...(d.categoria ? { categoria: d.categoria } : {}),
+      ...(d.precoTipo ? { preco_tipo: d.precoTipo } : {}),
+      ...(d.precoValor ? { preco_valor: Number(d.precoValor.replace(",", ".")) } : {}),
     })
     .eq("user_id", user.id);
   if (error) return { erro: "Não foi possível salvar o perfil.", valores: preserva };

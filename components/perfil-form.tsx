@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { salvarPerfilAction } from "@/lib/actions/perfil";
 import { CIDADES } from "@/lib/cidades";
+import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar, FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
@@ -18,14 +19,20 @@ export function PerfilForm({
   disponibilidade,
   cidadeUf,
   fotoUrl,
-  ehAjudante,
+  ehPrestador,
+  categoria,
+  precoTipo,
+  precoValor,
 }: {
   nome: string;
   bio: string | null;
   disponibilidade: string | null;
   cidadeUf: string;
   fotoUrl: string | null;
-  ehAjudante: boolean;
+  ehPrestador: boolean;
+  categoria?: string | null;
+  precoTipo?: string | null;
+  precoValor?: number | null;
 }) {
   const [estado, formAction] = useActionState(salvarPerfilAction, null);
   const v = estado?.valores ?? {};
@@ -78,7 +85,7 @@ export function PerfilForm({
           maxLength={600}
           defaultValue={v.bio ?? bio ?? ""}
           placeholder={
-            ehAjudante
+            ehPrestador
               ? "Ex.: 8 anos de obra, forte em alvenaria e acabamento. Tenho ferramenta própria."
               : "Ex.: Elétrica residencial em Niterói. Pago no fim da diária, em dinheiro ou Pix."
           }
@@ -98,6 +105,58 @@ export function PerfilForm({
           placeholder="Ex.: Dias de semana, a partir das 7h"
         />
       </div>
+
+      {ehPrestador ? (
+        <>
+          <div>
+            <label className="label" htmlFor="categoria">
+              Categoria do serviço
+            </label>
+            <select id="categoria" name="categoria" className="input" defaultValue={v.categoria ?? categoria ?? ""}>
+              <option value="">— selecione —</option>
+              {CATEGORIAS.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="label" htmlFor="precoTipo">
+                Cobrança
+              </label>
+              <select
+                id="precoTipo"
+                name="precoTipo"
+                className="input"
+                defaultValue={v.precoTipo ?? precoTipo ?? "hora"}
+              >
+                <option value="hora">Por hora</option>
+                <option value="servico">Por serviço (fechado)</option>
+              </select>
+            </div>
+            <div>
+              <label className="label" htmlFor="precoValor">
+                Valor (R$)
+              </label>
+              <input
+                id="precoValor"
+                name="precoValor"
+                type="number"
+                min="0"
+                step="0.01"
+                className="input"
+                defaultValue={v.precoValor ?? precoValor ?? ""}
+              />
+            </div>
+          </div>
+          <p className="-mt-2 text-xs leading-relaxed text-muted">
+            O valor pode ser ajustado depois de avaliar o serviço no local — deixe isso claro pro
+            cliente antes de começar.
+          </p>
+        </>
+      ) : null}
 
       <div>
         <label className="label" htmlFor="cidadeUf">

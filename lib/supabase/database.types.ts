@@ -461,6 +461,7 @@ export type Database = {
         Row: {
           bairro: string | null
           bio: string | null
+          categoria: string | null
           cidade: string | null
           cidade_ibge: string | null
           created_at: string
@@ -481,6 +482,7 @@ export type Database = {
         Insert: {
           bairro?: string | null
           bio?: string | null
+          categoria?: string | null
           cidade?: string | null
           cidade_ibge?: string | null
           created_at?: string
@@ -501,6 +503,7 @@ export type Database = {
         Update: {
           bairro?: string | null
           bio?: string | null
+          categoria?: string | null
           cidade?: string | null
           cidade_ibge?: string | null
           created_at?: string
@@ -813,6 +816,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      buscar_prestadores_proximos: {
+        Args: { p_categoria?: string }
+        Returns: {
+          categoria: string
+          distancia_km: number
+          nome: string
+          preco_tipo: string
+          preco_valor: number
+          prestador_id: string
+        }[]
+      }
       can_manage_vaga: { Args: { v_vaga: string }; Returns: boolean }
       current_app_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }

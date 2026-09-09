@@ -23,7 +23,9 @@ muda, cria-se um novo ADR que **supersede** o anterior.
 | [0009](./0009-lembrete-avaliacao-cron.md) | Lembrete de avaliação 24h via função SQL + cron | Aceito |
 | [0010](./0010-ci-pipeline.md) | CI: typecheck + lint + testes em cada push/PR | Aceito |
 | [0011](./0011-dark-mode-tema.md) | Dark mode por CSS variables com papéis de cor separados | Aceito |
+| [0012](./0012-localizacao-exata-perfil.md) | Localização exata do perfil (Cliente/Prestador), supera a 0004 para perfis | Aceito |
 
 **0001–0005** formalizam (retroativamente) decisões já em vigor desde a
 construção do protótipo. **0006–0011** acompanham as mudanças feitas em resposta
-ao parecer do Conselho do Mirante (22/08/2026).
+ao parecer do Conselho do Mirante (22/08/2026). **0012** em diante acompanha o
+pivô v2 (marketplace de agendamento, ver `ROADMAP.md`).

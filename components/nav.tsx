@@ -187,6 +187,7 @@ export function Nav({
           { href: "/admin/demanda", label: "Demanda", icon: "chart" },
           { href: "/admin/metricas", label: "Métricas", icon: "pulse" },
           { href: "/admin/logs", label: "Logs", icon: "shield" },
+          { href: "/admin/servicos", label: "Serviços", icon: "clipboard" },
         ]
       : role === "admin" || role === "funcionario"
         ? empresaItems

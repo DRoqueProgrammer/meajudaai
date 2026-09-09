@@ -580,6 +580,41 @@ export type Database = {
         }
         Relationships: []
       }
+      servico_comentarios_admin: {
+        Row: {
+          autor_id: string
+          created_at: string
+          id: string
+          publico: boolean
+          servico_id: string
+          texto: string
+        }
+        Insert: {
+          autor_id: string
+          created_at?: string
+          id?: string
+          publico?: boolean
+          servico_id: string
+          texto: string
+        }
+        Update: {
+          autor_id?: string
+          created_at?: string
+          id?: string
+          publico?: boolean
+          servico_id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servico_comentarios_admin_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       servico_logs: {
         Row: {
           autor_id: string

@@ -30,12 +30,13 @@ interface DiaPrevisao {
  */
 export function HeroCard({ nome, genero, cidade }: { nome: string; genero: string | null; cidade: string | null }) {
   const [agora, setAgora] = useState<Date | null>(null);
-  const [citacao] = useState(citacaoAleatoria);
+  const [citacao, setCitacao] = useState<string | null>(null);
   const [previsao, setPrevisao] = useState<DiaPrevisao[] | null>(null);
   const [minimizado, setMinimizado] = useState(false);
 
   useEffect(() => {
     setAgora(new Date());
+    setCitacao(citacaoAleatoria());
     const t = setInterval(() => setAgora(new Date()), 1000 * 30);
     try {
       setMinimizado(localStorage.getItem(CHAVE_MINIMIZADO) === "1");
@@ -92,7 +93,7 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight">{boasVindas(genero, nome)}</h1>
-          {!minimizado ? <p className="mt-1 text-sm text-white/85">&ldquo;{citacao}&rdquo;</p> : null}
+          {!minimizado && citacao ? <p className="mt-1 text-sm text-white/85">&ldquo;{citacao}&rdquo;</p> : null}
         </div>
         <button
           type="button"

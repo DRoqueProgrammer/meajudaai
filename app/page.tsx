@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
-import { DEMO_ACCOUNTS } from "@/lib/auth/demo";
+import { CONTAS_EXEMPLO } from "@/lib/auth/contas-exemplo";
 import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -35,7 +35,7 @@ export default async function HomePage() {
   // Foto das contas de exemplo. Precisa de client admin: a landing é pública e a
   // policy `profiles_select_all` (0001) só libera leitura para `authenticated`.
   // São 4 linhas conhecidas, casadas por nome — nada de uuid fixo no código.
-  const nomesDemo = Object.values(DEMO_ACCOUNTS).map((c) => c.nome);
+  const nomesDemo = Object.values(CONTAS_EXEMPLO).map((c) => c.nome);
   const { data: perfisDemo } = await createAdminClient()
     .from("profiles")
     .select("nome, foto_url")
@@ -101,15 +101,15 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Contas de exemplo — entram no app real, em modo somente leitura */}
+            {/* Contas de exemplo — reais e editáveis, uma por papel (ver lib/auth/contas-exemplo.ts) */}
             <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-[18px]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted">
                 Ver por dentro · contas de exemplo
               </p>
-              {Object.entries(DEMO_ACCOUNTS).map(([who, c]) => (
+              {Object.entries(CONTAS_EXEMPLO).map(([papel, c]) => (
                 <a
-                  key={who}
-                  href={`/api/demo/enter?who=${who}`}
+                  key={papel}
+                  href={`/api/exemplo/entrar?papel=${papel}`}
                   className="group flex items-center gap-3.5 rounded-xl border border-line bg-card p-4 shadow-[0_1px_3px_rgba(15,23,42,.07)] hover:border-brand"
                 >
                   <Avatar nome={c.nome} fotoUrl={fotoDe.get(c.nome) ?? null} />
@@ -126,9 +126,9 @@ export default async function HomePage() {
                 </a>
               ))}
               <p className="text-[12px] leading-[1.6] text-muted">
-                <span className="font-semibold text-muted">Aviso:</span> as pessoas acima não
-                existem — nomes e dados foram inventados para demonstração. Nada que você fizer
-                nessas contas é salvo: todas são somente leitura.
+                <span className="font-semibold text-muted">Aviso:</span> contas fictícias criadas
+                pra demonstração — dados e histórico são simulados, mas as contas funcionam
+                normalmente (dá pra editar).
               </p>
             </div>
           </div>

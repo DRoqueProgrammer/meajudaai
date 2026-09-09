@@ -8,22 +8,24 @@
 
 Lista de tudo que foi pedido e ainda **não está construído**, pra não perder de vista no meio da implementação incremental:
 
-- [ ] **Aba "Clientes" do prestador + aba "Serviços" por cliente** (§2.3) — em construção nesta sessão
-- [ ] **Renegociação de preço com aceite do cliente** (§6.3) — em construção nesta sessão
-- [ ] Comentário do Administrador em um serviço, privado/público (§6.4)
-- [ ] Log de auditoria de login: dispositivo, IP, geolocalização por IP (§5.1)
+- [x] Aba "Clientes" do prestador + aba "Serviços" por cliente (§2.3)
+- [x] Renegociação de preço com aceite do cliente (§6.3)
+- [x] Comentário do SysAdmin em um serviço, privado/público (§6.4) — restrito a SysAdmin nesta v2 (ver ❓ abaixo)
+- [x] Log de auditoria de login: IP, dispositivo, geolocalização por IP (§5.1) — painel em `/admin/logs`
+- [x] Ciclo de vida de conta — desativar e reativar (§3)
+- [x] PIN no mapa (Leaflet) no cadastro de Cliente e Prestador — obrigatório, salva em `profile_local`
 - [ ] Painel/dashboard do Prestador com KPIs e gráficos (§2.3, aba Painel)
-- [ ] Painel dedicado do SysAdmin (hoje só tem acesso via RLS "god-mode", sem tela própria que mostre todos os workspaces)
-- [ ] Ciclo de vida de conta — desativar e reativar (§3)
-- [ ] PIN no mapa (Leaflet) no cadastro de Cliente e Prestador — hoje o cadastro só tem cidade em lista fixa, sem mapa nem coordenada
 - [ ] Lista de cidades via IBGE (§7, ainda é a lista fixa `CIDADES` antiga, não a do `amazing-school`)
 - [ ] Carrossel de fotos no perfil do prestador (hoje só uma foto via `foto_url`)
 - [ ] Cadastro do prestador com aprovação (Telegram ou site) + selo "aguardando aprovação" (§2.3)
 - [ ] **Telegram** (bot de notificação de agendamento/aprovação) — bloqueado: precisa de credenciais de bot do Leonardo
 - [ ] Papéis customizados dinâmicos além de "funcionário" fixo (§4) — hoje o admin convida como funcionário, mas não cria papéis novos
 - [ ] Seletor de ícone/logo do workspace pelo Administrador (§15) — só o ícone global do app (favicon/logo) foi trocado
+- [ ] Mostrar o comentário público do admin na UI do prestador/cliente (a permissão RLS já existe, falta só a leitura+exibição nas telas de serviço)
 
-**Já feito** (pra referência, não repetir): pivô de papéis (SysAdmin/Administrador/Prestador/Cliente), Agenda v2 com horário recorrente + calendário mês/semana + linha do tempo por hora, busca por proximidade sem expor coordenada exata, cadastro de Cliente/Prestador, preço e categoria do prestador, cancelamento com justificativa, login completo (mostrar senha/salvar credenciais/esqueci senha), logout sempre pra home, Hero (saudação por gênero/citação/relógio/previsão do tempo), banner de cookies, ícone da chave inglesa (logo + favicon), RLS de PII entre partes de um serviço, link de WhatsApp (`lib/whatsapp.ts`), dataset de demonstração com 3 anos de histórico + fotos licenciadas.
+❓ **Tensão não resolvida:** o modelo P2P (prestador_servico sem workspace) conflita com "Administrador vê a agenda completa do workspace" (§2.2) — hoje um prestador não pertence a workspace nenhum, então esse comentário/visão de admin ficou restrito ao SysAdmin (que enxerga tudo). Precisa de uma decisão de produto: prestadores autônomos viram membros de um workspace, ou o conceito de "Administrador de workspace" só se aplica a quem usa o fluxo antigo de vagas?
+
+**Já feito** (pra referência, não repetir): pivô de papéis (SysAdmin/Administrador/Prestador/Cliente), Agenda v2 com horário recorrente + calendário mês/semana + linha do tempo por hora, busca por proximidade sem expor coordenada exata, cadastro de Cliente/Prestador com PIN exato obrigatório, preço e categoria do prestador, cancelamento com justificativa, login completo (mostrar/ocultar senha com ícone, salvar credenciais, esqueci senha), logout sempre pra home, Hero (saudação por gênero/citação/relógio/previsão do tempo), banner de cookies, ícone da chave inglesa (logo + favicon), RLS de PII entre partes de um serviço, link de WhatsApp (`lib/whatsapp.ts`), dataset de demonstração com 3 anos de histórico + fotos licenciadas, flag de papel na barra lateral, logs de acesso (`/admin/logs`), comentário de serviço (`/admin/servicos`).
 
 ---
 

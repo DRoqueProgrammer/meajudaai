@@ -4,6 +4,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import { CriarSlotForm } from "@/components/agenda/criar-slot-form";
 import { AgendaCalendarV2, type AgendaEvento } from "@/components/agenda/agenda-calendar-v2";
 import type { PerfilResumo } from "@/components/perfil-popover";
+import { resumoHorariosAbertos } from "@/lib/agenda-resumo";
+import { formatData, formatHora } from "@/lib/format";
 
 /**
  * Rota `/agenda`: prestador vê/oferece os próprios horários (agenda v2:
@@ -112,10 +114,29 @@ export default async function AgendaPage() {
     logsDeServico.get(l.servico_id)!.push(l);
   }
 
+  const periodosAbertos = resumoHorariosAbertos(slots ?? []);
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Minha agenda</h1>
       <p className="text-sm text-muted">Ofereça horários e acompanhe os serviços agendados.</p>
+
+      <div className="card flex flex-col gap-1.5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">Você está aberto para</p>
+        {periodosAbertos.length === 0 ? (
+          <p className="text-sm text-muted">Nenhum horário aberto no momento — crie um abaixo.</p>
+        ) : (
+          periodosAbertos.map((p) => (
+            <p key={`${p.horaInicio}-${p.horaFim}`} className="text-sm">
+              <span className="font-semibold">{formatHora(p.horaInicio)}–{formatHora(p.horaFim)}</span>{" "}
+              <span className="text-muted">
+                · {p.diasSemana} · até {formatData(p.dataMax)}
+              </span>
+            </p>
+          ))
+        )}
+      </div>
+
       <CriarSlotForm />
       <AgendaCalendarV2
         eventos={(slots ?? []).map(

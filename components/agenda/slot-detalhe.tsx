@@ -25,10 +25,15 @@ export interface SlotDetalheProps {
   logs: { id: string; texto: string; created_at: string }[];
 }
 
-/** Card de um horário da agenda — expande ao clicar, mostrando o serviço (se houver), log privado e ações. */
-export function SlotDetalhe({ slot, servico, logs }: SlotDetalheProps) {
+/**
+ * Detalhe de um horário da agenda — descrição do serviço (se houver), log
+ * privado e ações (aceitar/cancelar). Por padrão expande/recolhe ao clicar no
+ * cabeçalho (usado dentro de um card efêmero); `paginaCompleta` pula o
+ * cabeçalho clicável e mostra tudo aberto (usado em /agenda/[slotId]).
+ */
+export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: SlotDetalheProps & { paginaCompleta?: boolean }) {
   const router = useRouter();
-  const [aberto, setAberto] = useState(false);
+  const [aberto, setAberto] = useState(paginaCompleta);
   const [pending, start] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
   const [textoLog, setTextoLog] = useState("");
@@ -41,20 +46,26 @@ export function SlotDetalhe({ slot, servico, logs }: SlotDetalheProps) {
     realizado: "text-brand",
   };
 
+  const cabecalho = (
+    <span className="flex items-center justify-between text-left">
+      <span className="text-sm font-medium">
+        {formatData(slot.data)} · {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
+      </span>
+      <span className={`text-xs font-semibold uppercase ${corStatus[servico?.status ?? slot.status] ?? ""}`}>
+        {servico?.status ?? slot.status}
+      </span>
+    </span>
+  );
+
   return (
-    <div className="card flex flex-col gap-2">
-      <button
-        type="button"
-        onClick={() => setAberto((a) => !a)}
-        className="flex items-center justify-between text-left"
-      >
-        <span className="text-sm font-medium">
-          {formatData(slot.data)} · {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
-        </span>
-        <span className={`text-xs font-semibold uppercase ${corStatus[servico?.status ?? slot.status] ?? ""}`}>
-          {servico?.status ?? slot.status}
-        </span>
-      </button>
+    <div className={paginaCompleta ? "flex flex-col gap-2" : "card flex flex-col gap-2"}>
+      {paginaCompleta ? (
+        cabecalho
+      ) : (
+        <button type="button" onClick={() => setAberto((a) => !a)} className="flex items-center justify-between text-left">
+          {cabecalho}
+        </button>
+      )}
 
       {aberto ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">

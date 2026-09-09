@@ -60,17 +60,24 @@ export function AgendaCalendarV2({
     router.push(`${pathname}?visao=${novaVisao}&data=${iso(novaData)}`);
   }
 
+  // Cabia só um pontinho e "1 horário" — pra saber o que era, tinha que clicar
+  // no dia e procurar na linha do tempo. Cada evento agora aparece com a hora
+  // (pequena) e a descrição (o que importa) direto na célula do mês.
+  const MAX_LINHAS_CELULA = 3;
+
   function celula(dataIso: string, numero: number, foraDoMes: boolean) {
     const eventosDoDia = porDia.get(dataIso) ?? [];
     const isHoje = dataIso === iso(hoje);
     const isSelecionado = dataIso === diaSelecionado;
     const temEvento = eventosDoDia.length > 0;
+    const visiveis = eventosDoDia.slice(0, MAX_LINHAS_CELULA);
+    const resto = eventosDoDia.length - visiveis.length;
     return (
       <button
         key={dataIso}
         type="button"
         onClick={() => setDiaSelecionado(dataIso)}
-        className={`flex min-h-[64px] flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition ${
+        className={`flex min-h-[72px] flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition ${
           isSelecionado ? "border-brand bg-tint-info" : temEvento ? "border-line bg-tint-info/40" : "border-line bg-card"
         } ${foraDoMes ? "opacity-40" : ""}`}
       >
@@ -81,18 +88,15 @@ export function AgendaCalendarV2({
         >
           {numero}
         </span>
-        <div className="flex flex-wrap items-center gap-1">
-          {eventosDoDia.slice(0, 4).map((e) => (
-            <span
-              key={e.slot.id}
-              className={`h-2.5 w-2.5 rounded-full ring-1 ring-white ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`}
-            />
+        <div className="flex w-full flex-col gap-0.5">
+          {visiveis.map((e) => (
+            <div key={e.slot.id} className="flex items-baseline gap-1 overflow-hidden">
+              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`} />
+              <span className="shrink-0 text-[9px] tabular-nums text-muted">{e.slot.hora_inicio.slice(0, 5)}</span>
+              <span className="truncate text-[10px] leading-tight text-ink">{e.servico?.descricao ?? "Livre"}</span>
+            </div>
           ))}
-          {eventosDoDia.length === 1 ? (
-            <span className="text-[9px] font-semibold leading-none text-muted">1 horário</span>
-          ) : eventosDoDia.length > 1 ? (
-            <span className="text-[9px] font-semibold leading-none text-muted">{eventosDoDia.length}</span>
-          ) : null}
+          {resto > 0 ? <span className="text-[9px] text-muted">+{resto}</span> : null}
         </div>
       </button>
     );

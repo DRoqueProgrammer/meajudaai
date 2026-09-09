@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { SlotDetalhe, type SlotDetalheProps } from "@/components/agenda/slot-detalhe";
+import type { SlotDetalheProps } from "@/components/agenda/slot-detalhe";
 import { SlotDetalheCliente } from "@/components/agenda/slot-detalhe-cliente";
+import { EventoPopover } from "@/components/agenda/evento-popover";
 import type { PerfilResumo } from "@/components/perfil-popover";
 
 const HOUR_PX = 16; // 24h * 16px = 384px de altura total
@@ -54,58 +55,71 @@ export function DiaTimeline({
   const selecionado = eventos.find((e) => e.slot.id === selecionadoId) ?? null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex">
-        <div className="relative w-9 shrink-0" style={{ height: 24 * HOUR_PX }}>
-          {MARCOS.map((h) => (
-            <span key={h} className="absolute -top-2 text-[9px] text-muted" style={{ top: h * HOUR_PX }}>
-              {String(h % 24).padStart(2, "0")}h
-            </span>
-          ))}
-        </div>
-        <div className="relative flex-1 border-l border-line" style={{ height: 24 * HOUR_PX }}>
-          {MARCOS.map((h) => (
-            <div key={h} className="absolute inset-x-0 border-t border-line/60" style={{ top: h * HOUR_PX }} />
-          ))}
-          {eventos.map((e) => {
-            const inicio = paraHoras(e.slot.hora_inicio);
-            const fim = paraHoras(e.slot.hora_fim);
-            const top = inicio * HOUR_PX;
-            const altura = Math.max(20, (fim - inicio) * HOUR_PX);
-            const status = e.servico?.status ?? e.slot.status;
-            return (
-              <button
-                key={e.slot.id}
-                type="button"
-                onClick={() => setSelecionadoId((atual) => (atual === e.slot.id ? null : e.slot.id))}
-                className={`absolute left-1 right-1 overflow-hidden rounded-md border-l-4 px-2 py-0.5 text-left transition ${
-                  corPorStatus[status] ?? "border-line bg-card"
-                } ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
-                style={{ top, height: altura }}
-              >
-                <span className="block text-[10px] text-muted">
-                  {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
-                </span>
-                <span className="block truncate text-sm font-medium text-ink">
-                  {e.servico?.descricao ?? "Horário livre"}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+    <div className="flex">
+      <div className="relative w-9 shrink-0" style={{ height: 24 * HOUR_PX }}>
+        {MARCOS.map((h) => (
+          <span key={h} className="absolute -top-2 text-[9px] text-muted" style={{ top: h * HOUR_PX }}>
+            {String(h % 24).padStart(2, "0")}h
+          </span>
+        ))}
       </div>
+      <div className="relative flex-1 border-l border-line" style={{ height: 24 * HOUR_PX }}>
+        {MARCOS.map((h) => (
+          <div key={h} className="absolute inset-x-0 border-t border-line/60" style={{ top: h * HOUR_PX }} />
+        ))}
+        {eventos.map((e) => {
+          const inicio = paraHoras(e.slot.hora_inicio);
+          const fim = paraHoras(e.slot.hora_fim);
+          const top = inicio * HOUR_PX;
+          const altura = Math.max(20, (fim - inicio) * HOUR_PX);
+          const status = e.servico?.status ?? e.slot.status;
+          return (
+            <button
+              key={e.slot.id}
+              type="button"
+              onClick={() => setSelecionadoId((atual) => (atual === e.slot.id ? null : e.slot.id))}
+              className={`absolute left-1 right-1 overflow-hidden rounded-md border-l-4 px-2 py-0.5 text-left transition ${
+                corPorStatus[status] ?? "border-line bg-card"
+              } ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
+              style={{ top, height: altura }}
+            >
+              <span className="block text-[10px] text-muted">
+                {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
+              </span>
+              <span className="block truncate text-sm font-medium text-ink">
+                {e.servico?.descricao ?? "Horário livre"}
+              </span>
+            </button>
+          );
+        })}
 
-      {selecionado ? (
-        variant === "cliente" ? (
-          selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
-            <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
-          ) : (
-            <p className="text-sm text-muted">Horário livre.</p>
-          )
-        ) : (
-          <SlotDetalhe slot={selecionado.slot} servico={selecionado.servico} logs={selecionado.logs} />
-        )
-      ) : null}
+        {/* Card efêmero ancorado logo abaixo do bloco clicado — não empurra o
+            resto da tela, fecha sozinho ao clicar fora (ver EventoPopover). */}
+        {selecionado
+          ? (() => {
+              const inicio = paraHoras(selecionado.slot.hora_inicio);
+              const fim = paraHoras(selecionado.slot.hora_fim);
+              const topPopover = Math.max(0, inicio * HOUR_PX + (fim - inicio) * HOUR_PX + 4);
+              return (
+                <div className="absolute left-1 z-10" style={{ top: topPopover }}>
+                  {variant === "cliente" ? (
+                    selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
+                      <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
+                    ) : (
+                      <p className="text-sm text-muted">Horário livre.</p>
+                    )
+                  ) : (
+                    <EventoPopover
+                      evento={selecionado}
+                      href={`/agenda/${selecionado.slot.id}`}
+                      onFechar={() => setSelecionadoId(null)}
+                    />
+                  )}
+                </div>
+              );
+            })()
+          : null}
+      </div>
     </div>
   );
 }

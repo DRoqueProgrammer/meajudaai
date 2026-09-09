@@ -19,3 +19,8 @@ next-env.d.ts
 
 # Cache local do Supabase CLI (project-ref, versões, url do pooler) — por máquina, não versionar
 /supabase/.temp
+
+# Converge/Task-Spec: skills espelhadas para outras harnesses (Codex/Kimi e Grok Build).
+# Só usamos Claude Code aqui — .claude/skills/ é a cópia versionada. Regeneráveis com install.sh.
+/.agents
+/.grok

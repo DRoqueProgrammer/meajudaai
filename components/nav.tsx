@@ -11,6 +11,7 @@ import { ContaSheet } from "@/components/conta-sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LinkPendente } from "@/components/link-pendente";
 import { useLinkStatus } from "next/link";
+import { PAPEL_LABEL } from "@/lib/papel-label";
 
 interface Item {
   href: string;
@@ -238,6 +239,9 @@ export function Nav({
       <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line bg-card p-4 md:flex">
         <div className="mb-4 px-2">
           <Logo />
+          <span className="mt-2 inline-block rounded-full bg-brand-fill px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+            {PAPEL_LABEL[role]}
+          </span>
         </div>
         {[...items, { href: `/perfil/${userId}`, label: "Perfil", icon: "user" }].map((it) => (
           <Link

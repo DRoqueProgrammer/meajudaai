@@ -178,9 +178,14 @@ export async function entrarAction(_estado: EstadoForm, fd: FormData): Promise<E
   }
 
   const sb = await createServerClient();
-  const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
   // A senha nunca volta em `valores`.
   if (error) return { erro: "E-mail ou senha inválidos.", valores: { email } };
+
+  // Conta desativada pelo próprio dono (nunca deletamos, ver ROADMAP.md §3):
+  // antes de voltar a usar, pede pra confirmar os dados.
+  const { data: perfil } = await sb.from("profiles").select("status").eq("user_id", data.user.id).maybeSingle();
+  if (perfil?.status === "inativo") redirect("/reativar");
 
   redirect("/inicio");
 }
@@ -328,4 +333,37 @@ export async function logoutAction(): Promise<void> {
   const sb = await createServerClient();
   await sb.auth.signOut();
   redirect("/");
+}
+
+/**
+ * O usuário desativa a própria conta — nunca deletamos (ROADMAP.md §3). Ao
+ * logar de novo, `entrarAction` manda pra `/reativar` antes de voltar ao uso normal.
+ */
+export async function desativarMinhaContaAction(): Promise<void> {
+  const w = await tryWriter();
+  if ("erro" in w) return;
+  const sb = await createServerClient();
+  await sb.from("profiles").update({ status: "inativo" }).eq("user_id", w.user.id);
+  await sb.auth.signOut();
+  redirect("/");
+}
+
+/**
+ * Confirma os dados e reativa a conta (chamado a partir de `/reativar`).
+ * Foto é opcional — o resto (nome, telefone, cidade) precisa ser confirmado.
+ */
+export async function reativarContaAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
+  const w = await tryWriter();
+  if ("erro" in w) return { erro: w.erro };
+  const [cidade, estado] = campo(fd, "cidadeUf").split("|");
+  const nome = campo(fd, "nome");
+  const telefone = soDigitos(campo(fd, "telefone"));
+  if (!nome || !telefone || !cidade) return { erro: "Preencha nome, telefone e cidade." };
+
+  const sb = await createServerClient();
+  const { error: piiErr } = await sb.from("profiles_pii").update({ telefone }).eq("user_id", w.user.id);
+  if (piiErr) return { erro: "Esse telefone já está em uso por outra conta." };
+  await sb.from("profiles").update({ nome, cidade, estado, status: "ativo" }).eq("user_id", w.user.id);
+
+  redirect("/inicio");
 }

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { TelaComHeader } from "@/components/ui";
 import { PerfilForm } from "@/components/perfil-form";
+import { DesativarContaBotao } from "@/components/desativar-conta-botao";
 import { CIDADES } from "@/lib/cidades";
 
 /**
@@ -41,6 +42,7 @@ export default async function EditarPerfilPage() {
         precoTipo={p.preco_tipo}
         precoValor={p.preco_valor}
       />
+      {user.role !== "sysadmin" ? <DesativarContaBotao /> : null}
     </TelaComHeader>
   );
 }

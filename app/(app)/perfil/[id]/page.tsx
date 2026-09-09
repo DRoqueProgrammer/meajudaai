@@ -8,14 +8,7 @@ import { Denunciar } from "@/components/denunciar";
 import { TrocarPapel } from "@/components/trocar-papel";
 import { formatData } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
-
-const PAPEL_LABEL: Record<string, string> = {
-  sysadmin: "Administração da plataforma",
-  admin: "Administrador",
-  funcionario: "Funcionário",
-  prestador_servico: "Prestador de Serviço",
-  cliente: "Cliente",
-};
+import { PAPEL_LABEL } from "@/lib/papel-label";
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -85,7 +78,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
                   parte da identidade, não um detalhe de rodapé. */}
               {p.verificado ? <Verificado /> : null}
             </div>
-            <p className="text-sm text-muted">{PAPEL_LABEL[p.tipo_base] ?? p.tipo_base}</p>
+            <p className="text-sm text-muted">{PAPEL_LABEL[p.tipo_base as keyof typeof PAPEL_LABEL] ?? p.tipo_base}</p>
             <div className="mt-1">
               <StarRating nota={p.nota_media} total={p.total_avaliacoes} />
             </div>

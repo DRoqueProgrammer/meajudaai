@@ -564,6 +564,7 @@ export type Database = {
       }
       profiles_pii: {
         Row: {
+          chave_pix: string | null
           created_at: string
           email: string | null
           is_whatsapp: boolean
@@ -571,6 +572,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          chave_pix?: string | null
           created_at?: string
           email?: string | null
           is_whatsapp?: boolean
@@ -578,6 +580,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          chave_pix?: string | null
           created_at?: string
           email?: string | null
           is_whatsapp?: boolean

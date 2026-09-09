@@ -16,3 +16,6 @@ next-env.d.ts
 
 # Rascunhos de ícone (opções para escolher, não fazem parte do app)
 /design/icon-options
+
+# Cache local do Supabase CLI (project-ref, versões, url do pooler) — por máquina, não versionar
+/supabase/.temp

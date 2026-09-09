@@ -74,6 +74,16 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
   const d = parsed.data;
   const telefone = soDigitos(d.telefone);
 
+  // Cliente e prestador_servico precisam de endereço + PIN exato (ROADMAP.md §7) —
+  // é o que permite ordenar buscas por proximidade. Os outros papéis não usam isso.
+  const endereco = campo(fd, "endereco");
+  const latStr = campo(fd, "lat");
+  const lngStr = campo(fd, "lng");
+  const precisaLocalizacao = d.tipo_base === "cliente" || d.tipo_base === "prestador_servico";
+  if (precisaLocalizacao && (!endereco || !latStr || !lngStr)) {
+    return { erro: "Marque sua localização exata no mapa.", valores: preserva };
+  }
+
   const { data: dup } = await admin
     .from("profiles_pii")
     .select("user_id")
@@ -99,7 +109,11 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     estado: d.estado,
     tipo_base: d.tipo_base,
     genero: d.genero,
+    ...(precisaLocalizacao ? { endereco } : {}),
   });
+  if (precisaLocalizacao) {
+    await admin.from("profile_local").insert({ user_id: userId, lat: Number(latStr), lng: Number(lngStr) });
+  }
   const { error: piiErr } = await admin
     .from("profiles_pii")
     .insert({ user_id: userId, telefone, email: d.email });

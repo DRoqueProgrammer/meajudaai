@@ -466,6 +466,7 @@ export type Database = {
           cidade_ibge: string | null
           created_at: string
           disponibilidade: string | null
+          endereco: string | null
           estado: string | null
           foto_url: string | null
           genero: string | null
@@ -487,6 +488,7 @@ export type Database = {
           cidade_ibge?: string | null
           created_at?: string
           disponibilidade?: string | null
+          endereco?: string | null
           estado?: string | null
           foto_url?: string | null
           genero?: string | null
@@ -508,6 +510,7 @@ export type Database = {
           cidade_ibge?: string | null
           created_at?: string
           disponibilidade?: string | null
+          endereco?: string | null
           estado?: string | null
           foto_url?: string | null
           genero?: string | null

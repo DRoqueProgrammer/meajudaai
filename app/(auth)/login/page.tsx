@@ -9,6 +9,17 @@ import { BotaoEnviar } from "@/components/botao-enviar";
 
 const CHAVE_CREDENCIAIS = "meajudaai:credenciais-salvas";
 
+/** Ícone de olho (mostrar/ocultar senha) — traço fino, sem depender de emoji. */
+function IconeOlho({ aberto }: { aberto: boolean }) {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+      {aberto ? <line x1="3" y1="21" x2="21" y2="3" /> : null}
+    </svg>
+  );
+}
+
 /**
  * `<form action={...}>` com Server Action, não `onSubmit` para o envio em si —
  * o navegador faz o POST, a action roda no servidor e o redirect vem de lá.
@@ -96,9 +107,10 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setMostrarSenha((v) => !v)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-brand"
+              aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-brand"
             >
-              {mostrarSenha ? "Ocultar" : "Mostrar"}
+              <IconeOlho aberto={mostrarSenha} />
             </button>
           </div>
         </div>

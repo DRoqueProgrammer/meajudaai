@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import Link from "next/link";
 import { cadastrarAction } from "@/lib/actions/auth";
 import { CIDADES } from "@/lib/cidades";
+import { AddressMapPicker } from "@/components/maps/address-map-picker-dynamic";
 import { mascaraTelefone } from "@/lib/format";
 import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
@@ -54,6 +55,10 @@ export function CadastroForm({
   const [papel, setPapel] = useState<Papel | null>(
     (v.tipo_base as Papel | undefined) ?? papelInicial,
   );
+  const [endereco, setEndereco] = useState("");
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const precisaLocalizacao = papel === "cliente" || papel === "prestador_servico";
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6 py-10">
@@ -158,6 +163,25 @@ export function CadastroForm({
           perfil. Ele serve para confirmar que você é uma pessoa real e para o contato depois que a
           diária é aceita.
         </p>
+        {precisaLocalizacao ? (
+          <div>
+            <label className="label">Endereço e localização exata</label>
+            <input type="hidden" name="endereco" value={endereco} />
+            <input type="hidden" name="lat" value={lat ?? ""} />
+            <input type="hidden" name="lng" value={lng ?? ""} />
+            <AddressMapPicker
+              onChange={(val) => {
+                setEndereco(val.endereco);
+                setLat(val.lat);
+                setLng(val.lng);
+              }}
+            />
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              Obrigatório: é o que permite ordenar buscas por proximidade. O endereço exato só
+              aparece pra quem você aceitar um serviço.
+            </p>
+          </div>
+        ) : null}
         <div>
           <label className="label" htmlFor="cidade">
             Cidade
@@ -188,7 +212,11 @@ export function CadastroForm({
           </Link>
           .
         </p>
-        <BotaoEnviar className="btn-brand mt-1" enviando="Criando…" desabilitado={!convite && !papel}>
+        <BotaoEnviar
+          className="btn-brand mt-1"
+          enviando="Criando…"
+          desabilitado={(!convite && !papel) || (precisaLocalizacao && (lat === null || lng === null))}
+        >
           CRIAR CONTA
         </BotaoEnviar>
         <Link href="/login" className="link-touch">

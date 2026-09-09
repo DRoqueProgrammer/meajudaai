@@ -24,7 +24,7 @@ function paraHoras(hhmm: string): number {
 
 export interface DiaTimelineEvento {
   slot: SlotDetalheProps["slot"];
-  servico: SlotDetalheProps["servico"];
+  servico: (NonNullable<SlotDetalheProps["servico"]> & { clienteNome?: string | null }) | null;
   logs: SlotDetalheProps["logs"];
 }
 
@@ -93,33 +93,30 @@ export function DiaTimeline({
           );
         })}
 
-        {/* Card efêmero ancorado logo abaixo do bloco clicado — não empurra o
-            resto da tela, fecha sozinho ao clicar fora (ver EventoPopover). */}
-        {selecionado
+        {/* Variant "cliente" continua ancorada logo abaixo do bloco. */}
+        {selecionado && variant === "cliente"
           ? (() => {
               const inicio = paraHoras(selecionado.slot.hora_inicio);
               const fim = paraHoras(selecionado.slot.hora_fim);
               const topPopover = Math.max(0, inicio * HOUR_PX + (fim - inicio) * HOUR_PX + 4);
               return (
                 <div className="absolute left-1 z-10" style={{ top: topPopover }}>
-                  {variant === "cliente" ? (
-                    selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
-                      <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
-                    ) : (
-                      <p className="text-sm text-muted">Horário livre.</p>
-                    )
+                  {selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
+                    <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
                   ) : (
-                    <EventoPopover
-                      evento={selecionado}
-                      href={`/agenda/${selecionado.slot.id}`}
-                      onFechar={() => setSelecionadoId(null)}
-                    />
+                    <p className="text-sm text-muted">Horário livre.</p>
                   )}
                 </div>
               );
             })()
           : null}
       </div>
+
+      {/* Variant "prestador": overlay centrado na tela, não ancorado na
+          linha do tempo — ver EventoPopover. */}
+      {selecionado && variant === "prestador" ? (
+        <EventoPopover evento={selecionado} href={`/agenda/${selecionado.slot.id}`} onFechar={() => setSelecionadoId(null)} />
+      ) : null}
     </div>
   );
 }

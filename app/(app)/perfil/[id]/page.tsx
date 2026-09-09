@@ -19,7 +19,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
   // logado, e `profiles` guarda mais do que ela precisa mostrar.
   const { data: p } = await sb
     .from("profiles")
-    .select("nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, genero, nota_media, total_avaliacoes, verificado, created_at")
+    .select("nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, genero, nota_media, total_avaliacoes, verificado, created_at, servicos_realizados")
     .eq("user_id", id)
     .maybeSingle();
   if (!p) notFound();
@@ -48,6 +48,13 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
         .filter((x): x is string => !!x),
     ),
   ].slice(0, 4);
+
+  // Modelo v2: o contador que importa pro prestador é serviços realizados
+  // (não diárias/candidaturas, que são do fluxo antigo). Vem de
+  // profiles.servicos_realizados (denormalizado — ver migration 0035) porque
+  // `servicos` tem RLS restrita às partes envolvidas; um cliente que nunca
+  // contratou esse prestador precisa ver o total real, não zero.
+  const ehPrestadorV2 = p.tipo_base === "prestador_servico";
 
   const desde = new Date(p.created_at).toLocaleDateString("pt-BR", {
     month: "long",
@@ -103,12 +110,21 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
             ainda não tem avaliação nenhuma. */}
         <div className="card flex flex-col gap-3">
           <div className="flex flex-wrap gap-x-6 gap-y-3">
-            <div>
-              <p className="text-xl font-bold text-brand">{concluidas.length}</p>
-              <p className="text-xs text-muted">
-                {concluidas.length === 1 ? "diária concluída" : "diárias concluídas"}
-              </p>
-            </div>
+            {ehPrestadorV2 ? (
+              <div>
+                <p className="text-xl font-bold text-brand">{p.servicos_realizados}</p>
+                <p className="text-xs text-muted">
+                  {p.servicos_realizados === 1 ? "serviço realizado" : "serviços realizados"}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-xl font-bold text-brand">{concluidas.length}</p>
+                <p className="text-xs text-muted">
+                  {concluidas.length === 1 ? "diária concluída" : "diárias concluídas"}
+                </p>
+              </div>
+            )}
             <div>
               <p className="text-xl font-bold text-brand">{p.total_avaliacoes}</p>
               <p className="text-xs text-muted">
@@ -140,7 +156,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
                 ))}
               </div>
             </div>
-          ) : concluidas.length === 0 && p.total_avaliacoes === 0 ? (
+          ) : !ehPrestadorV2 && concluidas.length === 0 && p.total_avaliacoes === 0 ? (
             <p className="border-t border-line pt-3 text-sm leading-relaxed text-muted">
               Ainda não fechou nenhuma diária por aqui. Todo mundo começa assim — quem der a
               primeira chance é que constrói a reputação dessa pessoa.

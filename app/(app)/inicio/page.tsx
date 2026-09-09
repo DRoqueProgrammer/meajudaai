@@ -6,6 +6,7 @@ import { PANEL_MODULES } from "@/lib/modules";
 import { boasVindas } from "@/lib/saudacao";
 import { HeroCard } from "@/components/hero-card";
 import { PerfilPopover } from "@/components/perfil-popover";
+import { GraficoFaturamento, type MesFaturamento } from "@/components/dashboard/grafico-faturamento";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 
 const STATUS_ESTILO: Record<string, string> = {
@@ -114,26 +115,46 @@ export default async function InicioPage() {
   const hojeStr = new Date().toLocaleDateString("sv-SE");
 
   // Prestador v2: a home não tem mais "vagas" (isso é do fluxo de diária por
-  // workspace, v1) — o que importa aqui é a agenda de hoje, quanto está
-  // pendente de resposta, e um número simples de faturamento do mês.
-  let agendaHoje: { id: string; hora_inicio: string; hora_fim: string; descricao: string | null; status: string }[] = [];
+  // workspace, v1) — o que importa aqui é a agenda de curto prazo, quanto
+  // está pendente de resposta, faturamento e um gráfico dos últimos meses.
+  let agendaCurta: { id: string; data: string; hora_inicio: string; hora_fim: string; descricao: string | null; status: string }[] = [];
+  let tituloAgendaCurta = "Hoje";
   let pendentesCount = 0;
   let faturamentoMes = 0;
+  let totalRealizados = 0;
+  let mesesFaturamento: MesFaturamento[] = [];
+  let perfilIncompleto: string[] = [];
   if (user!.role === "prestador_servico") {
     const { data: slotsHoje } = await sb
       .from("agenda_slots")
-      .select("id, hora_inicio, hora_fim, status")
+      .select("id, data, hora_inicio, hora_fim, status")
       .eq("prestador_id", user!.id)
       .eq("data", hojeStr)
       .order("hora_inicio", { ascending: true });
-    const idsHoje = (slotsHoje ?? []).map((s) => s.id);
-    const { data: servicosHoje } = idsHoje.length
-      ? await sb.from("servicos").select("slot_id, descricao, status").in("slot_id", idsHoje)
+
+    // Sem nada hoje, a home não pode virar beco sem saída — mostra os
+    // próximos horários futuros (até 5) em vez de só "nada hoje".
+    let slotsAgenda = slotsHoje ?? [];
+    if (slotsAgenda.length === 0) {
+      tituloAgendaCurta = "Próximos horários";
+      const { data: proximos } = await sb
+        .from("agenda_slots")
+        .select("id, data, hora_inicio, hora_fim, status")
+        .eq("prestador_id", user!.id)
+        .gt("data", hojeStr)
+        .order("data", { ascending: true })
+        .order("hora_inicio", { ascending: true })
+        .limit(5);
+      slotsAgenda = proximos ?? [];
+    }
+    const idsAgenda = slotsAgenda.map((s) => s.id);
+    const { data: servicosAgenda } = idsAgenda.length
+      ? await sb.from("servicos").select("slot_id, descricao, status").in("slot_id", idsAgenda)
       : { data: [] };
-    const servicoPorSlot = new Map((servicosHoje ?? []).map((s) => [s.slot_id, s]));
-    agendaHoje = (slotsHoje ?? []).map((s) => {
+    const servicoPorSlot = new Map((servicosAgenda ?? []).map((s) => [s.slot_id, s]));
+    agendaCurta = slotsAgenda.map((s) => {
       const serv = servicoPorSlot.get(s.id);
-      return { id: s.id, hora_inicio: s.hora_inicio, hora_fim: s.hora_fim, descricao: serv?.descricao ?? null, status: serv?.status ?? s.status };
+      return { id: s.id, data: s.data, hora_inicio: s.hora_inicio, hora_fim: s.hora_fim, descricao: serv?.descricao ?? null, status: serv?.status ?? s.status };
     });
 
     const { count } = await sb
@@ -143,22 +164,69 @@ export default async function InicioPage() {
       .eq("status", "pendente");
     pendentesCount = count ?? 0;
 
-    const primeiroDiaMes = `${hojeStr.slice(0, 7)}-01`;
-    const { data: slotsMes } = await sb
+    // Últimos 6 meses (incluindo o atual) pro gráfico — junta slot (pela data
+    // real do serviço) com o valor/cliente de cada serviço realizado nesse período.
+    const inicioJanela = new Date();
+    inicioJanela.setDate(1);
+    inicioJanela.setMonth(inicioJanela.getMonth() - 5);
+    const inicioJanelaStr = inicioJanela.toLocaleDateString("sv-SE");
+    const { data: slotsJanela } = await sb
       .from("agenda_slots")
-      .select("id")
+      .select("id, data")
       .eq("prestador_id", user!.id)
-      .gte("data", primeiroDiaMes)
+      .gte("data", inicioJanelaStr)
       .lte("data", hojeStr);
-    const idsMes = (slotsMes ?? []).map((s) => s.id);
-    if (idsMes.length) {
-      const { data: realizadosMes } = await sb
-        .from("servicos")
-        .select("preco_valor")
-        .in("slot_id", idsMes)
-        .eq("status", "realizado");
-      faturamentoMes = (realizadosMes ?? []).reduce((soma, s) => soma + s.preco_valor, 0);
+    const dataPorSlot = new Map((slotsJanela ?? []).map((s) => [s.id, s.data]));
+    const idsJanela = (slotsJanela ?? []).map((s) => s.id);
+    const { data: realizadosJanela } = idsJanela.length
+      ? await sb.from("servicos").select("slot_id, preco_valor, cliente_id").in("slot_id", idsJanela).eq("status", "realizado")
+      : { data: [] };
+
+    const porMes = new Map<string, { faturamento: number; servicos: number; clientes: Set<string> }>();
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(inicioJanela);
+      d.setMonth(d.getMonth() + i);
+      porMes.set(d.toLocaleDateString("sv-SE").slice(0, 7), { faturamento: 0, servicos: 0, clientes: new Set() });
     }
+    for (const s of realizadosJanela ?? []) {
+      const data = dataPorSlot.get(s.slot_id);
+      if (!data) continue;
+      const chave = data.slice(0, 7);
+      const acc = porMes.get(chave);
+      if (!acc) continue;
+      acc.faturamento += s.preco_valor;
+      acc.servicos += 1;
+      acc.clientes.add(s.cliente_id);
+    }
+    const NOME_MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+    mesesFaturamento = [...porMes.entries()].map(([chave, v]) => ({
+      mes: chave,
+      rotulo: NOME_MES[Number(chave.slice(5, 7)) - 1]!,
+      faturamento: v.faturamento,
+      numServicos: v.servicos,
+      numClientes: v.clientes.size,
+    }));
+    faturamentoMes = mesesFaturamento[mesesFaturamento.length - 1]?.faturamento ?? 0;
+
+    const { count: countRealizados } = await sb
+      .from("servicos")
+      .select("id", { count: "exact", head: true })
+      .eq("prestador_id", user!.id)
+      .eq("status", "realizado");
+    totalRealizados = countRealizados ?? 0;
+
+    // Nudge de perfil incompleto — o que falta preencher, na ordem que mais afeta ser encontrado/contratado.
+    const { data: meuPerfilCompleto } = await sb
+      .from("profiles")
+      .select("bio, foto_url, categoria, preco_valor")
+      .eq("user_id", user!.id)
+      .maybeSingle();
+    const { data: minhaPiiCompleta } = await sb.from("profiles_pii").select("chave_pix").eq("user_id", user!.id).maybeSingle();
+    if (!meuPerfilCompleto?.foto_url) perfilIncompleto.push("foto");
+    if (!meuPerfilCompleto?.bio) perfilIncompleto.push("descrição");
+    if (!meuPerfilCompleto?.categoria) perfilIncompleto.push("categoria");
+    if (meuPerfilCompleto?.preco_valor == null) perfilIncompleto.push("preço");
+    if (!minhaPiiCompleta?.chave_pix) perfilIncompleto.push("chave Pix");
   }
 
   let ultimosServicos: {
@@ -296,25 +364,46 @@ export default async function InicioPage() {
       </div>
 
       {user!.role === "prestador_servico" ? (
-        <div className="grid grid-cols-3 gap-2">
-          <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
-            <p className="text-xl font-bold text-brand">{agendaHoje.length}</p>
-            <p className="text-xs text-muted">hoje</p>
+        <>
+          {perfilIncompleto.length > 0 ? (
+            <Link
+              href="/perfil/editar"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-brand bg-tint-info px-4 py-3 text-sm transition hover:brightness-95"
+            >
+              <span>
+                <span className="font-semibold text-brand">Complete seu perfil</span>{" "}
+                <span className="text-muted">— falta {perfilIncompleto.join(", ")}. Perfil completo aparece mais nas buscas.</span>
+              </span>
+              <span className="shrink-0 font-semibold text-brand">Editar →</span>
+            </Link>
+          ) : null}
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
+              <p className="text-xl font-bold text-brand">{agendaCurta.length}</p>
+              <p className="text-xs text-muted">{tituloAgendaCurta === "Hoje" ? "hoje" : "próximos"}</p>
+            </div>
+            <Link
+              href="/clientes"
+              className={`flex flex-col items-center gap-0.5 rounded-2xl border py-3 text-center transition ${
+                pendentesCount > 0 ? "border-accent bg-tint-warn" : "border-line bg-card"
+              }`}
+            >
+              <p className={`text-xl font-bold ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-brand"}`}>{pendentesCount}</p>
+              <p className={`text-xs ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-muted"}`}>aguardando você</p>
+            </Link>
+            <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
+              <p className="text-xl font-bold text-brand">{formatBRL(faturamentoMes)}</p>
+              <p className="text-xs text-muted">faturado no mês</p>
+            </div>
+            <Link href={`/perfil/${user!.id}`} className="card flex flex-col items-center gap-0.5 py-3 text-center transition hover:border-brand">
+              <p className="text-xl font-bold text-brand">{totalRealizados}</p>
+              <p className="text-xs text-muted">realizados (total)</p>
+            </Link>
           </div>
-          <Link
-            href="/clientes"
-            className={`flex flex-col items-center gap-0.5 rounded-2xl border py-3 text-center transition ${
-              pendentesCount > 0 ? "border-accent bg-tint-warn" : "border-line bg-card"
-            }`}
-          >
-            <p className={`text-xl font-bold ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-brand"}`}>{pendentesCount}</p>
-            <p className={`text-xs ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-muted"}`}>aguardando você</p>
-          </Link>
-          <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
-            <p className="text-xl font-bold text-brand">{formatBRL(faturamentoMes)}</p>
-            <p className="text-xs text-muted">faturado no mês</p>
-          </div>
-        </div>
+
+          <GraficoFaturamento meses={mesesFaturamento} />
+        </>
       ) : null}
 
       {user!.role === "cliente" ? (
@@ -388,16 +477,16 @@ export default async function InicioPage() {
       {user!.role === "prestador_servico" ? (
         <div>
           <div className="mb-2 flex items-baseline justify-between gap-2">
-            <h2 className="text-sm font-semibold text-muted">Hoje</h2>
+            <h2 className="text-sm font-semibold text-muted">{tituloAgendaCurta}</h2>
             <Link href="/agenda" className="text-sm font-semibold text-brand">
               Ver agenda →
             </Link>
           </div>
-          {agendaHoje.length === 0 ? (
-            <p className="card-vazio">Nenhum horário hoje.</p>
+          {agendaCurta.length === 0 ? (
+            <p className="card-vazio">Nenhum horário aberto — abra um período na agenda.</p>
           ) : (
             <div className="flex flex-col gap-2">
-              {agendaHoje.map((s) => (
+              {agendaCurta.map((s) => (
                 <Link
                   key={s.id}
                   href={`/agenda/${s.id}`}
@@ -405,6 +494,7 @@ export default async function InicioPage() {
                 >
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-muted">
+                      {tituloAgendaCurta !== "Hoje" ? `${formatData(s.data)} · ` : ""}
                       {formatHora(s.hora_inicio)}–{formatHora(s.hora_fim)}
                     </p>
                     <p className="truncate text-sm font-semibold">{s.descricao ?? "Horário livre"}</p>

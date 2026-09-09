@@ -4,3 +4,8 @@ export function waLink(telefone: string): string {
   const comDdi = digitos.startsWith("55") ? digitos : `55${digitos}`;
   return `https://wa.me/${comDdi}`;
 }
+
+/** Link do WhatsApp pra compartilhar um texto (ex.: localização) sem destinatário fixo — abre o seletor de contato. */
+export function waShareLink(texto: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(texto)}`;
+}

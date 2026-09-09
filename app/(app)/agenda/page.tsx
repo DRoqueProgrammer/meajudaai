@@ -94,10 +94,19 @@ export default async function AgendaPage() {
   const { data: servicos } = slotIds.length
     ? await sb
         .from("servicos")
-        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo")
+        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id")
         .in("slot_id", slotIds)
     : { data: [] };
-  const servicoDeSlot = new Map((servicos ?? []).map((s) => [s.slot_id, s]));
+
+  const clienteIds = [...new Set((servicos ?? []).map((s) => s.cliente_id))];
+  const { data: clientesNomes } = clienteIds.length
+    ? await sb.from("profiles").select("user_id, nome").in("user_id", clienteIds)
+    : { data: [] };
+  const nomeDeCliente = new Map((clientesNomes ?? []).map((c) => [c.user_id, c.nome]));
+
+  const servicoDeSlot = new Map(
+    (servicos ?? []).map((s) => [s.slot_id, { ...s, clienteNome: nomeDeCliente.get(s.cliente_id) ?? null }]),
+  );
 
   const servicoIds = (servicos ?? []).map((s) => s.id);
   const { data: logs } = servicoIds.length

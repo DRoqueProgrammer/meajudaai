@@ -14,7 +14,7 @@ const MES = [
 
 export interface AgendaEvento {
   slot: SlotDetalheProps["slot"];
-  servico: SlotDetalheProps["servico"];
+  servico: (NonNullable<SlotDetalheProps["servico"]> & { clienteNome?: string | null }) | null;
   logs: SlotDetalheProps["logs"];
 }
 

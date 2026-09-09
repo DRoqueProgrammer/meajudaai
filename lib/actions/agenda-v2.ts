@@ -83,11 +83,17 @@ export async function criarSlotsRecorrentesAction(input: {
 export async function reservarSlotAction(input: {
   slotId: string;
   descricao: string;
+  endereco: string;
+  lat: number;
+  lng: number;
 }): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
   if (w.user.role !== "cliente") return { ok: false, erro: "Só clientes podem reservar um horário." };
   if (!input.descricao.trim()) return { ok: false, erro: "Descreva o que você precisa." };
+  if (!input.endereco.trim() || input.lat == null || input.lng == null) {
+    return { ok: false, erro: "Marque o endereço onde o serviço vai acontecer." };
+  }
 
   const sb = await createServerClient();
   const { data: slot, error: slotErr } = await sb
@@ -121,6 +127,9 @@ export async function reservarSlotAction(input: {
     descricao: input.descricao.trim(),
     preco_tipo: perfil.preco_tipo,
     preco_valor: perfil.preco_valor,
+    endereco: input.endereco.trim(),
+    lat: input.lat,
+    lng: input.lng,
   });
   if (insServico) {
     await sb.from("agenda_slots").update({ status: "livre" }).eq("id", slot.id);

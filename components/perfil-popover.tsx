@@ -41,7 +41,7 @@ export function PerfilPopover({ perfil, className }: { perfil: PerfilResumo; cla
         {perfil.nome}
       </button>
       {aberto ? (
-        <div className="absolute left-0 top-full z-20 mt-2 w-64 rounded-2xl border border-line bg-card p-4 shadow-[0_8px_24px_rgba(15,23,42,0.18)]">
+        <div className="absolute left-0 top-full z-[1001] mt-2 w-64 rounded-2xl border border-line bg-card p-4 shadow-[0_8px_24px_rgba(15,23,42,0.18)]">
           <div className="flex items-center gap-3">
             <Avatar nome={perfil.nome} fotoUrl={perfil.fotoUrl} />
             <div className="min-w-0">
@@ -57,7 +57,12 @@ export function PerfilPopover({ perfil, className }: { perfil: PerfilResumo; cla
               <Verificado />
             </div>
           ) : null}
-          <Link href={`/perfil/${perfil.userId}`} className="btn-ghost mt-3 block w-full text-center text-xs">
+          <Link
+            href={`/perfil/${perfil.userId}`}
+            target="_blank"
+            rel="noreferrer"
+            className="btn-ghost mt-3 block w-full text-center text-xs"
+          >
             Ver perfil completo →
           </Link>
         </div>

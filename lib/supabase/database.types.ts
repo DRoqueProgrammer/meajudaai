@@ -510,6 +510,7 @@ export type Database = {
           nota_media: number
           preco_tipo: string | null
           preco_valor: number | null
+          servicos_realizados: number
           status: string
           tipo_base: string
           total_avaliacoes: number
@@ -532,6 +533,7 @@ export type Database = {
           nota_media?: number
           preco_tipo?: string | null
           preco_valor?: number | null
+          servicos_realizados?: number
           status?: string
           tipo_base?: string
           total_avaliacoes?: number
@@ -554,6 +556,7 @@ export type Database = {
           nota_media?: number
           preco_tipo?: string | null
           preco_valor?: number | null
+          servicos_realizados?: number
           status?: string
           tipo_base?: string
           total_avaliacoes?: number
@@ -663,7 +666,10 @@ export type Database = {
           cliente_id: string
           created_at: string
           descricao: string
+          endereco: string | null
           id: string
+          lat: number | null
+          lng: number | null
           preco_pendente: number | null
           preco_tipo: string
           preco_valor: number
@@ -677,7 +683,10 @@ export type Database = {
           cliente_id: string
           created_at?: string
           descricao: string
+          endereco?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           preco_pendente?: number | null
           preco_tipo: string
           preco_valor: number
@@ -691,7 +700,10 @@ export type Database = {
           cliente_id?: string
           created_at?: string
           descricao?: string
+          endereco?: string | null
           id?: string
+          lat?: number | null
+          lng?: number | null
           preco_pendente?: number | null
           preco_tipo?: string
           preco_valor?: number

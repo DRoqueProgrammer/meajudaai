@@ -12,13 +12,13 @@ import { FormError } from "@/components/ui";
  * querer não tem /vagas no rodapé e não consegue procurar trabalho. Até esta
  * tela existir, só o sysadmin conseguia desfazer isso.
  */
-export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "ajudante" }) {
+export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "prestador_servico" }) {
   const router = useRouter();
   const [confirmando, setConfirmando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const alvo = papelAtual === "admin" ? "ajudante" : "admin";
+  const alvo = papelAtual === "admin" ? "prestador_servico" : "admin";
   const souProfissional = papelAtual === "admin";
 
   if (!confirmando) {

@@ -16,7 +16,7 @@ const admin: SupabaseClient | null = canRun
   ? createClient(url!, service!, { auth: { persistSession: false, autoRefreshToken: false } })
   : null;
 
-async function makeUser(email: string, tipo: "admin" | "ajudante" | "funcionario" | "sysadmin"): Promise<string> {
+async function makeUser(email: string, tipo: "admin" | "prestador_servico" | "funcionario" | "sysadmin"): Promise<string> {
   const { data } = await admin!.auth.admin.createUser({ email, password: SENHA, email_confirm: true });
   const id = data.user!.id;
   await admin!.from("profiles").insert({ user_id: id, nome: email.split("@")[0], tipo_base: tipo, cidade: "Niterói", estado: "RJ" });
@@ -50,7 +50,7 @@ describe.skipIf(!canRun)("RLS — isolamento multi-tenant e PII", () => {
   beforeAll(async () => {
     try {
       idA = await makeUser(emailA, "admin");
-      idB = await makeUser(emailB, "ajudante");
+      idB = await makeUser(emailB, "prestador_servico");
     } catch (e) {
       alcancavel = false;
       console.warn("[rls] Supabase inacessível deste ambiente — testes pulados.", e);

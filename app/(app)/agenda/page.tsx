@@ -56,7 +56,7 @@ export default async function AgendaPage({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "ajudante") redirect("/inicio");
+  if (user.role !== "prestador_servico") redirect("/inicio");
 
   const sb = await createServerClient();
   const { data: cands } = await sb

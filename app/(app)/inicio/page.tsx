@@ -118,7 +118,7 @@ export default async function InicioPage() {
   const { data: vagas } = feed ? await feed : { data: [] };
 
   const painel =
-    user!.role === "ajudante"
+    user!.role === "prestador_servico"
       ? "Painel do ajudante"
       : user!.role === "funcionario"
         ? "Painel do funcionário"

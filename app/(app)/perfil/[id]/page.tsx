@@ -180,7 +180,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
             <Link href="/perfil/editar" className="btn-ghost w-full">
               Editar perfil
             </Link>
-            {p.tipo_base === "admin" || p.tipo_base === "ajudante" ? (
+            {p.tipo_base === "admin" || p.tipo_base === "prestador_servico" ? (
               <TrocarPapel papelAtual={p.tipo_base} />
             ) : null}
             <form action={logoutAction}>

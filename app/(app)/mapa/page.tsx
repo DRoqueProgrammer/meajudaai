@@ -21,7 +21,7 @@ export default async function MapaPage() {
   let titulo = "Mapa";
   let descricao = "";
 
-  if (user.role === "ajudante") {
+  if (user.role === "prestador_servico") {
     titulo = "Vagas perto de você";
     descricao = "Diárias abertas na região. A localização é aproximada até você ser contratado.";
     const { data } = await sb

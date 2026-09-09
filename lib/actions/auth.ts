@@ -239,11 +239,11 @@ export async function definirSenhaAction(
  * Só vale enquanto a conta está limpa: com vaga publicada ou candidatura
  * enviada, trocar o papel deixaria registros órfãos do outro lado do marketplace.
  */
-export async function trocarMeuPapelAction(novo: "admin" | "ajudante"): Promise<ActionResult> {
+export async function trocarMeuPapelAction(novo: "admin" | "prestador_servico"): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
   const user = w.user;
-  if (user.role !== "admin" && user.role !== "ajudante") {
+  if (user.role !== "admin" && user.role !== "prestador_servico") {
     return { ok: false, erro: "Só profissional e ajudante podem trocar de papel por aqui." };
   }
   if (user.role === novo) return { ok: true };

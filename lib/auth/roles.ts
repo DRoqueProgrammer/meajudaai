@@ -1,6 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 
-export type AppRole = "sysadmin" | "admin" | "funcionario" | "ajudante";
+export type AppRole = "sysadmin" | "admin" | "funcionario" | "prestador_servico" | "cliente";
 
 export interface CurrentUser {
   id: string;
@@ -8,7 +8,7 @@ export interface CurrentUser {
   role: AppRole;
 }
 
-const ROLES: readonly AppRole[] = ["sysadmin", "admin", "funcionario", "ajudante"];
+const ROLES: readonly AppRole[] = ["sysadmin", "admin", "funcionario", "prestador_servico", "cliente"];
 
 /** Type guard de `AppRole` para blindar o valor lido do banco. */
 function isAppRole(v: unknown): v is AppRole {
@@ -31,7 +31,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     .select("tipo_base")
     .eq("user_id", user.id)
     .maybeSingle();
-  const role = isAppRole(prof?.tipo_base) ? prof.tipo_base : "ajudante";
+  const role = isAppRole(prof?.tipo_base) ? prof.tipo_base : "cliente";
   return { id: user.id, email: user.email ?? null, role };
 }
 

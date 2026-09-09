@@ -5,6 +5,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { VagaCard } from "@/components/vaga-card";
 import { PANEL_MODULES } from "@/lib/modules";
 import { boasVindas } from "@/lib/saudacao";
+import { HeroCard } from "@/components/hero-card";
 
 function saudacao(): string {
   const h = new Date().getHours();
@@ -136,10 +137,16 @@ export default async function InicioPage() {
       ) : null}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">{painel}</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight">
-          {boasVindas(perfil?.genero ?? null, primeiroNome)} {saudacao()}.
-        </h1>
-        <p className="mt-1 text-sm text-muted">O que você precisa hoje?</p>
+        {user!.role === "funcionario" ? (
+          <h1 className="mt-1 text-2xl font-bold tracking-tight">
+            {boasVindas(perfil?.genero ?? null, primeiroNome)} {saudacao()}.
+          </h1>
+        ) : (
+          <div className="mt-2">
+            <HeroCard nome={primeiroNome} genero={perfil?.genero ?? null} cidade={minhaCidade} />
+          </div>
+        )}
+        <p className="mt-2 text-sm text-muted">O que você precisa hoje?</p>
       </div>
 
       {/* A referência visual (tela 2) pede dois CTAs grandes. Aqui o papel já é

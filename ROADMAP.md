@@ -67,8 +67,12 @@ Isso também introduz uma camada de **multi-tenant real**: várias empresas (wor
 **Aba de Serviços (dentro do perfil de um cliente):**
 - Um **serviço** é criado quando uma solicitação do cliente é aceita.
 - Um cliente pode ter vários serviços (histórico).
-- Cada serviço tem um preço inicial; botão **"Renegociar"** abre modal para alterar o valor — a alteração gera um **log do serviço** (ex.: "renegociado de R$100 para R$500"), com timestamp.
+- Lista sempre **ordenada do mais recente para o mais antigo**, mostrando os últimos 10 com botão "ver todos"; precisa de **filtros** (nome do cliente, tipo de serviço, etc.).
+- Cada serviço tem um preço inicial; botão **"Renegociar"** abre modal para propor um novo valor (ver §6.3 — exige aceite do cliente).
 - Prestador também pode registrar logs sobre o serviço em si (não só sobre o cliente).
+
+**Aba Painel (dashboard profissional):**
+- Dashboard próprio do prestador com KPIs e gráficos relevantes (ex.: faturamento, nº de serviços no período, taxa de aceite, avaliação média, próximos agendamentos). ❓ *Lista final de KPIs/gráficos a definir — Leonardo quer algo "top", vale propor um layout antes de implementar.*
 
 ### 2.4 Cliente
 - Cadastro **simplificado, sem aprovação** (diferente do prestador).
@@ -96,6 +100,10 @@ Ao reativar uma conta (qualquer papel):
 - O Administrador ("sócio") pode criar **papéis novos além dos padrão** — ex.: "Funcionário" — e convidar pessoas para eles (convite por WhatsApp, pessoa define a própria senha no primeiro acesso).
 - O que cada papel customizado pode fazer dentro do app deve ser modelado como **módulos** habilitáveis/desabilitáveis (ex.: módulo "Clientes", módulo "Prestadores de Serviço", possivelmente módulo "Agenda", "Relatórios" etc. — a listar conforme o produto cresce).
 - Isso é essencialmente um RBAC granular por módulo, por workspace — não papéis fixos no código, e sim uma tabela de permissões configurável pelo Administrador.
+- Um papel customizado como "Funcionário" **nasce sem nenhum módulo habilitado**. Na hora da criação/convite, o Administrador já seleciona quais módulos aquele funcionário terá — não é uma etapa posterior.
+
+### ⚠️ Requisito de segurança crítico — autorização por módulo tem que ser sólida
+Se um Funcionário tentar acessar diretamente (digitando a URL) um módulo/rota ao qual não tem permissão, o sistema **precisa bloquear e redirecionar para a página principal dele** — nunca deixar a rota carregar. Isso não pode ser só esconder o item de menu na UI: a checagem de permissão tem que valer **em cada rota/módulo**, no servidor (middleware/Server Component/Server Action), não só no client. Leonardo enfatizou isso como um ponto crítico de segurança ("cada papel é muito importante", "não deixe essa breach passar") — tratar como requisito não-negociável, não como detalhe de polimento.
 
 ❓ **A confirmar:** lista completa de módulos a existir no protótipo; se um "Funcionário" pode, por exemplo, ver a agenda completa como o Administrador ou só um subconjunto.
 
@@ -134,9 +142,9 @@ Sob o preço, de forma elegante/pequena mas legível, deve constar que o valor p
 
 ### 6.3 Serviços
 - Um **serviço** nasce quando uma solicitação de cliente é aceita pelo prestador.
-- Um cliente pode ter múltiplos serviços ao longo do tempo (histórico, dentro da aba de Clientes do prestador).
+- Um cliente pode ter múltiplos serviços ao longo do tempo (histórico, dentro da aba de Clientes do prestador, ver §2.3).
 - Cada serviço tem status: agendado / realizado / cancelado.
-- Botão de **renegociação** de valor por serviço, com log automático da mudança.
+- **Renegociação de valor exige aceite do cliente.** Fluxo: prestador percebe no local que o serviço vale mais do que o combinado (ex.: cliente esperava R$100, prestador avalia R$300) → abre a proposta de renegociação a partir da aba Serviços → fica **pendente de aceite do cliente** → só quando o cliente aceita o novo valor passa a valer. Cada mudança gera um **log automático** (ex.: "renegociado de R$100 para R$300"), com timestamp. ❓ *A definir: como o cliente é notificado da proposta (Telegram, igual ao agendamento?) e o que acontece se ele recusar (serviço cancela? mantém valor antigo? fica em impasse?).*
 
 ### 6.4 Comentário do Administrador em um serviço
 - Administrador pode comentar em qualquer serviço.
@@ -152,11 +160,14 @@ Campos do cadastro (Prestador e Cliente):
 |---|---|---|
 | Nome | Sim | |
 | Como gostaria de ser chamado | Não (opcional) | Apelido/nome social |
-| Endereço | **Sim, para os dois papéis** | Com **mapa Leaflet** logo abaixo, PIN de localização exata — obrigatório para calcular proximidade nas buscas |
+| Cidade | Sim | Selecionada da **lista oficial do IBGE** (mesmo padrão usado no projeto `amazing-school` — pedir o repo ao Leonardo quando formos implementar) |
+| Endereço | **Sim, para os dois papéis** | Endereço escrito **+ mapa Leaflet** logo abaixo, com PIN de localização exata — **decisão confirmada: localização exata, não aproximada** (isso reverte o `docs/adr/0004-localizacao-aproximada.md` da v1 — precisamos de uma nova ADR superando a 0004 quando formos implementar) |
 | Telefone | Sim | |
 | É WhatsApp? | Sim/Não | Se sim, gera link clicável (`wa.me/<numero>`) com ícone do WhatsApp |
 
 Prestador passa por aprovação do Administrador (via Telegram ou site); Cliente não.
+
+**Mapa do Administrador (visão agregada) é diferente do mapa individual:** no mapa que o Administrador usa para ver todo mundo do workspace, pessoas da **mesma cidade devem aparecer agrupadas/próximas** — não espalhadas pelos pontos exatos, mesmo que os PINs individuais sejam exatos no banco. Ou seja: a localização exata é usada para o cálculo de proximidade nas buscas do cliente (§2.4) e para o prestador achar o endereço de um serviço aceito, mas a **visualização agregada por cidade** no painel do admin agrupa por cidade, sem espalhar os pontos.
 
 ---
 
@@ -173,9 +184,9 @@ Prestador passa por aprovação do Administrador (via Telegram ou site); Cliente
 **Painel do Administrador:** vê a agenda completa — todos os prestadores do workspace, todos os horários (livres/pendentes/confirmados).
 
 ❓ **A definir em conversa futura:**
-- Fluxo de recusa/renegociação simétrico ao "ok".
+- Fluxo de recusa simétrico ao "ok" (renegociação já respondida em §6.3 — exige aceite do cliente).
 - Origem do valor mostrado na confirmação quando a cobrança é "por serviço" (descrição livre do cliente) — alguém precisa arbitrar o valor antes da confirmação sair.
-- Vínculo da conta Telegram de cada prestador/administrador (bot único com roteamento por chat-id cadastrado no perfil, provavelmente).
+- Vínculo da conta Telegram de cada prestador/administrador — provavelmente reaproveitando o padrão do `caixa-forte` (ver §9).
 - O que acontece com um horário "pendente" sem resposta do prestador (expira?).
 
 ---
@@ -185,14 +196,17 @@ Prestador passa por aprovação do Administrador (via Telegram ou site); Cliente
 | Necessidade | Solução provável |
 |---|---|
 | Auth, banco, reset de senha por e-mail | Supabase (já em uso) |
-| Mapa com PIN de localização no cadastro (Cliente e Prestador) | Leaflet + OpenStreetMap (já citado na spec) |
+| Lista de cidades (IBGE) | Reaproveitar o padrão do projeto `amazing-school` — pedir o repo ao Leonardo quando formos implementar |
+| Mapa com PIN de localização exata no cadastro (Cliente e Prestador) | Leaflet + OpenStreetMap (já citado na spec) |
 | Ordenar busca por proximidade | Cálculo de distância a partir das coordenadas do PIN (Postgres/PostGIS ou fórmula haversine) |
 | Exportar localização | Deep link `https://wa.me/?text=...` e/ou `https://maps.google.com/?q=lat,lng` |
 | Link direto para WhatsApp do contato | Deep link `https://wa.me/<numero>` |
 | Convite de Administrador/Cliente/Prestador/Funcionário | Envio por WhatsApp (`wa.me` com texto pré-preenchido contendo link de cadastro) |
-| Notificação de novo cadastro de prestador (aprovação) | Telegram Bot API → Administrador |
-| Notificação de novo agendamento pendente + confirmação | Telegram Bot API (webhook + comando `/ok`) |
+| Bot/notificações Telegram (aprovação de cadastro, agendamento, renegociação) | Padrão já pronto e testado no projeto `caixa-forte` — Leonardo vai mostrar/passar o repo quando formos implementar, para reaproveitar direto |
+| Agenda (horários, slots, visualização por dia) | Padrão já implementado e funcionando em `careconnect` (já em `refs/`) e `vr-pilates` (pedir repo ao Leonardo quando for a hora) |
 | Log de IP e geolocalização por IP em cada login | Serviço de IP geolocation (a escolher) + captura de user-agent/dispositivo |
+
+**Convenção combinada com Leonardo:** para essas integrações (Telegram, Agenda, IBGE), ele tem repos de referência prontos e testados — perguntar e pedir o repo específico só quando a implementação daquela parte começar, em vez de tentar redesenhar do zero.
 
 ---
 
@@ -204,7 +218,8 @@ Prováveis mudanças de schema (a confirmar em sessão de design):
 - Novo papel **SysAdmin**, acima de `workspace_members` (papel global, não escopado a um workspace).
 - **RBAC por módulo**: tabela de papéis customizados por workspace + tabela de permissões por módulo (§4).
 - Substituir/estender `vagas` + `candidaturas` por `agenda_slots` (horário do prestador) + `agendamentos`/`servicos` (reserva do cliente → serviço, com status: livre → pendente → confirmado/realizado/cancelado, + histórico de renegociação de preço).
-- Campos de localização (lat/lng do PIN) para **Cliente e Prestador** — a spec já tem ADR sobre localização aproximada (`docs/adr/0004-localizacao-aproximada.md`) — **revisar**, porque aqui o pedido é localização **exata** via PIN, não aproximada, e obrigatória para os dois papéis.
+- Campos de localização (cidade via código IBGE + lat/lng do PIN) para **Cliente e Prestador** — **decisão confirmada:** localização exata, obrigatória para os dois papéis. Superar `docs/adr/0004-localizacao-aproximada.md` com uma nova ADR quando entrarmos na implementação.
+- Campo de cidade padronizado por código do IBGE (não texto livre) — mesmo padrão do `amazing-school`.
 - Configuração de cobrança no perfil do prestador (`preco_tipo`: hora | servico, `preco_valor`, texto de aviso).
 - Registro de handle/chat-id do Telegram por prestador (e por administrador, para aprovação de cadastro).
 - Fluxo de convite (`invite` já existe — verificar se cobre convite por WhatsApp com papel-alvo, incluindo papéis customizados).
@@ -221,3 +236,6 @@ Prováveis mudanças de schema (a confirmar em sessão de design):
 3. Decidir: iterar o schema existente ou desenhar do zero as tabelas de agenda/agendamento/logs.
 4. Fechar as perguntas ❓ marcadas ao longo do documento.
 5. Antes de implementar a página do Cliente, gerar propostas visuais para escolher direção (não é um requisito técnico, é uma decisão de design).
+6. Ao chegar a hora de implementar Telegram, Agenda ou lista de cidades (IBGE), pedir a Leonardo os repos de referência (`caixa-forte`, `vr-pilates`, `amazing-school`) em vez de redesenhar do zero.
+7. Nova ADR superando a `0004-localizacao-aproximada.md` (localização agora é exata, obrigatória para Cliente e Prestador).
+8. Ao desenhar o RBAC por módulo (§4), tratar a checagem de autorização por rota como requisito de segurança crítico desde o primeiro commit — não como algo a reforçar depois.

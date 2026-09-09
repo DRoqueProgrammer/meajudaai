@@ -188,11 +188,22 @@ export function Nav({
         ]
       : role === "admin" || role === "funcionario"
         ? empresaItems
-        : [
-            { href: "/vagas", label: "Buscar", icon: "search" },
-            { href: "/mapa", label: "Mapa", icon: "map" },
-            { href: "/agenda", label: "Agenda", icon: "calendar" },
-          ];
+        : role === "prestador_servico"
+          ? [
+              { href: "/agenda", label: "Agenda", icon: "calendar" },
+              { href: "/clientes", label: "Clientes", icon: "users" },
+              { href: "/mapa", label: "Mapa", icon: "map" },
+            ]
+          : role === "cliente"
+            ? [
+                { href: "/buscar-prestador", label: "Buscar", icon: "search" },
+                { href: "/meus-servicos", label: "Meus serviços", icon: "clipboard" },
+              ]
+            : [
+                { href: "/vagas", label: "Buscar", icon: "search" },
+                { href: "/mapa", label: "Mapa", icon: "map" },
+                { href: "/agenda", label: "Agenda", icon: "calendar" },
+              ];
 
   // Sysadmin modera; não participa de diária, então não tem caixa de mensagens.
   const mensagens: Item[] =

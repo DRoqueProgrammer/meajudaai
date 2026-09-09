@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao";
+import { ResponderRenegociacao } from "@/components/agenda/responder-renegociacao";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 
 /** Rota `/meus-servicos` (cliente): histórico dos agendamentos feitos. */
@@ -13,7 +14,7 @@ export default async function MeusServicosPage() {
   const sb = await createServerClient();
   const { data: servicos } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, prestador_id, slot_id")
+    .select("id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, prestador_id, slot_id")
     .eq("cliente_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -53,6 +54,9 @@ export default async function MeusServicosPage() {
                 <span className="text-xs font-semibold uppercase text-muted">{s.status}</span>
               </div>
               {s.cancelado_motivo ? <p className="text-xs text-danger">Cancelado: {s.cancelado_motivo}</p> : null}
+              {s.preco_pendente != null ? (
+                <ResponderRenegociacao servicoId={s.id} precoPendente={s.preco_pendente} />
+              ) : null}
               {s.status === "pendente" || s.status === "confirmado" ? (
                 <CancelarServicoBotao servicoId={s.id} />
               ) : null}

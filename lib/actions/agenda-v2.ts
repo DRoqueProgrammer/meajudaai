@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "./auth";
 
 /**
@@ -146,6 +147,69 @@ export async function confirmarServicoAction(servicoId: string): Promise<ActionR
   if (error) return { ok: false, erro: "Não foi possível confirmar." };
   await sb.from("agenda_slots").update({ status: "confirmado" }).eq("id", servico.slot_id);
   revalidatePath("/agenda");
+  return { ok: true };
+}
+
+/** Prestador propõe um novo valor pro serviço — fica pendente até o cliente aceitar ou recusar. */
+export async function proporRenegociacaoAction(input: { servicoId: string; novoValor: number }): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  if (!(input.novoValor > 0)) return { ok: false, erro: "Informe um valor válido." };
+
+  const sb = await createServerClient();
+  const { data: servico } = await sb
+    .from("servicos")
+    .select("id, prestador_id, preco_valor")
+    .eq("id", input.servicoId)
+    .maybeSingle();
+  if (!servico || servico.prestador_id !== w.user.id) return { ok: false, erro: "Serviço não encontrado." };
+
+  const { error } = await sb.from("servicos").update({ preco_pendente: input.novoValor }).eq("id", servico.id);
+  if (error) return { ok: false, erro: "Não foi possível propor o novo valor." };
+  await sb.from("servico_logs").insert({
+    servico_id: servico.id,
+    autor_id: w.user.id,
+    texto: `Propôs renegociar de R$${servico.preco_valor} para R$${input.novoValor} — aguardando aceite do cliente.`,
+  });
+  revalidatePath("/agenda");
+  revalidatePath("/clientes");
+  return { ok: true };
+}
+
+/** Cliente aceita ou recusa a renegociação pendente. */
+export async function responderRenegociacaoAction(input: { servicoId: string; aceitar: boolean }): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+
+  const sb = await createServerClient();
+  const { data: servico } = await sb
+    .from("servicos")
+    .select("id, cliente_id, prestador_id, preco_pendente")
+    .eq("id", input.servicoId)
+    .maybeSingle();
+  if (!servico || servico.cliente_id !== w.user.id) return { ok: false, erro: "Serviço não encontrado." };
+  if (servico.preco_pendente == null) return { ok: false, erro: "Não há renegociação pendente." };
+
+  const { error } = await sb
+    .from("servicos")
+    .update(
+      input.aceitar
+        ? { preco_valor: servico.preco_pendente, preco_pendente: null }
+        : { preco_pendente: null },
+    )
+    .eq("id", servico.id);
+  if (error) return { ok: false, erro: "Não foi possível responder." };
+  // Log fica em nome do prestador (é o dono das notas do servico_logs), mas
+  // quem chamou esta action é o cliente — a RLS de insert exige autor_id =
+  // auth.uid(), então esse registro do sistema precisa do client admin.
+  await createAdminClient().from("servico_logs").insert({
+    servico_id: servico.id,
+    autor_id: servico.prestador_id,
+    texto: input.aceitar
+      ? `Cliente aceitou o novo valor: R$${servico.preco_pendente}.`
+      : "Cliente recusou a renegociação — valor original mantido.",
+  });
+  revalidatePath("/meus-servicos");
   return { ok: true };
 }
 

@@ -527,18 +527,21 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          is_whatsapp: boolean
           telefone: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           email?: string | null
+          is_whatsapp?: boolean
           telefone?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           email?: string | null
+          is_whatsapp?: boolean
           telefone?: string | null
           user_id?: string
         }
@@ -584,6 +587,7 @@ export type Database = {
           created_at: string
           descricao: string
           id: string
+          preco_pendente: number | null
           preco_tipo: string
           preco_valor: number
           prestador_id: string
@@ -597,6 +601,7 @@ export type Database = {
           created_at?: string
           descricao: string
           id?: string
+          preco_pendente?: number | null
           preco_tipo: string
           preco_valor: number
           prestador_id: string
@@ -610,6 +615,7 @@ export type Database = {
           created_at?: string
           descricao?: string
           id?: string
+          preco_pendente?: number | null
           preco_tipo?: string
           preco_valor?: number
           prestador_id?: string
@@ -846,6 +852,7 @@ export type Database = {
         Returns: boolean
       }
       is_workspace_member: { Args: { ws: string }; Returns: boolean }
+      tem_servico_com: { Args: { v_outro: string }; Returns: boolean }
       vaga_aberta: { Args: { v_vaga: string }; Returns: boolean }
     }
     Enums: {

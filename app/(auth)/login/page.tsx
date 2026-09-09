@@ -121,9 +121,6 @@ export default function LoginPage() {
         <Link href="/cadastro" className="link-touch">
           Criar conta
         </Link>
-        <Link href="/" className="link-touch text-xs text-muted">
-          Explorar com uma conta de exemplo
-        </Link>
       </form>
     </main>
   );

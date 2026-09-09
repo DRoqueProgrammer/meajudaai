@@ -11,6 +11,7 @@ export const CadastroSchema = z.object({
   estado: z.string().min(2).max(2),
   // "funcionario" só é válido no cadastro-via-convite (a action barra fora dele).
   tipo_base: z.enum(["admin", "prestador_servico", "cliente", "funcionario"]),
+  genero: z.enum(["masculino", "feminino", "prefiro_nao_responder"]),
 });
 export type CadastroInput = z.infer<typeof CadastroSchema>;
 

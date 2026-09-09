@@ -4,6 +4,7 @@ import { getAllowedModules } from "@/lib/auth/modules";
 import { createServerClient } from "@/lib/supabase/server";
 import { VagaCard } from "@/components/vaga-card";
 import { PANEL_MODULES } from "@/lib/modules";
+import { boasVindas } from "@/lib/saudacao";
 
 function saudacao(): string {
   const h = new Date().getHours();
@@ -78,7 +79,7 @@ export default async function InicioPage() {
   const sb = await createServerClient();
   const { data: perfil } = await sb
     .from("profiles")
-    .select("nome, cidade")
+    .select("nome, cidade, genero")
     .eq("user_id", user!.id)
     .maybeSingle();
   const primeiroNome = (perfil?.nome ?? "").split(" ")[0] || "por aí";
@@ -136,7 +137,7 @@ export default async function InicioPage() {
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">{painel}</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">
-          Olá, {primeiroNome}! {saudacao()}.
+          {boasVindas(perfil?.genero ?? null, primeiroNome)} {saudacao()}.
         </h1>
         <p className="mt-1 text-sm text-muted">O que você precisa hoje?</p>
       </div>

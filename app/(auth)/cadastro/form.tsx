@@ -124,6 +124,19 @@ export function CadastroForm({
           <input id="senha" name="senha" autoComplete="new-password" className="input" type="password" required />
         </div>
         <div>
+          <label className="label" htmlFor="genero">
+            Como prefere ser chamado(a)
+          </label>
+          <select id="genero" name="genero" className="input" defaultValue={v.genero ?? ""} required>
+            <option value="" disabled>
+              — selecione —
+            </option>
+            <option value="masculino">Bem-vindo</option>
+            <option value="feminino">Bem-vinda</option>
+            <option value="prefiro_nao_responder">Bem-vinde (prefiro não informar gênero)</option>
+          </select>
+        </div>
+        <div>
           <label className="label" htmlFor="telefone">
             Telefone
           </label>

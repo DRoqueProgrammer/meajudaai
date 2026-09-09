@@ -11,6 +11,7 @@ describe("CadastroSchema", () => {
     cidade: "Niterói",
     estado: "RJ",
     tipo_base: "prestador_servico",
+    genero: "prefiro_nao_responder",
   };
 
   it("aceita dados válidos", () => {

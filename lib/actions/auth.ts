@@ -55,6 +55,7 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     cidade,
     estado,
     tipo_base: tipoBaseAlvo,
+    genero: campo(fd, "genero"),
   });
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
@@ -97,6 +98,7 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     cidade: d.cidade,
     estado: d.estado,
     tipo_base: d.tipo_base,
+    genero: d.genero,
   });
   const { error: piiErr } = await admin
     .from("profiles_pii")

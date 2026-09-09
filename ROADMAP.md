@@ -82,6 +82,17 @@ Isso também introduz uma camada de **multi-tenant real**: várias empresas (wor
 - Resultado de busca (ex.: "encanador") sempre **ordenado por proximidade**: prestador mais próximo primeiro, mais distante por último.
 - Ao clicar num prestador (ex. João da Silva): abre o perfil dele (descrição, fotos, WhatsApp, agenda) → cliente escolhe horário disponível → descreve o que precisa → aguarda aceite (fluxo já detalhado em §5 do roadmap anterior / seção de agendamento abaixo).
 
+### 2.5 Hero — cabeçalho de boas-vindas (Cliente, Administrador, Prestador de Serviço)
+
+No topo da página inicial desses três papéis (mesmo padrão do `caixa-forte-app`, já em `refs/`):
+- **Saudação** respeitando o gênero cadastrado (mesma regra do §12: Bem-vindo/Bem-vinda/Bem-vinde + nome).
+- **Citação/frase inspiradora**, sorteada aleatoriamente de um banco de ~200 citações relevantes a cada carregamento. ❓ *Precisamos montar essa lista de ~200 citações (curadoria de fontes confiáveis, sem violar direitos autorais na atribuição) antes de implementar.*
+- **Relógio** elegante, em tempo real.
+- **Previsão do tempo** dos próximos 4 dias, via API gratuita — mesmo padrão já usado no `caixa-forte-app` e em outros projetos do Leonardo (reaproveitar a integração).
+- Card **minimizável**: botão para recolher e outro para expandir de volta.
+
+Registrado também como convenção de UI no `CLAUDE.md`.
+
 ---
 
 ## 3. Ciclo de vida de conta — nunca deletar

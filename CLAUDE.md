@@ -32,3 +32,12 @@ Projeto `meajudaai-mvp` · ref `zisvxszjrylnuqplkrlm` · região us-east-1 · or
 
 ## Idioma
 Comunicação e conteúdo do produto em **português (BR)**.
+
+## Fluxo de trabalho
+Sem pressa e sem atalhos. Commits frequentes e pequenos (um por passo/mudança concluída, não um único commit gigante no fim). Toda validação de funcionalidade é feita **rodando o app no browser localmente** (`npm run dev` + navegador) — não basta passar teste automatizado, precisa ser visto funcionando na tela antes de considerar concluído.
+
+## Convenção de UI — Hero de boas-vindas
+Página inicial de Cliente, Administrador e Prestador de Serviço abre com um card "Hero" (padrão do `refs/caixa-forte-app`): saudação respeitando o gênero cadastrado (Bem-vindo/Bem-vinda/Bem-vinde + nome), citação aleatória de um banco de ~200 frases, relógio em tempo real, previsão do tempo dos próximos 4 dias (API gratuita, mesma integração do caixa-forte), e botão para minimizar/expandir o card. Detalhes em [ROADMAP.md](./ROADMAP.md) §2.5.
+
+## v2 em andamento
+O produto está passando por um pivô (vagas por diária → marketplace de agendamento com 4 papéis: SysAdmin, Administrador, Prestador de Serviço, Cliente). Este arquivo ainda reflete a v1 em vários pontos (Tipos de usuário, Escopo, Coleções, Supabase) — a fonte da verdade da v2 é o [ROADMAP.md](./ROADMAP.md); atualizar as seções abaixo quando o desenho estabilizar.

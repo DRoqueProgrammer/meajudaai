@@ -1,20 +1,93 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth/roles";
+import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { CriarSlotForm } from "@/components/agenda/criar-slot-form";
 import { AgendaCalendarV2, type AgendaEvento } from "@/components/agenda/agenda-calendar-v2";
+import { SlotDetalheCliente } from "@/components/agenda/slot-detalhe-cliente";
 
 /**
- * Rota `/agenda` (prestador de serviço) — agenda v2: horários oferecidos,
- * clicáveis para ver o serviço associado, aceitar/cancelar e anotar
- * observações privadas. Ver DESIGN_MEAJUDAAI_V2.md e ROADMAP.md §8.
+ * Rota `/agenda`: prestador vê/oferece os próprios horários (agenda v2:
+ * clicáveis, aceitar/cancelar, observações privadas — DESIGN_MEAJUDAAI_V2.md e
+ * ROADMAP.md §8); cliente vê os horários que já reservou, no mesmo calendário,
+ * mas sem as ações de prestador (ver componente `SlotDetalheCliente`).
  */
 export default async function AgendaPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.role !== "prestador_servico") redirect("/inicio");
+  if (user.role !== "prestador_servico" && user.role !== "cliente") redirect("/inicio");
 
   const sb = await createServerClient();
+
+  if (user.role === "cliente") {
+    const { data: servicos } = await sb
+      .from("servicos")
+      .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, prestador_id")
+      .eq("cliente_id", user.id);
+
+    const slotIds = (servicos ?? []).map((s) => s.slot_id);
+    const { data: slots } = slotIds.length
+      ? await sb.from("agenda_slots").select("id, data, hora_inicio, hora_fim, status").in("id", slotIds)
+      : { data: [] };
+    const slotDe = new Map((slots ?? []).map((s) => [s.id, s]));
+
+    const prestadorIds = [...new Set((servicos ?? []).map((s) => s.prestador_id))];
+    const { data: prestadores } = prestadorIds.length
+      ? await sb
+          .from("profiles")
+          .select("user_id, nome, foto_url, genero, tipo_base, nota_media, total_avaliacoes, verificado")
+          .in("user_id", prestadorIds)
+      : { data: [] };
+    const prestadorDe = new Map((prestadores ?? []).map((p) => [p.user_id, p]));
+
+    const prestadorIdDeServico = new Map((servicos ?? []).map((s) => [s.id, s.prestador_id]));
+    const eventos: AgendaEvento[] = [];
+    for (const s of servicos ?? []) {
+      const slot = slotDe.get(s.slot_id);
+      if (!slot) continue;
+      eventos.push({
+        slot,
+        servico: {
+          id: s.id,
+          descricao: s.descricao,
+          preco_tipo: s.preco_tipo,
+          preco_valor: s.preco_valor,
+          status: s.status,
+          cancelado_motivo: s.cancelado_motivo,
+        },
+        logs: [],
+      });
+    }
+
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-xl font-semibold">Minha agenda</h1>
+        <p className="text-sm text-muted">Os horários que você já reservou com prestadores.</p>
+        <AgendaCalendarV2
+          eventos={eventos}
+          renderDetalhe={(evento) => {
+            const prestadorId = evento.servico ? prestadorIdDeServico.get(evento.servico.id) : null;
+            const p = prestadorId ? prestadorDe.get(prestadorId) : null;
+            if (!evento.servico || !p) return <p className="text-sm text-muted">Horário livre.</p>;
+            return (
+              <SlotDetalheCliente
+                evento={evento}
+                prestador={{
+                  userId: p.user_id,
+                  nome: p.nome,
+                  fotoUrl: p.foto_url,
+                  genero: p.genero,
+                  papel: p.tipo_base as AppRole,
+                  notaMedia: p.nota_media,
+                  totalAvaliacoes: p.total_avaliacoes,
+                  verificado: p.verificado,
+                }}
+              />
+            );
+          }}
+        />
+      </div>
+    );
+  }
   const { data: slots } = await sb
     .from("agenda_slots")
     .select("id, data, hora_inicio, hora_fim, status")

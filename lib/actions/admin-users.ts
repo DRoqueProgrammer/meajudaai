@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "./auth";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
-const PAPEIS = ["sysadmin", "admin", "funcionario", "ajudante"] as const;
+const PAPEIS = ["sysadmin", "admin", "funcionario", "prestador_servico", "cliente"] as const;
 
 /** Sysadmin altera o papel de um usuário. Promover a admin cria empresa se faltar. */
 export async function definirPapelAction(userId: string, papel: string): Promise<ActionResult> {

@@ -26,7 +26,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const sb = await createServerClient();
   const { data: perfil } = await sb
     .from("profiles")
-    .select("nome")
+    .select("nome, genero")
     .eq("user_id", user.id)
     .maybeSingle();
   const nome = perfil?.nome ?? null;
@@ -52,6 +52,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         role={user.role}
         userId={user.id}
         nome={nome}
+        genero={perfil?.genero}
         modules={modules}
         naoLidas={{ "/notificacoes": alertasNaoVistos ?? 0 }}
       />

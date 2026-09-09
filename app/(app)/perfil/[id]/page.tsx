@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCurrentUser } from "@/lib/auth/roles";
+import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { TelaComHeader, Avatar, StarRating, Verificado } from "@/components/ui";
 import { logoutAction } from "@/lib/actions/auth";
@@ -8,7 +8,7 @@ import { Denunciar } from "@/components/denunciar";
 import { TrocarPapel } from "@/components/trocar-papel";
 import { formatData } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
-import { PAPEL_LABEL } from "@/lib/papel-label";
+import { papelLabel } from "@/lib/papel-label";
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,7 +19,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
   // logado, e `profiles` guarda mais do que ela precisa mostrar.
   const { data: p } = await sb
     .from("profiles")
-    .select("nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, nota_media, total_avaliacoes, verificado, created_at")
+    .select("nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, genero, nota_media, total_avaliacoes, verificado, created_at")
     .eq("user_id", id)
     .maybeSingle();
   if (!p) notFound();
@@ -78,7 +78,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
                   parte da identidade, não um detalhe de rodapé. */}
               {p.verificado ? <Verificado /> : null}
             </div>
-            <p className="text-sm text-muted">{PAPEL_LABEL[p.tipo_base as keyof typeof PAPEL_LABEL] ?? p.tipo_base}</p>
+            <p className="text-sm text-muted">{papelLabel(p.tipo_base as AppRole, p.genero)}</p>
             <div className="mt-1">
               <StarRating nota={p.nota_media} total={p.total_avaliacoes} />
             </div>

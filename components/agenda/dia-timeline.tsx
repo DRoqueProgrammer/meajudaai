@@ -26,7 +26,14 @@ export interface DiaTimelineEvento {
 }
 
 /** Agenda do dia como linha do tempo — 00h no topo, meio-dia no meio, 00h nas próximas 24h embaixo; horário pequeno, descrição maior. Clique num bloco expande os detalhes. */
-export function DiaTimeline({ eventos }: { eventos: DiaTimelineEvento[] }) {
+export function DiaTimeline({
+  eventos,
+  renderDetalhe,
+}: {
+  eventos: DiaTimelineEvento[];
+  /** Card de detalhe do evento selecionado — padrão é o `SlotDetalhe` do prestador; o cliente passa sua própria versão. */
+  renderDetalhe?: (evento: DiaTimelineEvento) => React.ReactNode;
+}) {
   const [selecionadoId, setSelecionadoId] = useState<string | null>(null);
 
   if (eventos.length === 0) {
@@ -78,7 +85,11 @@ export function DiaTimeline({ eventos }: { eventos: DiaTimelineEvento[] }) {
       </div>
 
       {selecionado ? (
-        <SlotDetalhe slot={selecionado.slot} servico={selecionado.servico} logs={selecionado.logs} />
+        renderDetalhe ? (
+          renderDetalhe(selecionado)
+        ) : (
+          <SlotDetalhe slot={selecionado.slot} servico={selecionado.servico} logs={selecionado.logs} />
+        )
       ) : null}
     </div>
   );

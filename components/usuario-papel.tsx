@@ -4,22 +4,20 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { definirPapelAction } from "@/lib/actions/admin-users";
 import { FormError } from "@/components/ui";
+import { papelLabel } from "@/lib/papel-label";
+import type { AppRole } from "@/lib/auth/roles";
 
-/** Rótulos escritos: "sysadmin" e "funcionario" eram slug de banco na interface. */
-const PAPEIS = [
-  { valor: "sysadmin", label: "Administração da plataforma" },
-  { valor: "admin", label: "Profissional (publica vagas)" },
-  { valor: "funcionario", label: "Funcionário da equipe" },
-  { valor: "ajudante", label: "Ajudante (se candidata)" },
-];
+const PAPEIS: AppRole[] = ["cliente", "prestador_servico", "funcionario", "admin", "sysadmin"];
 
 export function UsuarioPapel({
   userId,
   papel,
+  genero,
   isSelf,
 }: {
   userId: string;
   papel: string;
+  genero?: string | null;
   isSelf: boolean;
 }) {
   const router = useRouter();
@@ -54,8 +52,8 @@ export function UsuarioPapel({
         className="input text-sm"
       >
         {PAPEIS.map((p) => (
-          <option key={p.valor} value={p.valor}>
-            {p.label}
+          <option key={p} value={p}>
+            {papelLabel(p, genero)}
           </option>
         ))}
       </select>

@@ -11,7 +11,7 @@ import { ContaSheet } from "@/components/conta-sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LinkPendente } from "@/components/link-pendente";
 import { useLinkStatus } from "next/link";
-import { PAPEL_LABEL } from "@/lib/papel-label";
+import { papelLabel } from "@/lib/papel-label";
 
 interface Item {
   href: string;
@@ -160,12 +160,14 @@ export function Nav({
   role,
   userId,
   nome,
+  genero,
   modules,
   naoLidas = {},
 }: {
   role: AppRole;
   userId: string;
   nome: string | null;
+  genero?: string | null;
   modules?: string[];
   /** Contagem de não-lidas por href, ex.: { "/mensagens": 3 }. */
   naoLidas?: Record<string, number>;
@@ -199,6 +201,7 @@ export function Nav({
             ]
           : role === "cliente"
             ? [
+                { href: "/agenda", label: "Agenda", icon: "calendar" },
                 { href: "/buscar-prestador", label: "Buscar", icon: "search" },
                 { href: "/meus-servicos", label: "Meus serviços", icon: "clipboard" },
               ]
@@ -242,7 +245,7 @@ export function Nav({
         <div className="mb-4 px-2">
           <Logo />
           <span className="mt-2 inline-block rounded-full bg-brand-fill px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-            {PAPEL_LABEL[role]}
+            {papelLabel(role, genero)}
           </span>
         </div>
         {[...items, { href: `/perfil/${userId}`, label: "Perfil", icon: "user" }].map((it) => (

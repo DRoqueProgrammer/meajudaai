@@ -27,8 +27,8 @@ Spec original: FlutterFlow + Firebase (mobile). **Decisão para o protótipo:** 
 ## Regras de segurança
 Telefone/email únicos · autenticação Supabase (e-mail e senha) · bloqueio por admin · logs de atividade.
 
-## Supabase (protótipo)
-Projeto `meajudaai-mvp` · ref `zisvxszjrylnuqplkrlm` · região us-east-1 · org DRoqueProgrammer. URL/anon em `.env.local` (não comitado). Conector Supabase MCP ativo — migrations/SQL aplicáveis via conector. Schema em `supabase/migrations/0001–0019` (19 tabelas, todas com RLS; a `0019` anexa os comentários de schema). `service_role` key presente em `.env.local` (integração passa: `npm run test:integration`). Falta: registrar auth hook após migration 0002.
+## Supabase (protótipo v2)
+Projeto **novo** `meAjudaAi` · ref `opvdfyyijbgrwztnqldl` · região us-east-2 · criado em 09/09/2026 para a v2 (substitui o antigo `meajudaai-mvp`/`zisvxszjrylnuqplkrlm` referenciado em docs antigos). URL/chaves/token em `.env.local` (não comitado) — nomes esperados pelo código: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`. Sem conector MCP do Supabase nesta sessão — migrations aplicadas via **Supabase CLI** (`supabase link --project-ref ...` + `supabase db push`, usando `SUPABASE_ACCESS_TOKEN` = o `SUPABASE_TOKEN` do `.env.local`, autorizado por Leonardo para uso livre neste projeto). Schema em `supabase/migrations/0001–0023` (todas as 23 já aplicadas nesse projeto novo — banco estava vazio, foi um `db push` completo). Falta: registrar auth hook (`custom_access_token_hook`) no Dashboard — app funciona sem isso (fallback lê `profiles.tipo_base`).
 
 ## Idioma
 Comunicação e conteúdo do produto em **português (BR)**.

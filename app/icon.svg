@@ -1,11 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Mesmo capacete de components/icons.tsx (HardHat): azul da marca sobre o
-       amarelo do badge do logo. Área segura de maskable: o desenho fica dentro
-       dos 80% centrais. -->
-  <rect width="48" height="48" rx="10" fill="#FFC107"/>
-  <g fill="#0D47A1" transform="translate(24 24) scale(0.78) translate(-24 -24)">
-    <rect x="21.5" y="15" width="5" height="14" rx="2.5"/>
-    <path d="M13 30v-2a11 11 0 0 1 22 0v2z"/>
-    <path d="M7 31a2 2 0 0 1 2-2h30a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Ícone escolhido por Leonardo (ROADMAP.md §15): chave inglesa, navy + amarelo,
+       pensado pra ter contraste alto numa aba escura do navegador. -->
+  <rect width="64" height="64" rx="14" fill="#071B3D"/>
+  <g transform="translate(13.5,13.5) scale(1.546)" fill="none" stroke="#FFC107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 3a5 5 0 0 0-4.5 7L3 17.5 6.5 21l7.5-7.5A5 5 0 1 0 15 3l-2.5 2.5L15 8l-2.5 2.5"/>
   </g>
 </svg>

@@ -23,6 +23,7 @@ export function PerfilForm({
   categoria,
   precoTipo,
   precoValor,
+  chavePix,
 }: {
   nome: string;
   bio: string | null;
@@ -33,6 +34,7 @@ export function PerfilForm({
   categoria?: string | null;
   precoTipo?: string | null;
   precoValor?: number | null;
+  chavePix?: string | null;
 }) {
   const [estado, formAction] = useActionState(salvarPerfilAction, null);
   const v = estado?.valores ?? {};
@@ -155,6 +157,23 @@ export function PerfilForm({
             O valor pode ser ajustado depois de avaliar o serviço no local — deixe isso claro pro
             cliente antes de começar.
           </p>
+
+          <div>
+            <label className="label" htmlFor="chavePix">
+              Chave Pix
+            </label>
+            <input
+              id="chavePix"
+              name="chavePix"
+              className="input"
+              defaultValue={v.chavePix ?? chavePix ?? ""}
+              placeholder="CPF, e-mail, telefone ou chave aleatória"
+            />
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              Usada só pra gerar o QR de cobrança de cada serviço, pra você mostrar pro cliente. Fica
+              visível só pra você.
+            </p>
+          </div>
         </>
       ) : null}
 

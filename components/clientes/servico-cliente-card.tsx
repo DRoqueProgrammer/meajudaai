@@ -8,7 +8,14 @@ import {
 } from "@/lib/actions/agenda-v2";
 import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao";
 import { FormError } from "@/components/ui";
-import { formatBRL, formatData } from "@/lib/format";
+import { formatBRL, formatData, formatHora } from "@/lib/format";
+
+const STATUS_ESTILO: Record<string, string> = {
+  pendente: "bg-tint-warn text-tint-warn-ink",
+  confirmado: "bg-tint-ok text-ok",
+  cancelado: "bg-tint-danger text-danger",
+  realizado: "bg-tint-neutral text-ink",
+};
 
 export interface ServicoClienteCardProps {
   servico: {
@@ -21,11 +28,12 @@ export interface ServicoClienteCardProps {
     cancelado_motivo: string | null;
     created_at: string;
   };
+  slot: { data: string; hora_inicio: string; hora_fim: string } | null;
   logs: { id: string; texto: string; created_at: string }[];
 }
 
 /** Card de um serviço na aba "Serviços" de um cliente — renegociar, cancelar e log privado. */
-export function ServicoClienteCard({ servico, logs }: ServicoClienteCardProps) {
+export function ServicoClienteCard({ servico, slot, logs }: ServicoClienteCardProps) {
   const router = useRouter();
   const [aberto, setAberto] = useState(false);
   const [pending, start] = useTransition();
@@ -33,15 +41,19 @@ export function ServicoClienteCard({ servico, logs }: ServicoClienteCardProps) {
   const [textoLog, setTextoLog] = useState("");
 
   return (
-    <div className="card flex flex-col gap-2">
-      <button type="button" onClick={() => setAberto((a) => !a)} className="flex items-center justify-between text-left">
-        <div>
-          <p className="text-xs text-muted">{formatData(servico.created_at.slice(0, 10))}</p>
-          <p className="text-sm font-medium">{servico.descricao}</p>
+    <div className="flex flex-col gap-1 rounded-xl border border-line bg-card px-3 py-2.5">
+      <button type="button" onClick={() => setAberto((a) => !a)} className="flex items-start justify-between gap-2 text-left">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted">
+            {slot ? `${formatData(slot.data)} · ${formatHora(slot.hora_inicio)}–${formatHora(slot.hora_fim)}` : formatData(servico.created_at.slice(0, 10))}
+          </p>
+          <p className="truncate text-sm font-semibold">{servico.descricao}</p>
         </div>
-        <div className="text-right">
+        <div className="shrink-0 text-right">
           <p className="text-sm font-semibold text-brand">{formatBRL(servico.preco_valor)}</p>
-          <p className="text-[11px] font-semibold uppercase text-muted">{servico.status}</p>
+          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>
+            {servico.status}
+          </span>
         </div>
       </button>
 

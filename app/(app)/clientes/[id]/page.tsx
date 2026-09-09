@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui";
 import { ServicoClienteCard } from "@/components/clientes/servico-cliente-card";
-import { waLink } from "@/lib/whatsapp";
+import { TelefoneWhatsApp } from "@/components/telefone-whatsapp";
 
 /**
  * Rota `/clientes/[id]` (prestador): visão limitada do cliente (nome, telefone)
@@ -29,9 +29,11 @@ export default async function ClienteDetalhePage({
   if (!perfil) notFound();
   const { data: pii } = await sb.from("profiles_pii").select("telefone, is_whatsapp").eq("user_id", id).maybeSingle();
 
+  // `.eq("prestador_id", user.id)`: só os serviços que ELE fez com esse cliente —
+  // nunca o histórico do cliente com outros prestadores.
   let query = sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, created_at")
+    .select("id, slot_id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, created_at")
     .eq("prestador_id", user.id)
     .eq("cliente_id", id)
     .order("created_at", { ascending: false });
@@ -50,19 +52,19 @@ export default async function ClienteDetalhePage({
     logsDe.get(l.servico_id)!.push(l);
   }
 
+  const slotIds = (servicos ?? []).map((s) => s.slot_id);
+  const { data: slots } = slotIds.length
+    ? await sb.from("agenda_slots").select("id, data, hora_inicio, hora_fim").in("id", slotIds)
+    : { data: [] };
+  const slotDe = new Map((slots ?? []).map((s) => [s.id, s]));
+
   return (
     <div className="flex flex-col gap-4">
       <div className="card flex items-center gap-3">
         <Avatar nome={perfil.nome} fotoUrl={perfil.foto_url} tamanho="lg" />
         <div>
           <p className="text-lg font-semibold">{perfil.nome}</p>
-          {pii?.telefone && pii.is_whatsapp ? (
-            <a href={waLink(pii.telefone)} target="_blank" rel="noreferrer" className="text-sm text-action">
-              💬 {pii.telefone} (WhatsApp)
-            </a>
-          ) : pii?.telefone ? (
-            <p className="text-sm text-muted">{pii.telefone}</p>
-          ) : null}
+          {pii?.telefone ? <TelefoneWhatsApp telefone={pii.telefone} isWhatsapp={pii.is_whatsapp} /> : null}
         </div>
       </div>
 
@@ -82,7 +84,7 @@ export default async function ClienteDetalhePage({
           <p className="text-sm text-muted">Nenhum serviço com esse cliente ainda.</p>
         ) : (
           (servicos ?? []).map((s) => (
-            <ServicoClienteCard key={s.id} servico={s} logs={logsDe.get(s.id) ?? []} />
+            <ServicoClienteCard key={s.id} servico={s} slot={slotDe.get(s.slot_id) ?? null} logs={logsDe.get(s.id) ?? []} />
           ))
         )}
         {!todos && (servicos ?? []).length === 10 ? (

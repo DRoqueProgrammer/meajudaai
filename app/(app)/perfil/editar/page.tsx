@@ -22,6 +22,8 @@ export default async function EditarPerfilPage() {
     .maybeSingle();
   if (!p) redirect("/inicio");
 
+  const { data: pii } = await sb.from("profiles_pii").select("chave_pix").eq("user_id", user.id).maybeSingle();
+
   // O `CidadeSelect` guarda "Cidade|UF" num único campo escondido.
   const cidadeUf = `${p.cidade ?? ""}|${p.estado ?? ""}`;
 
@@ -37,6 +39,7 @@ export default async function EditarPerfilPage() {
         categoria={p.categoria}
         precoTipo={p.preco_tipo}
         precoValor={p.preco_valor}
+        chavePix={pii?.chave_pix}
       />
       {user.role !== "sysadmin" ? <DesativarContaBotao /> : null}
     </TelaComHeader>

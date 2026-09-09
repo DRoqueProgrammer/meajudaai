@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { SlotDetalhe } from "@/components/agenda/slot-detalhe";
+import { CobrancaPix } from "@/components/pix/cobranca-pix";
 
 /**
  * Rota `/agenda/[slotId]` (prestador): detalhe completo de um horário —
@@ -26,7 +27,7 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
 
   const { data: servico } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo")
+    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id")
     .eq("slot_id", slotId)
     .maybeSingle();
 
@@ -38,12 +39,29 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
         .order("created_at", { ascending: false })
     : { data: [] };
 
+  const { data: meuPerfil } = await sb.from("profiles").select("nome, cidade").eq("user_id", user.id).maybeSingle();
+  const { data: minhaPii } = await sb.from("profiles_pii").select("chave_pix").eq("user_id", user.id).maybeSingle();
+  const { data: cliente } = servico
+    ? await sb.from("profiles").select("nome").eq("user_id", servico.cliente_id).maybeSingle()
+    : { data: null };
+
   return (
     <div className="flex flex-col gap-4">
       <Link href="/agenda" className="text-sm font-semibold text-brand">
         ← Voltar pra agenda
       </Link>
       <SlotDetalhe slot={slot} servico={servico ?? null} logs={logs ?? []} paginaCompleta />
+      {servico && minhaPii?.chave_pix ? (
+        <CobrancaPix
+          chavePix={minhaPii.chave_pix}
+          nomePrestador={meuPerfil?.nome ?? ""}
+          cidade={meuPerfil?.cidade ?? null}
+          nomeCliente={cliente?.nome ?? "Cliente"}
+          data={slot.data}
+          descricao={servico.descricao}
+          valor={servico.preco_valor}
+        />
+      ) : null}
     </div>
   );
 }

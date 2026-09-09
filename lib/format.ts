@@ -60,3 +60,10 @@ export function mascaraTelefone(v: string): string {
     .replace(/(\d{2})(\d)/, "($1) $2")
     .replace(/(\d{5})(\d)/, "$1-$2");
 }
+
+/** Telefone formatado pra exibição, com DDI: `+55 (21) 98888-0005`. Assume BR se não vier com DDI. */
+export function formatTelefone(v: string): string {
+  const digitos = soDigitos(v);
+  const semDdi = digitos.startsWith("55") && digitos.length > 11 ? digitos.slice(2) : digitos;
+  return `+55 ${mascaraTelefone(semDdi)}`;
+}

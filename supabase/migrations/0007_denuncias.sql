@@ -36,8 +36,19 @@ create policy "denuncias_update_admin" on public.denuncias
   with check (public.current_app_role() = 'admin');
 
 -- Seed de exemplo (idempotente) — usa usuários/vagas semeados em 0005.
-insert into public.denuncias (id, denunciante_id, alvo_tipo, alvo_id, motivo, detalhe, status) values
-  ('d0000001-0000-4000-8000-000000000001','22222222-2222-4222-8222-222222222222','usuario','11111111-1111-4111-8111-111111111111','nao_compareceu','Combinou a diária e não apareceu na obra.','aberta'),
-  ('d0000002-0000-4000-8000-000000000002','11111111-1111-4111-8111-111111111111','usuario','22222222-2222-4222-8222-222222222222','abuso','Mensagens ofensivas no chat durante a combinação.','em_analise'),
-  ('d0000003-0000-4000-8000-000000000003','22222222-2222-4222-8222-222222222222','vaga','44444444-4444-4444-8444-444444444444','conteudo_improprio','Descrição com informação enganosa sobre o valor.','aberta')
-on conflict (id) do nothing;
+-- 0005 hoje é só um stub (o corpo real do seed nunca foi versionado, ver
+-- comentário nesse arquivo) — em banco novo esses usuários não existem.
+-- A conta demo "de verdade" (3 anos de dados simulados, uma por papel) é um
+-- item futuro à parte (ver ROADMAP.md) — aqui só evitamos que a migration
+-- quebre em banco vazio enquanto isso não existe.
+do $$
+begin
+  if exists (select 1 from auth.users where id = '22222222-2222-4222-8222-222222222222')
+     and exists (select 1 from auth.users where id = '11111111-1111-4111-8111-111111111111') then
+    insert into public.denuncias (id, denunciante_id, alvo_tipo, alvo_id, motivo, detalhe, status) values
+      ('d0000001-0000-4000-8000-000000000001','22222222-2222-4222-8222-222222222222','usuario','11111111-1111-4111-8111-111111111111','nao_compareceu','Combinou a diária e não apareceu na obra.','aberta'),
+      ('d0000002-0000-4000-8000-000000000002','11111111-1111-4111-8111-111111111111','usuario','22222222-2222-4222-8222-222222222222','abuso','Mensagens ofensivas no chat durante a combinação.','em_analise'),
+      ('d0000003-0000-4000-8000-000000000003','22222222-2222-4222-8222-222222222222','vaga','44444444-4444-4444-8444-444444444444','conteudo_improprio','Descrição com informação enganosa sobre o valor.','aberta')
+    on conflict (id) do nothing;
+  end if;
+end $$;

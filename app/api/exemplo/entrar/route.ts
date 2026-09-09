@@ -2,6 +2,7 @@ import { createServerClient as createSSRClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { CONTAS_EXEMPLO, SENHA_CONTA_EXEMPLO, isPapelExemplo } from "@/lib/auth/contas-exemplo";
+import { registrarLoginLog } from "@/lib/actions/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -43,10 +44,11 @@ export async function GET(req: Request) {
     },
   );
 
-  const { error } = await sb.auth.signInWithPassword({
+  const { data, error } = await sb.auth.signInWithPassword({
     email: conta.email,
     password: SENHA_CONTA_EXEMPLO,
   });
+  if (data.user) await registrarLoginLog(data.user.id);
 
   const destino = new URL(error ? "/login?exemplo=erro" : "/inicio", url.origin);
   return NextResponse.redirect(destino);

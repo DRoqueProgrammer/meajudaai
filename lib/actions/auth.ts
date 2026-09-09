@@ -10,6 +10,7 @@ import { podeAceitar } from "@/lib/convite-status";
 import { soDigitos } from "@/lib/format";
 import { getSiteUrl } from "@/lib/site-url";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
 /** Retorno padrão das actions imperativas (botões): sucesso ou mensagem de erro pronta para o cliente. */
@@ -170,6 +171,31 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
  * O `redirect()` fica FORA de try/catch de propósito — ele sinaliza por
  * exceção, e um catch em volta o engoliria.
  */
+/**
+ * Registra IP + dispositivo + geolocalização por IP a cada login bem-sucedido
+ * (ROADMAP.md §5.1 — só o SysAdmin lê, ver migration 0031). Nunca bloqueia o
+ * login: qualquer falha aqui (API de geo fora do ar, etc.) é engolida.
+ */
+export async function registrarLoginLog(userId: string): Promise<void> {
+  try {
+    const h = await headers();
+    const ip = (h.get("x-forwarded-for") ?? "").split(",")[0]?.trim() || h.get("x-real-ip") || null;
+    const userAgent = h.get("user-agent");
+    let cidade: string | null = null;
+    let pais: string | null = null;
+    if (ip && ip !== "127.0.0.1" && !ip.startsWith("::1")) {
+      const geo = await fetch(`https://ipapi.co/${ip}/json/`, { signal: AbortSignal.timeout(2500) })
+        .then((r) => r.json())
+        .catch(() => null);
+      cidade = geo?.city ?? null;
+      pais = geo?.country_name ?? null;
+    }
+    await createAdminClient().from("login_logs").insert({ user_id: userId, ip, user_agent: userAgent, cidade, pais });
+  } catch {
+    // Auditoria é best-effort — nunca derruba o login por causa dela.
+  }
+}
+
 export async function entrarAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const email = campo(fd, "email");
   const senha = String(fd.get("senha") ?? "");
@@ -181,6 +207,8 @@ export async function entrarAction(_estado: EstadoForm, fd: FormData): Promise<E
   const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
   // A senha nunca volta em `valores`.
   if (error) return { erro: "E-mail ou senha inválidos.", valores: { email } };
+
+  await registrarLoginLog(data.user.id);
 
   // Conta desativada pelo próprio dono (nunca deletamos, ver ROADMAP.md §3):
   // antes de voltar a usar, pede pra confirmar os dados.

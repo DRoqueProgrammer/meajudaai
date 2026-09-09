@@ -355,6 +355,36 @@ export type Database = {
           },
         ]
       }
+      login_logs: {
+        Row: {
+          cidade: string | null
+          created_at: string
+          id: string
+          ip: string | null
+          pais: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          pais?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          cidade?: string | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          pais?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mensagens: {
         Row: {
           conteudo: string

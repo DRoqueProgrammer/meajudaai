@@ -11,7 +11,9 @@ Aplicação web responsiva (PWA) que conecta profissionais autônomos da constru
 - **Código:** funções de `lib/` têm docstring TSDoc; cada componente e cada rota do App Router têm um comentário de topo. Mantenha o padrão (conciso, explica o "porquê", em PT-BR) ao adicionar código.
 
 ## Stack
-Spec original: FlutterFlow + Firebase (mobile). **Decisão para o protótipo:** Next.js (App Router) + Supabase + TypeScript + Tailwind (web/PWA responsivo), espelhando os 3 repos-referência em `refs/`. Ver [[meajudaai-reference-repos]].
+Spec original: FlutterFlow + Firebase (mobile). **Decisão para o protótipo:** Next.js (App Router) + Supabase + TypeScript + Tailwind (web/PWA responsivo), espelhando os repos-referência em `refs/` (caixa-forte-app, careconnect, foco-contabil, mirante-dos-dados-br, professional-presentations, vr-pilates). Ver [[meajudaai-reference-repos]].
+
+Cada repo em `refs/*` já tem uma pasta `.ua/` (saída de um scan do Understand Anything) pronta pra consumo: `.ua/intermediate/scan-result.json` traz o inventário completo de arquivos por categoria/linguagem/framework, e `.ua/tmp/` tem os batches/neighbor-maps entre arquivos. Antes de explorar um repo de referência arquivo por arquivo pra achar um padrão (Telegram, IBGE, hero/clima, mapa etc.), consulte esse `.ua/` — é bem mais barato que rescanear o repo. O `CLAUDE.md` de cada repo (quando existe, ex. `refs/foco-contabil/CLAUDE.md`) também já condensa os padrões e decisões em prosa — geralmente mais direto que o `.ua` pra entender o "porquê".
 
 ## Tipos de usuário
 - **Profissional** — publica vagas de diária, seleciona e avalia ajudantes.

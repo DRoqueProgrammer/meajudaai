@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   formatBRL,
   formatData,
+  formatDataExtenso,
   formatHora,
   soDigitos,
   mascaraCPF,
@@ -19,6 +20,12 @@ describe("format", () => {
   it("formatData converte ISO -> dd/mm/aaaa", () => {
     expect(formatData("2026-05-22")).toBe("22/05/2026");
     expect(formatData(null)).toBe("");
+  });
+
+  it("formatDataExtenso traz dia da semana, mes capitalizado e ano", () => {
+    expect(formatDataExtenso("2026-09-10")).toBe("Quinta-feira, 10 de Setembro de 2026");
+    expect(formatDataExtenso("2026-01-01")).toBe("Quinta-feira, 1 de Janeiro de 2026");
+    expect(formatDataExtenso(null)).toBe("");
   });
 
   it("formatHora corta segundos", () => {

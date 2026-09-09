@@ -28,7 +28,7 @@ export interface DiaTimelineEvento {
   logs: SlotDetalheProps["logs"];
 }
 
-/** Agenda do dia como linha do tempo — 00h no topo, meio-dia no meio, 00h nas próximas 24h embaixo; horário pequeno, descrição maior. Clique num bloco expande os detalhes. */
+/** Agenda do dia como linha do tempo — 00h no topo, meio-dia no meio, 00h nas próximas 24h embaixo; cada bloco lê "horário — descrição" numa linha só. Clicar num bloco com serviço abre o resumo; horário livre não é clicável (não há serviço pra abrir). */
 export function DiaTimeline({
   eventos,
   variant = "prestador",
@@ -73,22 +73,36 @@ export function DiaTimeline({
           const top = inicio * HOUR_PX;
           const altura = Math.max(20, (fim - inicio) * HOUR_PX);
           const status = e.servico?.status ?? e.slot.status;
+          const classes = `absolute left-1 right-1 flex items-center justify-center gap-1.5 overflow-hidden rounded-md border-l-4 px-2 text-center text-sm transition ${
+            corPorStatus[status] ?? "border-line bg-card"
+          }`;
+          const rotulo = (
+            <>
+              <span className="shrink-0 text-[10px] text-muted">
+                {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
+              </span>
+              <span className="shrink-0 text-[10px] text-muted">—</span>
+              <span className="truncate font-medium text-ink">{e.servico?.descricao ?? "Livre"}</span>
+            </>
+          );
+          // Horário livre não abre nada: não existe serviço pra mostrar. Sem
+          // <button> ele também não finge ser clicável.
+          if (!e.servico) {
+            return (
+              <div key={e.slot.id} className={classes} style={{ top, height: altura }}>
+                {rotulo}
+              </div>
+            );
+          }
           return (
             <button
               key={e.slot.id}
               type="button"
               onClick={() => setSelecionadoId((atual) => (atual === e.slot.id ? null : e.slot.id))}
-              className={`absolute left-1 right-1 flex flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md border-l-4 px-2 text-center transition ${
-                corPorStatus[status] ?? "border-line bg-card"
-              } ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
+              className={`${classes} ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
               style={{ top, height: altura }}
             >
-              <span className="text-[10px] text-muted">
-                {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
-              </span>
-              <span className="max-w-full truncate text-sm font-medium text-ink">
-                {e.servico?.descricao ?? "Horário livre"}
-              </span>
+              {rotulo}
             </button>
           );
         })}
@@ -103,9 +117,7 @@ export function DiaTimeline({
                 <div className="absolute left-1 z-10" style={{ top: topPopover }}>
                   {selecionado.servico && prestadoresPorServico?.[selecionado.servico.id] ? (
                     <SlotDetalheCliente evento={selecionado} prestador={prestadoresPorServico[selecionado.servico.id]!} />
-                  ) : (
-                    <p className="text-sm text-muted">Horário livre.</p>
-                  )}
+                  ) : null}
                 </div>
               );
             })()
@@ -114,8 +126,12 @@ export function DiaTimeline({
 
       {/* Variant "prestador": overlay centrado na tela, não ancorado na
           linha do tempo — ver EventoPopover. */}
-      {selecionado && variant === "prestador" ? (
-        <EventoPopover evento={selecionado} href={`/agenda/${selecionado.slot.id}`} onFechar={() => setSelecionadoId(null)} />
+      {selecionado?.servico && variant === "prestador" ? (
+        <EventoPopover
+          evento={{ slot: selecionado.slot, servico: selecionado.servico }}
+          href={`/agenda/${selecionado.slot.id}`}
+          onFechar={() => setSelecionadoId(null)}
+        />
       ) : null}
     </div>
   );

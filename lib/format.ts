@@ -11,6 +11,24 @@ export function formatData(iso: string | null): string {
   return `${d}/${m}/${y}`;
 }
 
+/**
+ * Data ISO `YYYY-MM-DD` por extenso: `Quinta-feira, 10 de Setembro de 2026`.
+ * Mês e dia da semana saem em minúscula do `toLocaleDateString` pt-BR — a
+ * capitalização é nossa, e o ano é obrigatório: um cabeçalho de agenda sem ano
+ * fica ambíguo assim que o calendário sai do mês corrente. Constrói a data a
+ * partir das partes (não do parse ISO) pra não sofrer shift de fuso.
+ */
+export function formatDataExtenso(iso: string | null): string {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  const data = new Date(y, m - 1, d);
+  const capitalizar = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const diaSemana = capitalizar(data.toLocaleDateString("pt-BR", { weekday: "long" }));
+  const mes = capitalizar(data.toLocaleDateString("pt-BR", { month: "long" }));
+  return `${diaSemana}, ${d} de ${mes} de ${y}`;
+}
+
 /** Recorta `HH:MM` de um horário `HH:MM[:SS]` do banco. */
 export function formatHora(hhmm: string | null): string {
   if (!hhmm) return "";

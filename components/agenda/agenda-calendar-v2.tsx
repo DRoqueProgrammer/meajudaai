@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { SlotDetalheProps } from "@/components/agenda/slot-detalhe";
 import { DiaTimeline } from "@/components/agenda/dia-timeline";
+import { formatDataExtenso } from "@/lib/format";
 import type { PerfilResumo } from "@/components/perfil-popover";
 
 const WD = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
@@ -187,9 +188,7 @@ export function AgendaCalendarV2({
       </div>
 
       <div className="flex flex-col gap-2 border-t border-line pt-3">
-        <p className="text-xs font-semibold uppercase text-muted">
-          {new Date(`${diaSelecionado}T00:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
-        </p>
+        <p className="text-xs font-semibold text-muted">{formatDataExtenso(diaSelecionado)}</p>
         <DiaTimeline eventos={eventosDoSelecionado} variant={variant} prestadoresPorServico={prestadoresPorServico} />
       </div>
     </div>

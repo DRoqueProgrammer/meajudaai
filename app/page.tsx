@@ -6,8 +6,8 @@ import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar } from "@/components/ui";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { Logo } from "@/components/logo";
+import { Footer } from "@/components/footer";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { mailtoSuporte } from "@/lib/contato";
 
 export const dynamic = "force-dynamic";
 
@@ -194,23 +194,7 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-card">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-8 py-[26px] text-[12.5px] text-muted">
-          <span>Me Ajuda Aí · a ajuda que você precisa, no momento que você mais precisa.</span>
-          <nav className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <Link href="/termos" className="hover:text-brand">
-              Termos
-            </Link>
-            <Link href="/privacidade" className="hover:text-brand">
-              Privacidade
-            </Link>
-            <a href={mailtoSuporte()} className="hover:text-brand">
-              Suporte
-            </a>
-            <span>© 2026</span>
-          </nav>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 # Me Ajuda Aí — Protótipo (v2)
 
+**Versão 0.0.2** — a versão vive no `version` do [package.json](./package.json) e é lida de lá pelo rodapé do site (`components/footer.tsx`), que a mostra em todas as páginas. Fonte única: bumpe no `package.json` e o site acompanha. A cada entrega relevante fazemos um bump e registramos o que entrou.
+
 Marketplace de agendamento de serviços de manutenção civil: **Prestador de Serviço** mantém uma agenda de horários disponíveis, **Cliente** busca por proximidade e agenda direto com ele — mais parecido com um sistema de salão/clínica do que um mural de vagas. Quatro papéis: **SysAdmin** (dono da plataforma), **Administrador** (dono/gestor de um workspace), **Prestador de Serviço** e **Cliente**.
 
 Este é um pivô em andamento a partir de uma v1 (mural de vagas por diária, ainda usada por Administrador/Funcionário em paralelo). A especificação completa, decisões de arquitetura e a lista do que falta vivem em **[ROADMAP.md](./ROADMAP.md)** — leia a seção 0 (Auditoria) primeiro. Continuidade entre sessões de trabalho fica em **[HANDOVER.md](./HANDOVER.md)**.

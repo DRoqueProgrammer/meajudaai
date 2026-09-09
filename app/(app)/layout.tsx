@@ -7,6 +7,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { Nav } from "@/components/nav";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 import { DemoBanner } from "@/components/demo-banner";
+import { Footer } from "@/components/footer";
 
 /** Layout das rotas autenticadas `(app)`: exige sessão, resolve papel/módulos e monta a navegação e os banners. */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -66,6 +67,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           ) : null}
           {children}
         </main>
+        <Footer />
       </div>
     </div>
   );

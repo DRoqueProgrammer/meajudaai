@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Footer } from "@/components/footer";
 
 /**
  * Chrome compartilhado das páginas legais (Termos, Privacidade). Públicas — o
@@ -28,6 +29,7 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
       <main className="mx-auto max-w-[720px] px-6 py-10">{children}</main>
+      <Footer />
     </div>
   );
 }

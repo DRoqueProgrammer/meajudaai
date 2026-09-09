@@ -17,11 +17,11 @@ export interface AgendaEvento {
 }
 
 const corPorStatus: Record<string, string> = {
-  livre: "bg-line",
+  livre: "bg-brand",
   pendente: "bg-accent",
   confirmado: "bg-action",
   cancelado: "bg-danger",
-  realizado: "bg-brand",
+  realizado: "bg-ink",
 };
 
 function iso(d: Date): string {
@@ -54,13 +54,14 @@ export function AgendaCalendarV2({ eventos }: { eventos: AgendaEvento[] }) {
     const eventosDoDia = porDia.get(dataIso) ?? [];
     const isHoje = dataIso === iso(hoje);
     const isSelecionado = dataIso === diaSelecionado;
+    const temEvento = eventosDoDia.length > 0;
     return (
       <button
         key={dataIso}
         type="button"
         onClick={() => setDiaSelecionado(dataIso)}
         className={`flex min-h-[64px] flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition ${
-          isSelecionado ? "border-brand bg-tint-info" : "border-line bg-card"
+          isSelecionado ? "border-brand bg-tint-info" : temEvento ? "border-line bg-tint-info/40" : "border-line bg-card"
         } ${foraDoMes ? "opacity-40" : ""}`}
       >
         <span
@@ -70,13 +71,18 @@ export function AgendaCalendarV2({ eventos }: { eventos: AgendaEvento[] }) {
         >
           {numero}
         </span>
-        <div className="flex flex-wrap gap-0.5">
+        <div className="flex flex-wrap items-center gap-1">
           {eventosDoDia.slice(0, 4).map((e) => (
             <span
               key={e.slot.id}
-              className={`h-1.5 w-1.5 rounded-full ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`}
+              className={`h-2.5 w-2.5 rounded-full ring-1 ring-white ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`}
             />
           ))}
+          {eventosDoDia.length === 1 ? (
+            <span className="text-[9px] font-semibold leading-none text-muted">1 horário</span>
+          ) : eventosDoDia.length > 1 ? (
+            <span className="text-[9px] font-semibold leading-none text-muted">{eventosDoDia.length}</span>
+          ) : null}
         </div>
       </button>
     );
@@ -157,6 +163,14 @@ export function AgendaCalendarV2({ eventos }: { eventos: AgendaEvento[] }) {
         ))}
       </div>
       {grade}
+
+      <div className="flex flex-wrap gap-3 text-[11px] text-muted">
+        {Object.entries(corPorStatus).map(([status, cor]) => (
+          <span key={status} className="inline-flex items-center gap-1.5">
+            <span className={`h-2 w-2 rounded-full ${cor}`} /> {status}
+          </span>
+        ))}
+      </div>
 
       <div className="flex flex-col gap-2 border-t border-line pt-3">
         <p className="text-xs font-semibold uppercase text-muted">

@@ -148,7 +148,7 @@ Sob o preço, de forma elegante/pequena mas legível, deve constar que o valor p
 
 ### 6.4 Comentário do Administrador em um serviço
 - Administrador pode comentar em qualquer serviço.
-- Checkbox com padrão **desmarcado** = comentário privado (só admins veem). Se marcada, comentário fica **público**. ❓ *Confirmar "público" = visível para quem exatamente (cliente? prestador? qualquer um)?*
+- Checkbox com padrão **desmarcado** = comentário privado (só admins veem). Se marcada, comentário fica **público** = visível para o cliente **e** o prestador daquele serviço.
 
 ---
 
@@ -208,6 +208,21 @@ Prestador passa por aprovação do Administrador (via Telegram ou site); Cliente
 
 **Convenção combinada com Leonardo:** para essas integrações (Telegram, Agenda, IBGE), ele tem repos de referência prontos e testados — perguntar e pedir o repo específico só quando a implementação daquela parte começar, em vez de tentar redesenhar do zero.
 
+### 9.1 Repositórios de referência (módulos bons, já funcionando)
+
+Clonados em `refs/` (não versionados no git do meajudaai):
+
+| Repo | Status | Uso previsto |
+|---|---|---|
+| `careconnect` | ✅ clonado | Agenda (funcionando bem), separação de PII, avaliações |
+| `foco-contabil` | ✅ clonado | SaaS server-actions-only, CRM, notificações, cron/webhooks |
+| `mirante-dos-dados-br` | ✅ clonado | A avaliar |
+| `caixa-forte-app` | ✅ clonado | Integração com Telegram (bot, notificações) |
+| `professional-presentations` | ✅ clonado | A avaliar |
+| `vr-pilates` | ✅ clonado | Agenda (funcionando bem, mesma referência que careconnect) |
+
+❓ *`amazing-school` (padrão de lista de cidades do IBGE) ainda não foi passado — pedir quando formos implementar cidade/endereço.*
+
 ---
 
 ## 10. Relação com o schema atual
@@ -226,10 +241,38 @@ Prováveis mudanças de schema (a confirmar em sessão de design):
 - Tabela de **logs** com escopo de visibilidade (prestador-privado vs. admin-only vs. público) — nova tabela, não reaproveita `denuncias`.
 - Estado de aprovação do cadastro do Prestador (`pendente` / `aprovado`) + quem aprovou e quando.
 - Tabela de **logins/auditoria de acesso**: user_id, timestamp, device, ip, geo (cidade/região a partir do IP).
+- Campo `genero` no perfil (`masculino` | `feminino` | `prefiro_nao_responder`) — controla a saudação personalizada (§12).
+- Registro de consentimento de cookies (aceite, data, versão da política) — ver §13.
 
 ---
 
-## 11. Próximos passos
+## 11. Tela de Login
+
+- Campo de e-mail e senha (Supabase Auth).
+- **"Esqueceu a senha?"** — fluxo de recuperação por e-mail (Supabase já resolve o envio).
+- **Mostrar/Ocultar Senha** — ícone de olho no campo de senha.
+- **Salvar Credenciais** (e-mail e senha) — opção de lembrar login no dispositivo.
+
+---
+
+## 12. Cadastro — Gênero e saudação personalizada
+
+- Todo cadastro (qualquer papel) inclui o campo **Gênero**, com opções: Masculino, Feminino, Prefiro não responder.
+- Esse campo **controla a saudação em todo o app**:
+  - Masculino → "Bem-vindo, {nome}!"
+  - Feminino → "Bem-vinda, {nome}!"
+  - Prefiro não responder → "Bem-vinde, {nome}!"
+- O gênero pode ser alterado depois na **seção de Perfil** que todo usuário tem — acessível pelo botão com foto no canto superior esquerdo (mesmo padrão dos outros apps do Leonardo — conferir referência exata em `refs/` quando formos implementar).
+
+---
+
+## 13. Consentimento de Cookies
+
+Adicionar banner/tela de consentimento de cookies, no mesmo padrão usado nos outros projetos do Leonardo (conferir implementação de referência em `refs/` quando formos implementar).
+
+---
+
+## 14. Próximos passos
 
 1. Leonardo continua detalhando a visão (telas, casos de borda, etc.).
 2. Consolidar num `DEFINE_*.md` (SDD Fase 1) quando o escopo estabilizar.

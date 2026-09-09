@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
+  confirmarServicoAction,
   proporRenegociacaoAction,
   escreverLogServicoAction,
 } from "@/lib/actions/agenda-v2";
@@ -64,6 +65,23 @@ export function ServicoClienteCard({ servico, slot, logs }: ServicoClienteCardPr
       {aberto ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">
           {servico.cancelado_motivo ? <p className="text-xs text-danger">Cancelado: {servico.cancelado_motivo}</p> : null}
+
+          {servico.status === "pendente" ? (
+            <button
+              type="button"
+              disabled={pending}
+              className="btn-action self-start px-4 text-xs"
+              onClick={() =>
+                start(async () => {
+                  const r = await confirmarServicoAction(servico.id);
+                  if (r.ok) router.refresh();
+                  else setErro(r.erro ?? "Não foi possível confirmar.");
+                })
+              }
+            >
+              Aceitar serviço
+            </button>
+          ) : null}
 
           {servico.status !== "cancelado" && servico.status !== "realizado" && servico.preco_pendente == null ? (
             <button

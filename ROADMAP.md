@@ -4,7 +4,7 @@
 
 ---
 
-## 0. Auditoria — o que falta (atualizada em 09/09/2026, sessão de implementação)
+## 0. Auditoria — o que falta (atualizada em 09/09/2026 às 19:23, sessão de implementação)
 
 Lista de tudo que foi pedido e ainda **não está construído**, pra não perder de vista no meio da implementação incremental:
 

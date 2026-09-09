@@ -62,7 +62,7 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     // ("Invalid enum value") não diria nada a quem está cadastrando.
     const erro =
       issue?.path[0] === "tipo_base"
-        ? "Escolha se você precisa de ajudante ou quer trabalhar."
+        ? "Escolha uma das opções: contratar um serviço, prestar serviço ou ter uma empresa."
         : (issue?.message ?? "Dados inválidos");
     return { erro, valores: preserva };
   }
@@ -311,4 +311,5 @@ export async function trocarMeuPapelAction(novo: "admin" | "prestador_servico"):
 export async function logoutAction(): Promise<void> {
   const sb = await createServerClient();
   await sb.auth.signOut();
+  redirect("/");
 }

@@ -14,7 +14,8 @@ export default async function CadastroPage({
   searchParams: Promise<{ papel?: string; convite?: string }>;
 }) {
   const { papel, convite } = await searchParams;
-  const inicial: Papel | null = papel === "admin" || papel === "ajudante" ? papel : null;
+  const inicial: Papel | null =
+    papel === "admin" || papel === "prestador_servico" || papel === "cliente" ? papel : null;
 
   let conviteInfo: { token: string; equipeNome: string; papelLabel: string } | null = null;
   if (convite) {

@@ -9,7 +9,7 @@ import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
-export type Papel = "admin" | "ajudante";
+export type Papel = "admin" | "prestador_servico" | "cliente";
 
 export interface ConviteInfo {
   token: string;
@@ -17,19 +17,25 @@ export interface ConviteInfo {
   papelLabel: string;
 }
 
-/** "admin" é o profissional que contrata — o nome vem do schema, não da UI. */
+/** Os nomes dos valores vêm do schema (tipo_base), não da UI. */
 const PAPEIS = [
   {
-    valor: "admin" as const,
-    titulo: "Preciso de ajudante",
-    desc: "Publico diárias e escolho quem vai para a obra.",
-    confirmacao: "Sua conta vai publicar vagas e receber candidatos.",
+    valor: "cliente" as const,
+    titulo: "Preciso contratar um serviço",
+    desc: "Busco um profissional e agendo direto com ele.",
+    confirmacao: "Sua conta vai buscar prestadores e agendar horários.",
   },
   {
-    valor: "ajudante" as const,
-    titulo: "Quero trabalhar",
-    desc: "Procuro diária e me candidato às vagas.",
-    confirmacao: "Sua conta vai buscar vagas e se candidatar.",
+    valor: "prestador_servico" as const,
+    titulo: "Quero prestar serviço",
+    desc: "Ofereço minha agenda e atendo clientes direto.",
+    confirmacao: "Sua conta vai montar um perfil e receber pedidos de agendamento.",
+  },
+  {
+    valor: "admin" as const,
+    titulo: "Tenho uma empresa",
+    desc: "Publico vagas e gerencio uma equipe.",
+    confirmacao: "Sua conta vai criar um workspace e gerenciar equipe.",
   },
 ];
 
@@ -70,7 +76,7 @@ export function CadastroForm({
         ) : (
           <fieldset className="flex flex-col gap-2">
             <legend className="label mb-1">Você está aqui para quê?</legend>
-            <div className="grid gap-2 sm:grid-cols-2">
+            <div className="grid gap-2 sm:grid-cols-3">
               {PAPEIS.map((p) => (
                 <label
                   key={p.valor}

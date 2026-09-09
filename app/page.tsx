@@ -83,16 +83,16 @@ export default async function HomePage() {
               </p>
               <div className="mt-1 flex flex-wrap gap-3">
                 <Link
-                  href="/cadastro?papel=admin"
+                  href="/cadastro?papel=cliente"
                   className="rounded-xl bg-brand-fill px-[26px] py-4 text-[15px] font-semibold text-white hover:bg-brand-fillhover"
                 >
-                  Preciso de ajudante
+                  Preciso contratar
                 </Link>
                 <Link
-                  href="/cadastro?papel=ajudante"
+                  href="/cadastro?papel=prestador_servico"
                   className="rounded-xl bg-action-dark px-[26px] py-4 text-[15px] font-semibold text-white hover:bg-action-deep"
                 >
-                  Quero trabalhar
+                  Quero prestar serviço
                 </Link>
               </div>
               <div className="mt-[18px] flex flex-col gap-2.5 border-t border-line pt-[18px]">

@@ -9,6 +9,7 @@
 Lista de tudo que foi pedido e ainda **não está construído**, pra não perder de vista no meio da implementação incremental. Ver também [HANDOVER.md](./HANDOVER.md) pra continuidade entre sessões/modelos.
 
 - [ ] **Cobrança Pix por serviço** — pedido do Leonardo. Schema pronto (`profiles_pii.chave_pix`, migration 0034) e `qrcode`/`@types/qrcode` já instalados, mas **a UI ainda não existe**: falta portar `refs/foco-contabil/lib/pix/static-qr.ts` (builder EMV/BR Code, zero deps), adicionar o campo "Chave Pix" em `components/perfil-form.tsx` + `lib/actions/perfil.ts` (hoje só grava em `profiles`, precisa gravar em `profiles_pii` também), e construir o card de cobrança (QR + copia-e-cola + nome do cliente/data/valor no meio) exibido pro **próprio prestador** em cada serviço (agenda/clientes). A parte "ou o administrador configura a chave Pix em nome do prestador" não foi resolvida — hoje só o dono edita `profiles_pii` (RLS `pii_update_self`).
+- [ ] **Comissão da plataforma (Pix)** — pedido novo de 09/09/2026, escopo grande. O Prestador de Serviço paga um percentual de cada serviço à plataforma; o Administrador define a alíquota e a chave Pix da plataforma no próprio perfil; o prestador vê a alíquota e o quanto deve "naquele dia", clica e abre um QR com o valor já preenchido; um botão "Enviei o Pix" gera pendência que o Administrador confirma. Alíquota em três níveis (geral / por prestador / por serviço), configurável só por Administrador ou SysAdmin. **Bloqueado por decisão de produto:** no modelo P2P o prestador não pertence a workspace nenhum, então falta definir qual Administrador o cobra (mesma tensão ❓ do fim desta seção). Detalhamento e as 7 lacunas em [§16](#16-comissão-da-plataforma-pix) e em `cvg/brain/notes/2026-09-09-comissao-da-plataforma.md`.
 - [ ] **Recibos de serviço** — ainda não iniciado. Leonardo apontou que o padrão já está resolvido em `refs/foco-contabil` (recibos de fatura) e em `refs/careconnect` — ler o `.ua/` desses dois repos antes de desenhar do zero.
 - [ ] **Aba "Financeiro" pro Prestador de Serviço** — ainda não iniciada. Leonardo quer o mesmo padrão de `foco-contabil` e `careconnect` (e citou um repo "amazing-school", não clonado em `refs/`). Provável escopo: faturamento por período, histórico de recebimentos, talvez ligado à cobrança Pix acima.
 - [ ] **Página inicial do Cliente** — mostrar os últimos serviços (mais recente → mais antigo, últimos 5, botão "mostrar todos"). Ideias adicionais a avaliar: próximo agendamento em destaque, atalho pra renegociação pendente, prestadores já usados (recontratar em 1 clique), aviso de serviço concluído aguardando avaliação.
@@ -341,3 +342,60 @@ Schema provável (a confirmar em sessão de design): campo em `workspaces` tipo 
 - O ícone/logo do **próprio app Me Ajuda Aí** (fora de qualquer workspace — ex.: telas de login, marketing) continua fixo, ou o SysAdmin também define um logo padrão da plataforma nesse mesmo mecanismo?
 - Formato e tamanho aceitos no upload (SVG? PNG/JPG? limite de tamanho, recorte/crop obrigatório?).
 - Onde exatamente essa configuração fica na UI do Administrador (provável: dentro de uma futura seção "Configurações do workspace").
+
+---
+
+## 16. Comissão da plataforma (Pix)
+
+> Ditado por Leonardo em 09/09/2026. Captura fiel + lacunas em
+> `cvg/brain/notes/2026-09-09-comissao-da-plataforma.md`. Ainda **não é spec**:
+> entra como insumo do Pass 1 (Intent) do Converge.
+
+**Ideia central:** o Prestador de Serviço paga comissão à plataforma sobre cada
+serviço. O racional é explícito — vale a pena estar na plataforma, e é a
+comissão que mantém **o perfil em dia**.
+
+### 16.1 Quem define
+- O **Administrador** define, no próprio perfil, a **alíquota geral** (% do valor
+  de cada serviço) e a **chave Pix da plataforma** — chave distinta da do
+  prestador (`profiles_pii.chave_pix`, que serve pra ele cobrar o cliente).
+- Além da geral, existem alíquotas **específicas por Prestador de Serviço** e
+  **por serviço**. Só **Administrador ou SysAdmin** configuram qualquer uma.
+- Exemplo dado: um Administrador negocia com um prestador — "instalação elétrica,
+  a alíquota vai ser 1,5%, e acabou".
+
+### 16.2 O que o prestador vê
+- Na página dele: a **alíquota** vigente e **quanto deve à plataforma naquele dia**.
+- Clicar abre um **card com o QR code**, já com o valor do dia preenchido.
+- O QR leva **nome, data e valor no meio** — possivelmente também o código do
+  projeto. Requisito textual: *"se for muito grande, reduz tamanho, precisa ser
+  um QR code perfeito, mas com dados no meio"*.
+
+### 16.3 Registro do pagamento (esboço — "a gente depois pensa numa forma")
+1. O prestador abre o card e clica em **"Enviei o Pix"**.
+2. O **Administrador recebe uma pendência**.
+3. O Administrador **dá OK** ("recebi esse Pix, hora tal, da pessoa tal") **ou não**.
+
+### 16.4 ❓ Lacunas que travam a implementação
+1. **Qual Administrador cobra?** No modelo P2P o prestador não pertence a
+   workspace nenhum — falta o vínculo. É a mesma tensão da §0/§2.2 e **bloqueia
+   a feature inteira**.
+2. **"Por serviço" é por categoria ou por serviço individual?** O exemplo soa
+   como categoria; a frase, como o serviço específico.
+3. **Precedência entre as três alíquotas** (provável: serviço > prestador >
+   geral — não foi dito).
+4. **Qual status gera a dívida** (confirmado? realizado? pago?) e o que acontece
+   se o serviço for cancelado depois.
+5. **A dívida do dia acumula** se não for paga?
+6. **Consequência de não pagar** — "perfil em dia" sugere alguma, nenhuma foi
+   definida (sair da busca? selo de pendência?).
+7. **Renegociação** (§6.3): comissão sobre o valor original ou o renegociado?
+
+### 16.5 Restrição técnica conhecida
+O builder EMV/BR Code já existe (`lib/pix/static-qr.ts`) e o card de cobrança do
+prestador ao cliente já mostra nome/data/valor **ao lado** do QR. O pedido novo —
+dados **no meio** — é uma sobreposição por cima do código, viável apenas com
+**correção de erro nível H** e área central limitada; é por isso que "se for
+muito grande, reduz tamanho". Validação obrigatória: leitura real por app de
+banco, não inspeção visual.
+

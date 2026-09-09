@@ -156,6 +156,7 @@ Sob o preço, de forma elegante/pequena mas legível, deve constar que o valor p
 - Um cliente pode ter múltiplos serviços ao longo do tempo (histórico, dentro da aba de Clientes do prestador, ver §2.3).
 - Cada serviço tem status: agendado / realizado / cancelado.
 - **Renegociação de valor exige aceite do cliente.** Fluxo: prestador percebe no local que o serviço vale mais do que o combinado (ex.: cliente esperava R$100, prestador avalia R$300) → abre a proposta de renegociação a partir da aba Serviços → fica **pendente de aceite do cliente** → só quando o cliente aceita o novo valor passa a valer. Cada mudança gera um **log automático** (ex.: "renegociado de R$100 para R$300"), com timestamp. ❓ *A definir: como o cliente é notificado da proposta (Telegram, igual ao agendamento?) e o que acontece se ele recusar (serviço cancela? mantém valor antigo? fica em impasse?).*
+- **Cancelamento de serviço.** Na aba Serviços do prestador, dentro de um serviço específico, existe um botão **"Cancelar"**. Ao clicar, abre uma janela pedindo **justificativa** (texto obrigatório) — a confirmação muda o status do serviço para `cancelado` e grava um **log automático** com a justificativa e timestamp (mesmo mecanismo de log de §5).
 
 ### 6.4 Comentário do Administrador em um serviço
 - Administrador pode comentar em qualquer serviço.
@@ -293,3 +294,25 @@ Adicionar banner/tela de consentimento de cookies, no mesmo padrão usado nos ou
 6. Ao chegar a hora de implementar Telegram, Agenda ou lista de cidades (IBGE), pedir a Leonardo os repos de referência (`caixa-forte`, `vr-pilates`, `amazing-school`) em vez de redesenhar do zero.
 7. Nova ADR superando a `0004-localizacao-aproximada.md` (localização agora é exata, obrigatória para Cliente e Prestador).
 8. Ao desenhar o RBAC por módulo (§4), tratar a checagem de autorização por rota como requisito de segurança crítico desde o primeiro commit — não como algo a reforçar depois.
+9. Implementar a escolha de ícone/logo por workspace (§15) quando entrarmos na configuração do Administrador.
+
+---
+
+## 15. Ícone/logo do workspace (branding por Administrador)
+
+Depois de gerar 50 opções de ícone (script + galeria em `design/icon-options/`, pasta **gitignored** — rascunho local, não versionado; ver `manifest.json` ali dentro para regenerar se a pasta sumir), Leonardo escolheu dois favoritos, ambos na combinação "navy escuro + amarelo" (alto contraste, pensada para favicon em aba escura do navegador):
+
+- **`14-chave-inglesa-escuro.svg`** — chave inglesa
+- **`29-colher-pedreiro-escuro.svg`** — colher de pedreiro
+
+**Requisito novo (ainda não implementado):** o **Administrador de cada workspace** (não o ícone único e global do app) deve poder, numa tela de configuração do workspace:
+1. Escolher qual dos dois ícones acima usar como ícone/logo do seu workspace.
+2. Opcionalmente fazer **upload de um logo próprio** (arquivo de imagem) que passa a valer no lugar do ícone escolhido — usado nos mesmos lugares (barra superior ao lado de "Me Ajuda Aí!", favicon da aba, etc.) enquanto o usuário estiver naquele workspace.
+3. **Remover** o logo enviado a qualquer momento, revertendo para o ícone padrão (um dos dois acima) escolhido no passo 1.
+
+Schema provável (a confirmar em sessão de design): campo em `workspaces` tipo `icone_padrao` (enum com os 2 ícones) + `logo_upload_path` (nullable, Supabase Storage — bucket por workspace, mesmo padrão de outros uploads do projeto). Quando `logo_upload_path` está preenchido, tem prioridade sobre `icone_padrao` na renderização.
+
+❓ **A confirmar:**
+- O ícone/logo do **próprio app MeAjuda Aí** (fora de qualquer workspace — ex.: telas de login, marketing) continua fixo, ou o SysAdmin também define um logo padrão da plataforma nesse mesmo mecanismo?
+- Formato e tamanho aceitos no upload (SVG? PNG/JPG? limite de tamanho, recorte/crop obrigatório?).
+- Onde exatamente essa configuração fica na UI do Administrador (provável: dentro de uma futura seção "Configurações do workspace").

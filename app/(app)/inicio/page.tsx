@@ -1,11 +1,19 @@
 import Link from "next/link";
-import { getCurrentUser } from "@/lib/auth/roles";
+import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { getAllowedModules } from "@/lib/auth/modules";
 import { createServerClient } from "@/lib/supabase/server";
-import { VagaCard } from "@/components/vaga-card";
 import { PANEL_MODULES } from "@/lib/modules";
 import { boasVindas } from "@/lib/saudacao";
 import { HeroCard } from "@/components/hero-card";
+import { PerfilPopover } from "@/components/perfil-popover";
+import { formatBRL, formatData, formatHora } from "@/lib/format";
+
+const STATUS_ESTILO: Record<string, string> = {
+  pendente: "bg-tint-warn text-tint-warn-ink",
+  confirmado: "bg-tint-ok text-ok",
+  cancelado: "bg-tint-danger text-danger",
+  realizado: "bg-tint-neutral text-ink",
+};
 
 function saudacao(): string {
   const h = new Date().getHours();
@@ -103,21 +111,84 @@ export default async function InicioPage() {
     (m) => m.key !== "vagas" && (user!.role === "admin" || permitidos?.has(m.key)),
   );
 
-  // "na sua região" só era um título: a consulta não filtrava por cidade e um
-  // ajudante de Recife via cinco diárias em São Paulo. A cidade vem do cadastro
-  // e já era usada no perfil e no recibo de publicação — faltava aqui.
   const hojeStr = new Date().toLocaleDateString("sv-SE");
-  let feed = user!.role === "prestador_servico"
-    ? sb
-        .from("vagas")
-        .select("*")
-        .eq("status", "aberta")
-        .gte("data_servico", hojeStr)
-        .order("data_servico", { ascending: true, nullsFirst: false })
-        .limit(5)
-    : null;
-  if (feed && minhaCidade) feed = feed.eq("cidade", minhaCidade);
-  const { data: vagas } = feed ? await feed : { data: [] };
+
+  // Prestador v2: a home não tem mais "vagas" (isso é do fluxo de diária por
+  // workspace, v1) — o que importa aqui é a agenda de hoje, quanto está
+  // pendente de resposta, e um número simples de faturamento do mês.
+  let agendaHoje: { id: string; hora_inicio: string; hora_fim: string; descricao: string | null; status: string }[] = [];
+  let pendentesCount = 0;
+  let faturamentoMes = 0;
+  if (user!.role === "prestador_servico") {
+    const { data: slotsHoje } = await sb
+      .from("agenda_slots")
+      .select("id, hora_inicio, hora_fim, status")
+      .eq("prestador_id", user!.id)
+      .eq("data", hojeStr)
+      .order("hora_inicio", { ascending: true });
+    const idsHoje = (slotsHoje ?? []).map((s) => s.id);
+    const { data: servicosHoje } = idsHoje.length
+      ? await sb.from("servicos").select("slot_id, descricao, status").in("slot_id", idsHoje)
+      : { data: [] };
+    const servicoPorSlot = new Map((servicosHoje ?? []).map((s) => [s.slot_id, s]));
+    agendaHoje = (slotsHoje ?? []).map((s) => {
+      const serv = servicoPorSlot.get(s.id);
+      return { id: s.id, hora_inicio: s.hora_inicio, hora_fim: s.hora_fim, descricao: serv?.descricao ?? null, status: serv?.status ?? s.status };
+    });
+
+    const { count } = await sb
+      .from("servicos")
+      .select("id", { count: "exact", head: true })
+      .eq("prestador_id", user!.id)
+      .eq("status", "pendente");
+    pendentesCount = count ?? 0;
+
+    const primeiroDiaMes = `${hojeStr.slice(0, 7)}-01`;
+    const { data: slotsMes } = await sb
+      .from("agenda_slots")
+      .select("id")
+      .eq("prestador_id", user!.id)
+      .gte("data", primeiroDiaMes)
+      .lte("data", hojeStr);
+    const idsMes = (slotsMes ?? []).map((s) => s.id);
+    if (idsMes.length) {
+      const { data: realizadosMes } = await sb
+        .from("servicos")
+        .select("preco_valor")
+        .in("slot_id", idsMes)
+        .eq("status", "realizado");
+      faturamentoMes = (realizadosMes ?? []).reduce((soma, s) => soma + s.preco_valor, 0);
+    }
+  }
+
+  let ultimosServicos: {
+    id: string;
+    descricao: string;
+    preco_valor: number;
+    status: string;
+    prestador_id: string;
+  }[] = [];
+  const perfilPrestadorDe = new Map<
+    string,
+    { nome: string; foto_url: string | null; genero: string | null; tipo_base: string; nota_media: number; total_avaliacoes: number; verificado: boolean }
+  >();
+  if (user!.role === "cliente") {
+    const { data: servicos } = await sb
+      .from("servicos")
+      .select("id, descricao, preco_valor, status, prestador_id")
+      .eq("cliente_id", user!.id)
+      .order("created_at", { ascending: false })
+      .limit(5);
+    ultimosServicos = servicos ?? [];
+    const prestadorIds = [...new Set(ultimosServicos.map((s) => s.prestador_id))];
+    if (prestadorIds.length) {
+      const { data: prestadores } = await sb
+        .from("profiles")
+        .select("user_id, nome, foto_url, genero, tipo_base, nota_media, total_avaliacoes, verificado")
+        .in("user_id", prestadorIds);
+      for (const p of prestadores ?? []) perfilPrestadorDe.set(p.user_id, p);
+    }
+  }
 
   const painel =
     user!.role === "prestador_servico"
@@ -188,6 +259,23 @@ export default async function InicioPage() {
               tone="brand"
             />
           </>
+        ) : user!.role === "prestador_servico" ? (
+          <>
+            <AcaoCard
+              href="/agenda"
+              titulo="Minha agenda"
+              desc="Abrir horários, aceitar e acompanhar serviços."
+              cta="Abrir →"
+              tone="brand"
+            />
+            <AcaoCard
+              href="/clientes"
+              titulo="Meus clientes"
+              desc="Histórico de quem você já atendeu."
+              cta="Abrir →"
+              tone="brand"
+            />
+          </>
         ) : (
           <>
             <CtaGrande
@@ -206,6 +294,77 @@ export default async function InicioPage() {
           </>
         )}
       </div>
+
+      {user!.role === "prestador_servico" ? (
+        <div className="grid grid-cols-3 gap-2">
+          <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
+            <p className="text-xl font-bold text-brand">{agendaHoje.length}</p>
+            <p className="text-xs text-muted">hoje</p>
+          </div>
+          <Link
+            href="/clientes"
+            className={`flex flex-col items-center gap-0.5 rounded-2xl border py-3 text-center transition ${
+              pendentesCount > 0 ? "border-accent bg-tint-warn" : "border-line bg-card"
+            }`}
+          >
+            <p className={`text-xl font-bold ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-brand"}`}>{pendentesCount}</p>
+            <p className={`text-xs ${pendentesCount > 0 ? "text-tint-warn-ink" : "text-muted"}`}>aguardando você</p>
+          </Link>
+          <div className="card flex flex-col items-center gap-0.5 py-3 text-center">
+            <p className="text-xl font-bold text-brand">{formatBRL(faturamentoMes)}</p>
+            <p className="text-xs text-muted">faturado no mês</p>
+          </div>
+        </div>
+      ) : null}
+
+      {user!.role === "cliente" ? (
+        <div>
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-muted">Últimos serviços</h2>
+            <Link href="/meus-servicos" className="text-sm font-semibold text-brand">
+              Ver todos →
+            </Link>
+          </div>
+          {ultimosServicos.length === 0 ? (
+            <p className="card-vazio">Você ainda não agendou nenhum serviço.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {ultimosServicos.map((s) => {
+                const p = perfilPrestadorDe.get(s.prestador_id);
+                return (
+                  <div key={s.id} className="flex items-center justify-between gap-2 rounded-xl border border-line bg-card px-3 py-2.5">
+                    <div className="min-w-0">
+                      {p ? (
+                        <PerfilPopover
+                          perfil={{
+                            userId: s.prestador_id,
+                            nome: p.nome,
+                            fotoUrl: p.foto_url,
+                            genero: p.genero,
+                            papel: p.tipo_base as AppRole,
+                            notaMedia: p.nota_media,
+                            totalAvaliacoes: p.total_avaliacoes,
+                            verificado: p.verificado,
+                          }}
+                        />
+                      ) : (
+                        <span className="text-sm font-semibold">Prestador</span>
+                      )}
+                      <p className="truncate text-xs text-muted">{s.descricao}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-sm font-semibold text-brand">{formatBRL(s.preco_valor)}</p>
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
+                        {s.status}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {/* Equipe, Financeiro e Relatórios saíram do rodapé (teto de 5 itens).
           No celular, este painel é o único caminho até eles. */}
@@ -228,35 +387,35 @@ export default async function InicioPage() {
 
       {user!.role === "prestador_servico" ? (
         <div>
-          {/* O título nomeia a cidade em vez de dizer "na sua região": o usuário
-              precisa saber por qual filtro a lista passou para confiar nela. */}
-          <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="text-sm font-semibold text-muted">
-              {minhaCidade ? `Próximas diárias em ${minhaCidade}` : "Próximas diárias"}
-            </h2>
-            <Link href="/vagas" className="text-sm font-semibold text-brand">
-              Ver todas →
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-semibold text-muted">Hoje</h2>
+            <Link href="/agenda" className="text-sm font-semibold text-brand">
+              Ver agenda →
             </Link>
           </div>
-          <div className="flex flex-col gap-3">
-            {(vagas ?? []).map((v) => (
-              <VagaCard key={v.id} vaga={v} href={`/vagas/${v.id}`} descricao />
-            ))}
-            {(!vagas || vagas.length === 0) && (
-              <div className="card-vazio">
-                <p className="text-sm text-muted">
-                  {minhaCidade
-                    ? `Nenhuma diária aberta em ${minhaCidade} por enquanto.`
-                    : "Nenhuma diária aberta por enquanto."}
-                </p>
-                {minhaCidade ? (
-                  <Link href="/vagas?cidade=todas" className="btn-ghost mt-4">
-                    Ver vagas de outras cidades
-                  </Link>
-                ) : null}
-              </div>
-            )}
-          </div>
+          {agendaHoje.length === 0 ? (
+            <p className="card-vazio">Nenhum horário hoje.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {agendaHoje.map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/agenda/${s.id}`}
+                  className="flex items-center justify-between gap-2 rounded-xl border border-line bg-card px-3 py-2.5 transition hover:border-brand"
+                >
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-muted">
+                      {formatHora(s.hora_inicio)}–{formatHora(s.hora_fim)}
+                    </p>
+                    <p className="truncate text-sm font-semibold">{s.descricao ?? "Horário livre"}</p>
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
+                    {s.status}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
     </div>

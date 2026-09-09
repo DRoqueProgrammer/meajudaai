@@ -89,7 +89,7 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-[0_1px_3px_rgba(15,23,42,0.10)]">
+    <div className="rounded-2xl border border-line bg-gradient-to-br from-brand-fill to-brand-fillhover p-5 text-white shadow-[0_1px_3px_rgba(15,23,42,0.10)]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold tracking-tight">{boasVindas(genero, nome)}</h1>
@@ -98,10 +98,10 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
         <button
           type="button"
           onClick={alternarMinimizado}
-          className="shrink-0 rounded-lg bg-white/10 px-2 py-1 text-xs font-medium hover:bg-white/20"
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/10 text-sm leading-none hover:bg-white/20"
           aria-label={minimizado ? "Expandir" : "Minimizar"}
         >
-          {minimizado ? "Expandir ▾" : "Minimizar ▴"}
+          {minimizado ? "▾" : "✕"}
         </button>
       </div>
 

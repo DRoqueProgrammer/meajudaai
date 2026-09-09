@@ -11,9 +11,10 @@ import { nomeCategoria } from "@/lib/categorias";
 
 const PAPEL_LABEL: Record<string, string> = {
   sysadmin: "Administração da plataforma",
-  admin: "Profissional",
+  admin: "Administrador",
   funcionario: "Funcionário",
-  ajudante: "Ajudante",
+  prestador_servico: "Prestador de Serviço",
+  cliente: "Cliente",
 };
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */

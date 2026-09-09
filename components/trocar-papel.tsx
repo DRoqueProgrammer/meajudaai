@@ -27,16 +27,18 @@ export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "prestador_s
         <p className="text-sm text-muted">
           Sua conta é de{" "}
           <strong className="font-medium text-ink">
-            {souProfissional ? "profissional" : "ajudante"}
+            {souProfissional ? "administrador" : "prestador de serviço"}
           </strong>
-          {souProfissional ? " — você publica diárias." : " — você se candidata a diárias."}
+          {souProfissional
+            ? " — você gerencia uma empresa e uma equipe."
+            : " — você tem agenda própria e presta serviços."}
         </p>
         <button
           type="button"
           onClick={() => setConfirmando(true)}
           className="min-h-11 self-start text-sm text-brand underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
         >
-          {souProfissional ? "Na verdade eu quero trabalhar" : "Na verdade eu preciso de ajudante"}
+          {souProfissional ? "Na verdade eu presto serviço" : "Na verdade eu tenho uma empresa"}
         </button>
         {erro ? <FormError>{erro}</FormError> : null}
       </div>
@@ -48,12 +50,12 @@ export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "prestador_s
       <p className="text-sm">
         Trocar para{" "}
         <strong className="font-semibold">
-          {alvo === "admin" ? "profissional" : "ajudante"}
+          {alvo === "admin" ? "administrador" : "prestador de serviço"}
         </strong>
         ?{" "}
         {alvo === "admin"
-          ? "Você passa a publicar diárias e escolher candidatos."
-          : "Você passa a buscar vagas e se candidatar."}
+          ? "Você passa a gerenciar uma empresa e uma equipe."
+          : "Você passa a ter agenda própria e prestar serviços."}
       </p>
       <p className="text-xs text-muted">
         Só dá para trocar enquanto você não tem vaga publicada nem candidatura enviada.

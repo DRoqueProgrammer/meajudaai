@@ -13,3 +13,6 @@ next-env.d.ts
 /.claude/settings.local.json
 /.ua
 /.impeccable
+
+# Rascunhos de ícone (opções para escolher, não fazem parte do app)
+/design/icon-options

@@ -9,6 +9,14 @@
         "dev"
       ],
       "port": 3000
+    },
+    {
+      "name": "icon-gallery",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "design/icon-options/_server.js"
+      ],
+      "port": 4321
     }
   ]
 }

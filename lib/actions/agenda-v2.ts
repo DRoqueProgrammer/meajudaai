@@ -106,6 +106,26 @@ export async function confirmarServicoAction(servicoId: string): Promise<ActionR
   return { ok: true };
 }
 
+/** Prestador registra uma observação privada sobre um serviço (só ele mesmo lê depois). */
+export async function escreverLogServicoAction(input: {
+  servicoId: string;
+  texto: string;
+}): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  if (!input.texto.trim()) return { ok: false, erro: "Escreva alguma coisa antes de salvar." };
+
+  const sb = await createServerClient();
+  const { error } = await sb.from("servico_logs").insert({
+    servico_id: input.servicoId,
+    autor_id: w.user.id,
+    texto: input.texto.trim(),
+  });
+  if (error) return { ok: false, erro: "Não foi possível salvar a observação." };
+  revalidatePath("/agenda");
+  return { ok: true };
+}
+
 /**
  * Cancela um serviço — exige justificativa (fica registrada em
  * `cancelado_motivo`). Cliente ou prestador podem cancelar; o slot volta a

@@ -10,7 +10,7 @@ describe("CadastroSchema", () => {
     telefone: "21999998888",
     cidade: "Niterói",
     estado: "RJ",
-    tipo_base: "ajudante",
+    tipo_base: "prestador_servico",
   };
 
   it("aceita dados válidos", () => {

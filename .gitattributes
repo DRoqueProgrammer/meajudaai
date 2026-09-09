@@ -1,0 +1,4 @@
+# Scripts precisam de LF mesmo no Windows: com core.autocrlf=true um checkout
+# fresco quebraria os gates do Converge/Task-Spec (bash: "\r: command not found").
+*.sh text eol=lf
+*.py text eol=lf

@@ -61,9 +61,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         modules={modules}
         naoLidas={{ "/notificacoes": alertasNaoVistos ?? 0 }}
       />
-      {/* pb-20 reserva os ~69px da nav fixa: sem isso o fim de listas longas
-          fica atrás dela. Antes a folga vinha de o conteúdo ser curto. */}
-      <div className="flex-1 pb-20 md:pb-0">
+      {/* A coluna ocupa ao menos a altura da tela (dvh acompanha a barra de
+          endereço do celular) e o <main> cresce: em página curta o rodapé desce
+          até o fim da tela em vez de ficar no meio (pedido do Leonardo). */}
+      <div className="flex min-h-dvh flex-1 flex-col">
         {demo ? <DemoBanner nome={nome} /> : null}
         {/* A casca só dá o TETO de largura (direção e do parecer de design) —
             1100px é o topo da faixa pedida pra listas/painéis, e sobra pro
@@ -71,11 +72,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             wrapper. Antes era `max-w-3xl` (768px) fixo aqui: em 1440px isso
             sobrava 230–430px de vazio, porque nenhuma página tinha voz sobre
             a própria largura. */}
-        <main id="conteudo" className="mx-auto max-w-[1100px] px-4 py-4 md:px-6">
+        <main id="conteudo" className="mx-auto w-full max-w-[1100px] flex-1 px-4 py-4 md:px-6">
           {temSeletor ? <WorkspaceSwitcher workspaces={wsList} active={activeWs} /> : null}
           {children}
         </main>
         <Footer />
+        {/* Reserva os ~69px da nav fixa do celular com a cor do rodapé: o rodapé
+            encosta na nav, sem faixa do fundo da página entre os dois, e nada
+            fica escondido atrás dela. */}
+        <div aria-hidden="true" className="h-20 shrink-0 bg-card md:hidden" />
       </div>
     </div>
   );

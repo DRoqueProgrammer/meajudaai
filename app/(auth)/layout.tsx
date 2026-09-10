@@ -14,7 +14,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="fixed right-3 top-3 z-30">
         <ThemeToggle className="grid h-10 w-10 place-items-center rounded-full border border-line bg-card text-muted shadow-[0_1px_3px_rgba(15,23,42,0.08)] hover:text-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand" />
       </div>
-      <div className="flex min-h-screen flex-col">
+      {/* dvh em vez de 100vh: no celular o rodapé acompanha a barra de endereço. */}
+      <div className="flex min-h-dvh flex-col">
         <div className="flex-1">{children}</div>
         <Footer />
       </div>

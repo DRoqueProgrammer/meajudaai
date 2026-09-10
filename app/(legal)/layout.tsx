@@ -11,7 +11,7 @@ import { Footer } from "@/components/footer";
 /** Layout das páginas legais (termos e privacidade), com cabeçalho simples e link de volta. */
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="flex min-h-dvh flex-col bg-surface">
       {/* `gap-x-2` entre logo e nav: sem isso "Aí" (fim da logo) colava em
           "Termos" (início da nav). `flex-wrap` garante que a nav desça pra
           uma 2ª linha em vez de cortar em 390px (hoje 405px sem isso) — ver
@@ -32,7 +32,8 @@ export default function LegalLayout({ children }: { children: React.ReactNode })
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-[720px] px-6 py-10">{children}</main>
+      {/* flex-1: em página curta, o rodapé fica no fim da tela. */}
+      <main className="mx-auto w-full max-w-[720px] flex-1 px-6 py-10">{children}</main>
       <Footer />
     </div>
   );

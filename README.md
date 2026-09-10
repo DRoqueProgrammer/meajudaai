@@ -6,7 +6,7 @@
 
 | Medida | Comando | Hoje | Meta |
 |---|---|---|---|
-| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 29,16% | 100% |
+| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 46,78% | 100% |
 | `lib/` inteiro, incluindo ações de servidor | `npm run test:coverage` | 9,84% | 100% (via teste de integração) |
 
 As ações de servidor estão em 0% porque todo o corpo delas fala com o banco — cobri-las exige teste de integração contra banco real (`npm run test:integration`), não banco falso. O primeiro passo nessa direção são os **22 testes de regra de permissão já escritos** em `tests/rls.test.ts`, hoje desligados atrás de `RUN_INTEGRATION`. Ver R-33 a R-36 no [tech-spec](./cvg/docs/tech-spec/fechar-v2-marketplace.md).

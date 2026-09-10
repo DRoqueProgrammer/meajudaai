@@ -98,8 +98,16 @@ Uma objeção (M1) tinha **premissa falsa** e eu verifiquei antes de aceitar: o 
 - **As amostras do spike do QR estão prontas pra escanear** —
   `design/spike-qr/index.html`. É o primeiro item do programa e depende de você
   com o celular.
+- **R-33 fechado: 100% de cobertura de linha e de função na lógica pura de
+  `lib/`** — de 29,16% para 100%, com branches em 97,2%. É um requisito `must`
+  do tech-spec assinado, e era o único caminho de progresso que não dependia da
+  raia praça: função pura não fala com banco, não é superfície, e não pode
+  nascer vazando. **248 testes unitários** (eram 58 quando a sessão começou).
+  Entre eles, a autorização por módulo que o ROADMAP §4 marca como
+  não-negociável, e a regra que torna as contas públicas de demonstração
+  seguras — ambas estavam em 0%.
 - Rodapé com créditos e versão, correções da agenda, medição de cobertura
-  instalada (9,84% em `lib/`, 29,16% na lógica pura).
+  instalada (`npm run test:coverage` e `test:coverage:puro`).
 
 ## Duas coisas que eu decidi NÃO fazer, e por quê
 

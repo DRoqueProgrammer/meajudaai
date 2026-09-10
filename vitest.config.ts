@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 // `server-only` é um marcador do Next que estoura fora do runtime de servidor.
 // Alguns módulos o importam só como guarda (rate-limit, log) mas são lógica
@@ -9,6 +9,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
+    // Os gabaritos da Fatia 1 (tests/fatia1/) nascem vermelhos de propósito: importam
+    // módulos que as tarefas ainda vão criar. Rodam só em `npm run test:gabarito`
+    // (vitest.gabarito.config.ts) até a tarefa 11 devolvê-los à suíte normal.
+    exclude: [...configDefaults.exclude, "tests/fatia1/**"],
     setupFiles: ["tests/setup.ts"],
     alias: {
       "server-only": new URL("./tests/stubs/server-only.ts", import.meta.url).pathname,

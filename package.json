@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:gabarito": "vitest run --config vitest.gabarito.config.ts",
     "test:coverage": "vitest run --coverage",
     "test:coverage:puro": "vitest run --coverage --coverage.exclude=lib/actions/** --coverage.exclude=lib/supabase/**"
   },

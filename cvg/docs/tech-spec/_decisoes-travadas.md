@@ -177,3 +177,28 @@ pessoa desde o cadastro. Concilia o "nunca deletar" do ROADMAP §3 com o art. 18
 **Locked D-024 (adiantada, Fatia 2) — Encarregado de dados: o próprio Leonardo.**
 Palavras do dono: *"Por enquanto sou eu, isso é um protótipo. leochalhoub@hotmail.com"*
 — esse é o contato público que a Política de Privacidade vai trazer.
+
+## Rodada 5 — 10/09/2026 · Pass 5 da Fatia 1
+
+O dono aprovou a quebra em tarefas com *"aprovo, faça o que precisar para ficar bom"*.
+As decisões abaixo são do controller, sob essa delegação.
+
+**D-025 (do controller, por delegação) — A Fatia 1 ganha a tarefa 12: o prestador marca
+o serviço como realizado.** O scan do Pass 5 mostrou que esse caminho não existe na
+aplicação (ADR 0016) — os 25 serviços realizados vieram de script. Sem ele, o R-38 ("só o
+prestador marca realizado") fica sem caminho legítimo e o roteiro do R-54 não fecha. Não
+muda o spec assinado: o spec já exige a jornada; o terreno é que não a tinha.
+
+**D-026 (do controller) — Os evals da Fatia 1 são testes-gabarito escritos antes da
+execução.** O executor não os edita (entram em `do_not_touch`): um teste escrito por quem
+implementa passa por construção e não prova nada. Onde a regra mora no banco, o gabarito
+ataca de fora da aplicação (chave pública + sessão real); onde mora na aplicação, o
+gabarito fixa um contrato pequeno e testável (função pura ou action com a sessão
+simulada) e o eval confere, por busca no código, que as telas e actions o usam.
+
+**Anotado para a Fatia 5 (não é decisão, é risco):** a política de atualização de
+`servicos` também deixa o cliente reescrever `preco_valor` direto — hoje isso é
+necessário porque aceitar a renegociação é o cliente copiando `preco_pendente` para
+`preco_valor` (`responderRenegociacaoAction`). A Fatia 1 preserva a renegociação e trata só
+de estado; a integridade do valor final é pré-requisito da comissão (R-11) e entra no
+programa "Fechar a v2".

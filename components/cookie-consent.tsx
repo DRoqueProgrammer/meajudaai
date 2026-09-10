@@ -5,7 +5,15 @@ import Link from "next/link";
 
 const CHAVE = "maa-cookies-aceitos";
 
-/** Banner de consentimento de cookies (ROADMAP.md §13) — aparece até o visitante decidir; guarda a escolha em localStorage. */
+/**
+ * Aviso de cookies (ROADMAP.md §13) — INFORMATIVO, não um opt-out: o app só usa
+ * armazenamento essencial (sessão, tema, e-mail lembrado no login, e a própria
+ * lembrança deste aviso). Um botão "Recusar não essenciais" que não desliga
+ * nada é enganoso (parecer de proteção de dados, vistoria 10/09/2026) — por
+ * isso só existe "Entendi". Guarda em localStorage com a MESMA chave de antes,
+ * para quem já tinha dispensado o banner anterior (aceito ou recusado) não
+ * ver o aviso de novo.
+ */
 export function CookieConsent() {
   const [visivel, setVisivel] = useState(false);
 
@@ -17,9 +25,9 @@ export function CookieConsent() {
     }
   }, []);
 
-  function decidir(valor: "aceito" | "recusado") {
+  function entendi() {
     try {
-      localStorage.setItem(CHAVE, valor);
+      localStorage.setItem(CHAVE, "entendi");
     } catch {
       // segue sem salvar
     }
@@ -32,20 +40,16 @@ export function CookieConsent() {
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-card px-4 py-3 shadow-[0_-2px_8px_rgba(15,23,42,0.08)]">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3">
         <p className="text-xs leading-relaxed text-muted">
-          Usamos cookies essenciais para manter sua sessão e melhorar sua experiência. Veja nossa{" "}
+          Usamos só cookies essenciais — para manter sua sessão, lembrar seu tema e não mostrar
+          este aviso de novo. Veja nossa{" "}
           <Link href="/privacidade" className="text-brand underline">
             Política de Privacidade
           </Link>
           .
         </p>
-        <div className="flex gap-2">
-          <button type="button" onClick={() => decidir("recusado")} className="btn-ghost px-3 py-1.5 text-xs">
-            Recusar não essenciais
-          </button>
-          <button type="button" onClick={() => decidir("aceito")} className="btn-brand px-3 py-1.5 text-xs">
-            Aceitar
-          </button>
-        </div>
+        <button type="button" onClick={entendi} className="btn-brand shrink-0 px-3 py-1.5 text-xs">
+          Entendi
+        </button>
       </div>
     </div>
   );

@@ -1,9 +1,14 @@
 // Seed de dados fake "de verdade" pro protótipo (não é o modo demo read-only
 // de lib/auth/demo.ts — essas contas funcionam normalmente, dão pra editar).
 // Cria 1 conta por papel (sysadmin, admin, funcionario, prestador_servico,
-// cliente), todos os campos preenchidos, fotos de banco de imagens licenciado
-// (Unsplash, URLs resolvidas manualmente — ver ROADMAP.md), e ~3 anos de
-// histórico de serviços entre o prestador e o cliente.
+// cliente), todos os campos preenchidos, e ~3 anos de histórico de serviços
+// entre o prestador e o cliente.
+//
+// Sem foto: doutrina de docs/FOTOS_DEMO.md é fotos GERADAS POR IA (nunca de
+// pessoa real) atadas a um perfil fictício. Estas contas usavam fotos de
+// pessoas reais do Unsplash — retirado (parecer de proteção de dados,
+// vistoria 10/09/2026); sem `foto_url`, o Avatar cai nas iniciais. Fotos de
+// IA entram depois com `node scripts/semear-fotos.mjs`.
 //
 // Uso: node scripts/seed-fake-data.mjs
 import { createClient } from "@supabase/supabase-js";
@@ -22,15 +27,15 @@ const env = Object.fromEntries(
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 const SENHA = "MeAjudaAi2026!";
 
-// Fotos reais, licença Unsplash (uso livre, atribuição não obrigatória) —
-// resolvidas a partir de buscas "construction worker portrait" e
-// "professional woman/man portrait" em 09/09/2026.
+// Sem foto de propósito (ver comentário no topo do arquivo) — null aqui, o
+// Avatar cai nas iniciais. O controller substitui por fotos geradas por IA
+// depois, via scripts/semear-fotos.mjs.
 const FOTO = {
-  sysadmin: "https://images.unsplash.com/photo-1614023342667-6f060e9d1e04?ixlib=rb-4.1.0&q=80&fm=jpg&crop=faces&fit=crop&w=400&h=400",
-  admin: "https://images.unsplash.com/photo-1589386417686-0d34b5903d23?ixlib=rb-4.1.0&q=80&fm=jpg&crop=faces&fit=crop&w=400&h=400",
-  funcionario: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.1.0&q=80&fm=jpg&crop=faces&fit=crop&w=400&h=400",
-  prestador: "https://images.unsplash.com/photo-1679679811837-c28b2586f533?ixlib=rb-4.1.0&q=80&fm=jpg&crop=faces&fit=crop&w=400&h=400",
-  cliente: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-4.1.0&q=80&fm=jpg&crop=faces&fit=crop&w=400&h=400",
+  sysadmin: null,
+  admin: null,
+  funcionario: null,
+  prestador: null,
+  cliente: null,
 };
 
 async function criarConta({ email, nome, tipo_base, cidade, estado, genero, bio, disponibilidade, foto_url, categoria, preco_tipo, preco_valor, telefone }) {

@@ -2,28 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { boasVindas } from "@/lib/saudacao";
+import type { DiaPrevisao } from "@/lib/clima";
 
 // Chave herdada de quando o Hero minimizava citação+clima juntos (D-022); hoje
 // só governa o card de clima, mas trocar de chave descartaria a preferência
 // já salva no navegador de quem já usa o app sem ganho nenhum.
 const CHAVE_MINIMIZADO = "maa-hero-minimizado";
-
-const WEATHERCODE_EMOJI: Record<number, string> = {
-  0: "☀️", 1: "🌤️", 2: "⛅", 3: "☁️",
-  45: "🌫️", 48: "🌫️",
-  51: "🌦️", 53: "🌦️", 55: "🌧️",
-  61: "🌧️", 63: "🌧️", 65: "🌧️",
-  71: "🌨️", 73: "🌨️", 75: "❄️",
-  80: "🌦️", 81: "🌧️", 82: "⛈️",
-  95: "⛈️", 96: "⛈️", 99: "⛈️",
-};
-
-interface DiaPrevisao {
-  data: string;
-  max: number;
-  min: number;
-  emoji: string;
-}
 
 /**
  * Faixa de boas-vindas (Cliente, Administrador, Prestador de Serviço) — ver
@@ -53,22 +37,12 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
     let cancelado = false;
     (async () => {
       try {
-        const geo = await fetch(
-          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cidade)}&count=1&language=pt&format=json`,
-        ).then((r) => r.json());
-        const loc = geo?.results?.[0];
-        if (!loc || cancelado) return;
-        const prev = await fetch(
-          `https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4`,
-        ).then((r) => r.json());
-        if (cancelado || !prev?.daily) return;
-        const dias: DiaPrevisao[] = prev.daily.time.map((data: string, i: number) => ({
-          data,
-          max: Math.round(prev.daily.temperature_2m_max[i]),
-          min: Math.round(prev.daily.temperature_2m_min[i]),
-          emoji: WEATHERCODE_EMOJI[prev.daily.weathercode[i]] ?? "🌡️",
-        }));
-        setPrevisao(dias);
+        // Busca na NOSSA rota (app/api/clima) — é o servidor quem fala com a
+        // Open-Meteo; o navegador nunca manda o IP de quem visita direto a um
+        // terceiro (parecer LGPD, vistoria 10/09/2026).
+        const res = await fetch(`/api/clima?cidade=${encodeURIComponent(cidade)}`);
+        const json = await res.json();
+        if (!cancelado && json?.previsao) setPrevisao(json.previsao);
       } catch {
         // Sem previsão disponível (API fora do ar, cidade não encontrada) — o Hero funciona sem ela.
       }

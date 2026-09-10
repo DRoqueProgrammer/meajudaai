@@ -46,7 +46,10 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["Poppins", "system-ui", "sans-serif"],
+        // Vem do next/font/google (app/layout.tsx) via CSS variable — sem isso
+        // a fonte viria de um <link> pro Google Fonts, mandando o IP de todo
+        // visitante lá antes de qualquer consentimento.
+        sans: ["var(--font-poppins)", "system-ui", "sans-serif"],
       },
       // Sem sobrescrever `xl`: em 14px ele ficava a 2px do `rounded-2xl` (16px)
       // e o uso misto dos dois não comunicava nada. Com o padrão do Tailwind a

@@ -3,11 +3,11 @@
   "task_id": "T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo",
   "format_version": 3,
   "spec": "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo.md",
-  "spec_digest": "sha256:e71c29a46b2cd3e20f60b6fe681d253f43f4a1aec4d5409b09a9028d2203f3d5",
+  "spec_digest": "sha256:1cea30a120f2040bec33a6d99314dc1e1171023bbe35ff3154430a1e54f00a26",
   "task_revision_digest": "sha256:945e48abe6ce5c3d6bf1d4006eed982eaf32af9900605e4cbbd3bb17df6747c8",
   "signoff_tier": 1,
   "backend": "claude",
-  "workspace": "C:\\Users\\leoch\\projects\\meajudaai\\cvg",
+  "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
   "authorization": {
     "scheme": "hmac-sha256-v3",
     "ref": "hmac-sha256-v3:9648e21f:7147a20aab53152513f2589ba6bead6cc340ceff29bc3466f9ece85b2c9a7050",
@@ -16,12 +16,12 @@
     "signed_at": "2026-09-10T17:29:07Z"
   },
   "attempt": {
-    "id": "30dde62e-f888-42b1-82e4-c5fd6252daca",
-    "issued_at": "2026-09-10T17:39:27Z"
+    "id": "dde2d3f1-3742-44cd-b75a-1592e7d00188",
+    "issued_at": "2026-09-10T17:41:48Z"
   },
   "source": {
-    "workspace": "C:\\Users\\leoch\\projects\\meajudaai\\cvg",
-    "base_commit": "fbcaac9dc63a0e9d082683cdea308b2df23ec2d1"
+    "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+    "base_commit": "d71d53d8122fbac22724bdb15122e9828b5e43df"
   },
   "dependency_closure": {
     "contract": "DependencyClosure/v1",

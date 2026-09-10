@@ -65,7 +65,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           fica atrás dela. Antes a folga vinha de o conteúdo ser curto. */}
       <div className="flex-1 pb-20 md:pb-0">
         {demo ? <DemoBanner nome={nome} /> : null}
-        <main id="conteudo" className="mx-auto max-w-3xl px-4 py-4">
+        {/* A casca só dá o TETO de largura (direção e do parecer de design) —
+            1100px é o topo da faixa pedida pra listas/painéis, e sobra pro
+            formulário mais estreito (~720px) que cada página aplica no próprio
+            wrapper. Antes era `max-w-3xl` (768px) fixo aqui: em 1440px isso
+            sobrava 230–430px de vazio, porque nenhuma página tinha voz sobre
+            a própria largura. */}
+        <main id="conteudo" className="mx-auto max-w-[1100px] px-4 py-4 md:px-6">
           {temSeletor ? <WorkspaceSwitcher workspaces={wsList} active={activeWs} /> : null}
           {children}
         </main>

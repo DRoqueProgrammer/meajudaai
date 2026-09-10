@@ -17,13 +17,21 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export function ContaSheet({
   perfilHref,
   nome,
-  mostrarDiarias,
   children,
   className = "",
 }: {
   perfilHref: string;
   nome: string | null;
-  /** Sysadmin modera e não se candidata — para ele a lista seria sempre vazia. */
+  /**
+   * Herdado do call site (components/nav.tsx, fora do escopo deste lote) —
+   * a folha de conta não usa mais este sinal. O link "Minhas diárias" (v1)
+   * saiu daqui pra qualquer papel: candidatura de ajudante é rota de trabalho
+   * do prestador, não item de conta — se ainda fizer sentido pra ele, o lugar
+   * é a navegação principal (nav.tsx `meio`), não esta folha. Mantido na
+   * assinatura só para o `<ContaSheet mostrarDiarias={...}>` existente
+   * continuar tipando; remover exigiria tocar em nav.tsx, fora do escopo
+   * (fatia 3, lote B).
+   */
   mostrarDiarias: boolean;
   children: React.ReactNode;
   className?: string;
@@ -52,16 +60,6 @@ export function ContaSheet({
           <h2 id="conta-titulo" className="px-2 pb-2 text-sm font-semibold text-muted">
             {nome ?? "Sua conta"}
           </h2>
-          {mostrarDiarias ? (
-            // Estava alcançável só por um link text-xs dentro de /agenda.
-            <Link
-              href="/minhas-diarias"
-              onClick={fechar}
-              className="flex min-h-11 items-center rounded-xl px-3 text-sm hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-            >
-              Minhas diárias
-            </Link>
-          ) : null}
           <Link
             href={perfilHref}
             onClick={fechar}

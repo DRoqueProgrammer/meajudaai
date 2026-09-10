@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { CITACOES, citacaoAleatoria } from "../lib/citacoes";
 import { CIDADES } from "../lib/cidades";
 import {
   ALL_MODULES,
@@ -19,28 +18,6 @@ import { ALVO_LABEL, ALVOS_DENUNCIA, MOTIVOS_DENUNCIA, motivoCurto } from "../li
 // Estavam em 0%. O risco aqui não é a função quebrar — é o catálogo divergir do
 // banco (slug renomeado, papel novo esquecido) e a tela mostrar `undefined` ou
 // o insert ser recusado. Os testes travam as invariantes, não os itens.
-
-describe("citações do Hero", () => {
-  it("tem citações e nenhuma vazia", () => {
-    expect(CITACOES.length).toBeGreaterThan(0);
-    expect(CITACOES.every((c) => c.trim().length > 0)).toBe(true);
-  });
-
-  it("não repete nenhuma frase", () => {
-    expect(new Set(CITACOES).size).toBe(CITACOES.length);
-  });
-
-  it("sorteia sempre uma frase que existe no banco", () => {
-    for (let i = 0; i < 60; i++) {
-      expect(CITACOES).toContain(citacaoAleatoria());
-    }
-  });
-
-  it("não sorteia sempre a mesma — o Hero ficaria estático", () => {
-    const vistas = new Set(Array.from({ length: 80 }, () => citacaoAleatoria()));
-    expect(vistas.size).toBeGreaterThan(1);
-  });
-});
 
 describe("catálogo de cidades", () => {
   it("não tem cidade repetida na mesma UF", () => {

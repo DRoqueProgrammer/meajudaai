@@ -25,34 +25,43 @@ function saudacao(): string {
 
 /**
  * CTA primário do dia — a tela abria com um card cinza e nenhum botão, sem
- * caminho para a ação principal (publicar uma diária ou buscar trabalho).
- * Cores fixadas pela referência visual: amarelo para "preciso de ajudante",
- * verde para "quero trabalhar". O amarelo carrega texto #3a2f00 (8,1:1); sobre
- * branco ele daria 1,6:1 e por isso só existe como preenchimento.
+ * caminho para a ação principal (publicar uma vaga ou buscar trabalho).
+ * Verde para "quero trabalhar" (ação positiva do prestador, direção d) segue
+ * preenchimento cheio. Amarelo NUNCA é fundo de bloco grande (direção d): o
+ * tone "accent" vira fundo `--tint-info` (a mesma tinta azul clara do resto
+ * da casca) com um ícone amarelo — a cor de identidade sobra pro selo, não
+ * pro bloco inteiro da tela.
  */
 function CtaGrande({
   href,
   titulo,
   desc,
   tone,
+  icone,
 }: {
   href: string;
   titulo: string;
   desc: string;
   tone: "accent" | "action";
+  icone?: string;
 }) {
   return (
     <Link
       href={href}
-      className={`flex min-h-[7rem] flex-col justify-center gap-1 rounded-2xl px-6 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.10)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
-        tone === "accent" ? "bg-accent text-[#3a2f00]" : "bg-action-dark text-white"
+      className={`flex min-h-[7rem] items-center gap-3 rounded-2xl px-5 py-5 shadow-[0_1px_3px_rgba(15,23,42,0.10)] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand ${
+        tone === "accent" ? "border border-line bg-tint-info text-ink" : "bg-action-dark text-white"
       }`}
     >
-      <span className="text-xl font-bold leading-tight tracking-tight">{titulo}</span>
-      {/* Branco cheio, não `text-white/85`: a mistura a 85% sobre o verde cai
-          para 4,19:1 e reprova em AA. A hierarquia já vem de peso e tamanho. */}
-      <span className={`text-sm leading-snug ${tone === "accent" ? "text-[#5a4700]" : "text-white"}`}>
-        {desc}
+      {tone === "accent" ? (
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accent text-xl" aria-hidden>
+          {icone ?? "🧰"}
+        </span>
+      ) : null}
+      <span className="flex flex-col justify-center gap-1">
+        <span className="text-base font-semibold leading-tight tracking-tight">{titulo}</span>
+        {/* Branco cheio no tone action, não `text-white/85`: a mistura a 85%
+            sobre o verde cai para 4,19:1 e reprova em AA. */}
+        <span className={`text-sm leading-snug ${tone === "accent" ? "text-muted" : "text-white"}`}>{desc}</span>
       </span>
     </Link>
   );
@@ -268,7 +277,10 @@ export default async function InicioPage() {
           : "Painel do profissional";
 
   return (
-    <div className="flex flex-col gap-5">
+    // Início é painel, não formulário (direção e): usa o teto de 1100px da
+    // casca por inteiro, em vez de se estreitar como uma página de formulário
+    // faria — a largura é uma decisão desta página, não um acidente do layout.
+    <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-5">
       {banner?.texto ? (
         <div className="rounded-2xl border border-accent bg-tint-warn px-4 py-3 text-sm text-tint-warn-ink">
           {banner.texto}
@@ -299,8 +311,9 @@ export default async function InicioPage() {
               <CtaGrande
                 href="/publicar"
                 titulo="PRECISO DE AJUDANTE"
-                desc="Publique a diária em um minuto e receba candidatos hoje."
+                desc="Publique uma vaga e receba candidatos para reforçar a equipe."
                 tone="accent"
+                icone="🛠️"
               />
             ) : null}
             <AcaoCard
@@ -318,6 +331,7 @@ export default async function InicioPage() {
               titulo="PRECISO DE UM SERVIÇO"
               desc="Busque um prestador perto de você e agende direto."
               tone="accent"
+              icone="🔍"
             />
             <AcaoCard
               href="/meus-servicos"
@@ -443,7 +457,7 @@ export default async function InicioPage() {
                     </div>
                     <div className="shrink-0 text-right">
                       <p className="text-sm font-semibold text-brand">{formatBRL(s.preco_valor)}</p>
-                      <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
                         {s.status}
                       </span>
                     </div>
@@ -499,7 +513,7 @@ export default async function InicioPage() {
                     </p>
                     <p className="truncate text-sm font-semibold">{s.descricao ?? "Horário livre"}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[s.status] ?? "bg-surface text-muted"}`}>
                     {s.status}
                   </span>
                 </Link>

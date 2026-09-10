@@ -1,0 +1,135 @@
+{
+  "contract": "TaskHandoff/v3",
+  "task_id": "T-20260910-f1-06-administrador-ve-so-as-pracas-dele",
+  "format_version": 3,
+  "spec": "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-06-administrador-ve-so-as-pracas-dele.md",
+  "spec_digest": "sha256:93442a1ec9656e0e0d40969c193ab2cf84a32122cb61d8f8b1033571d0391f90",
+  "task_revision_digest": "sha256:1d59b385421ac3bee69d1292ad7e58f3dc083d99ea8a21385d9e88583f66d71c",
+  "signoff_tier": 1,
+  "backend": "claude",
+  "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+  "authorization": {
+    "scheme": "hmac-sha256-v3",
+    "ref": "hmac-sha256-v3:9648e21f:b2957bc6ad94aeaf341faa98cdc43fc21a1a8ec1f9ac0b32c6a954ca746f5028",
+    "tier": 1,
+    "signed_by": "operator",
+    "signed_at": "2026-09-10T17:30:33Z"
+  },
+  "attempt": {
+    "id": "4d9d04d5-3ab6-4266-af90-27e57b77b47a",
+    "issued_at": "2026-09-10T19:24:47Z"
+  },
+  "source": {
+    "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+    "base_commit": "0c1c51de1782e5b6cd92c1e12e90f8ebae8ec7d5"
+  },
+  "dependency_closure": {
+    "contract": "DependencyClosure/v1",
+    "task_id": "T-20260910-f1-06-administrador-ve-so-as-pracas-dele",
+    "digest": "sha256:fd64421527bcdf35ee124b3e932e60687ee37b3f2310501f8f08f41cbb64e950",
+    "members": [
+      {
+        "task_id": "T-20260910-f1-00-fatia-1-seguranca",
+        "task_revision_digest": "sha256:eeb6db900641f8c96810b39c6768e5936201592fe1c1f762f96e0b11f411dac1"
+      },
+      {
+        "task_id": "T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo",
+        "task_revision_digest": "sha256:945e48abe6ce5c3d6bf1d4006eed982eaf32af9900605e4cbbd3bb17df6747c8"
+      },
+      {
+        "task_id": "T-20260910-f1-02-contato-e-endereco-entre-as-partes",
+        "task_revision_digest": "sha256:318a6517c9f406369161d0f71930c6678013ad3945b881e57c5e10481af6e927"
+      },
+      {
+        "task_id": "T-20260910-f1-03-mundo-de-exemplo-isolado",
+        "task_revision_digest": "sha256:0ad71505a381b8e1c355136a82604cf15c14aae747acfbb4661b9b78f890864e"
+      },
+      {
+        "task_id": "T-20260910-f1-04-ninguem-vira-administrador-sozinho",
+        "task_revision_digest": "sha256:40e15cebd41da56e75ca091e7570e7bc029371b290d42a120942e2321493b757"
+      },
+      {
+        "task_id": "T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador",
+        "task_revision_digest": "sha256:078677ed4be425bcad37c8a5411c727914478a93f02db5c94ccc13ef1a23049e"
+      },
+      {
+        "task_id": "T-20260910-f1-06-administrador-ve-so-as-pracas-dele",
+        "task_revision_digest": "sha256:1d59b385421ac3bee69d1292ad7e58f3dc083d99ea8a21385d9e88583f66d71c"
+      }
+    ]
+  },
+  "write_scope": {
+    "touches_paths": [
+      "components/workspace-switcher.tsx",
+      "lib/auth/workspace.ts",
+      "app/(app)/layout.tsx"
+    ],
+    "creates_paths": [
+      "lib/auth/praca-ativa.ts"
+    ],
+    "do_not_touch": [
+      "tests/fatia1",
+      "vitest.gabarito.config.ts",
+      "supabase/migrations",
+      ".cvg",
+      "cvg/docs",
+      "cvg/brain",
+      ".env.local"
+    ]
+  },
+  "budgets": {
+    "iterations": 15,
+    "tokens": null,
+    "effort": "M"
+  },
+  "agent_contract": {
+    "version": 2,
+    "read": [
+      "intent",
+      "behavior",
+      "contract",
+      "guardrails"
+    ],
+    "produce": [
+      "code",
+      "tests"
+    ],
+    "required_tools": [
+      "bash",
+      "git",
+      "node",
+      "npx"
+    ],
+    "timeout_minutes": 30,
+    "sandbox_type": "host",
+    "output_artifacts": [],
+    "mcp_dependencies": [],
+    "emit": [
+      "pass",
+      "fail",
+      "retry_with_reason",
+      "parked_with_context"
+    ],
+    "backend_metadata": {}
+  },
+  "eval_command": [
+    "taskspec",
+    "run",
+    "--ci",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-06-administrador-ve-so-as-pracas-dele.md"
+  ],
+  "acceptance_command": [
+    "taskspec",
+    "accept",
+    "--stamp",
+    "--handoff",
+    "<handoff.json>",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-06-administrador-ve-so-as-pracas-dele.md"
+  ],
+  "evaluation_policy": {},
+  "environment_contract": {},
+  "identity_policy": {},
+  "receipt_requirements": [
+    "deterministic"
+  ]
+}

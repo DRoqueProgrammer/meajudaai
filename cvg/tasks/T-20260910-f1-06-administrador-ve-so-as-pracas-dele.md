@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-06-administrador-ve-so-as-pracas-dele
 title: "O Administrador vê só as praças dele, e seletor só com duas ou mais"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

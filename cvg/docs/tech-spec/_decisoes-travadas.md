@@ -245,3 +245,18 @@ direto no banco. Decisão: não registrar o hook antes de escopar essas cláusul
 de exemplo (a conta de exemplo só vê e altera o mundo de exemplo, R-42). Aviso no
 `CLAUDE.md`, ao lado da pendência do hook; o escopo das políticas entra junto com o W-4 da
 Fatia 5 (leitura global de `profiles`), que já mexe nas mesmas políticas.
+
+**Nota à D-030:** o ADR 0009 (sessão de 09/09) já registrou o outro lado do mesmo fato — sem o
+hook, as cláusulas de SysAdmin estão inertes e o SysAdmin real não tem poder no banco (a D-014
+decidiu não registrar o hook sem o dono). A D-030 acrescenta o risco da conta de exemplo, que
+precisa estar resolvido antes de qualquer registro do hook.
+
+**D-031 (do controller) — Defeito conhecido: a tela de cancelar serviço às vezes fica em
+"Cancelando…".** Achado pelo roteiro de regressão da Fatia 1 (R-54). O cancelamento é salvo no
+banco, mas a resposta da server action é cancelada no próprio navegador (CDP:
+`net::ERR_ABORTED canceled=true`, sem navegação nem erro de console) e o botão não sai do estado
+pendente até recarregar. Medido em /meus-servicos: 5 a 9 de cada 10 cancelamentos atualizam
+sozinhos; acontece com o `prompt` nativo e com ele substituído por JS (não é artefato do robô).
+Tirar o `router.refresh()` do botão piorou (2 de 8), então a atualização extra não é a causa. A
+Fatia 1 não mexeu nesse caminho da tela. Vai para a Fatia 4 (agenda); até lá o roteiro recarrega
+e avisa em vez de falhar, e o aviso fica visível na saída.

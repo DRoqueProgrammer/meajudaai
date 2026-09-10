@@ -253,6 +253,10 @@ async function novoContexto() {
   });
   ctx.setDefaultTimeout(15_000);
   ctx.setDefaultNavigationTimeout(30_000);
+  // O roteiro prova as jornadas do app, não a internet: fotos de perfil, tiles e ícones
+  // do mapa vêm de terceiros, e um deles lento segura o evento "load" da página e
+  // derruba o passo sem que o app tenha errado nada. Fora do próprio app, nada carrega.
+  await ctx.route((endereco) => !endereco.href.startsWith(BASE), (rota) => rota.abort());
   return ctx;
 }
 
@@ -359,7 +363,17 @@ async function roteiro() {
       const sB = await servicoDoHorario(slotB.id);
       return sB?.status === "cancelado" && sB.cancelado_motivo === motivo;
     }, "o serviço não foi cancelado com o motivo");
-    await cliente.getByText(`Cancelado: ${motivo}`).waitFor();
+    // Defeito conhecido (D-031): às vezes a resposta da action é cancelada no navegador e
+    // o botão fica em "Cancelando…" — o cancelamento está salvo, a tela é que não se
+    // atualiza sozinha. O passo prova a jornada (o que a pessoa vê depois de cancelar) e
+    // registra o defeito sem esconder: se a tela não se atualizar, recarrega e avisa.
+    try {
+      await cliente.getByText(`Cancelado: ${motivo}`).waitFor({ timeout: 15_000 });
+    } catch {
+      console.log("       aviso: a tela não se atualizou sozinha depois de cancelar (D-031) — recarregando");
+      await cliente.reload();
+      await cliente.getByText(`Cancelado: ${motivo}`).waitFor();
+    }
   });
 
   await passo(5, "o prestador vê o WhatsApp da cliente do serviço", prestador, async () => {

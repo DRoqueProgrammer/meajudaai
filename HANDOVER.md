@@ -36,7 +36,11 @@ export GEMINI_MODEL=gemini-3.6-flash   # o modelo padrão do CLI vive sobrecarre
 - **"Localizar" no cadastro** exige login (a busca de endereço tem `requireUser`) e o cadastro é antes do login. → Fatia 2.
 - **D-030** — não registrar o auth hook antes de escopar as cláusulas de SysAdmin pela marca de exemplo; senão a conta de exemplo, aberta por qualquer visitante, ganha o banco inteiro (liga com o ADR 0009 e a D-014).
 
-**Próximo passo:** Fatia 2 (vitrine v2 e LGPD) ou, se o Leonardo preferir ver resultado visual antes, a Fatia 3 (redesign). Perguntar.
+**Fatia 3 (redesign) — entregue no mesmo dia, em lotes (D-032).** Leonardo achou a Fatia 1 lenta e escolheu o redesign em seguida; por ser só UI, rodou sem task-spec por tarefa: 4 lotes de executor Sonnet (A fundação → B casca e Início, C landing, D seletor de horário e formulários, os três em paralelo), cada um com tier 2 do Gemini (`revisar-lote.sh` no scratchpad reproduz o prompt do `verify-work.py`), build, testes e a regressão 10/10. Antes e depois: https://claude.ai/code/artifact/659e94e2-1d1f-4cc7-8502-38dbb2f94906. **Armadilha:** o `isolation: "worktree"` do Agent tool cria a worktree a partir de `main` (a v1) — para lotes em paralelo, crie a worktree você mesmo a partir do branch atual e ligue o `node_modules` por junção (`New-Item -ItemType Junction`).
+
+Pendência de produto que o redesign deixou à vista: o Início do **Administrador** ainda oferece "PRECISO DE AJUDANTE / Publique uma vaga" e "Minhas vagas" — o mural de vagas da v1 continua sendo a ação principal desse papel. Qual é a ação v2 do Administrador é pergunta para o Leonardo (casa com o dashboard operacional que o CLAUDE.md diz faltar).
+
+**Próximo passo:** Fatia 2 (vitrine v2 e LGPD: privacidade e termos, excluir/baixar meus dados, Open Graph/sitemap, "Localizar" do cadastro sem login) — é o que falta antes de publicar no vercel.app. Depois a 4 (agenda e desempenho, com o D-031) e a 5.
 
 ---
 

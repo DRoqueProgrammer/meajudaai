@@ -83,6 +83,44 @@ Uma objeção (M1) tinha **premissa falsa** e eu verifiquei antes de aceitar: o 
 
 ---
 
+## O que a noite produziu de concreto (não só documento)
+
+- **Os 22 testes de permissão saíram de desligados para 21/22 verdes.** Eles já
+  existiam escritos e nunca rodavam. `npm run test:integration`. A limpeza
+  funciona: zero resíduo no banco depois (conferido).
+- **A única linha vermelha revelou um defeito real de segurança — [ADR 0009](./cvg/docs/adrs/0009-o-god-mode-de-sysadmin-nas-policies-esta-inerte.md).**
+  As policies perguntam `current_app_role() = 'sysadmin'`; essa função lê um claim
+  de JWT que só existe se o auth hook estiver registrado no painel — e nunca foi.
+  Sem o claim ela cai no default `'ajudante'`, papel que não existe mais. **45
+  cláusulas de policy dependem disso**, em 17 migrations. Verificado direto: o
+  SysAdmin real loga, o JWT vem sem `app_role`, e ele lê **0 linhas** de uma
+  tabela que deveria ver inteira. O app disfarça porque tem fallback próprio.
+- **As amostras do spike do QR estão prontas pra escanear** —
+  `design/spike-qr/index.html`. É o primeiro item do programa e depende de você
+  com o celular.
+- Rodapé com créditos e versão, correções da agenda, medição de cobertura
+  instalada (9,84% em `lib/`, 29,16% na lógica pura).
+
+## Duas coisas que eu decidi NÃO fazer, e por quê
+
+**Não registrei o auth hook** que consertaria o ADR 0009, mesmo tendo o token de
+gestão pra isso. Registrar um auth hook muda como **todo** JWT do projeto é
+emitido; se sair errado, ninguém entra no app — e você descobriria acordando com
+o produto fora do ar. O achado é a parte valiosa e está registrado; a correção
+espera você (D-014).
+
+**Não alarguei a cerca de escrita** do `.cvg/gate.yaml`, que protege
+`**/migrations/**` e `**/auth/**` — justamente os caminhos que a raia fundação
+precisa. O arquivo diz, na primeira linha, que essa revisão é de quem responde
+pelo repositório (D-013).
+
+**Consequência honesta das duas:** a ordem de construção que o próprio plano
+estabeleceu diz que nenhuma superfície nova deve nascer antes da fronteira de
+praça existir — *"senão a superfície nasce vazando"*. E a fronteira precisa de
+migration. Então o próximo passo executável do programa **exige você na
+cadeira**. Eu não fui adiante construindo coisa fora de ordem só para ter o que
+mostrar: seria desfazer amanhã o que eu fizesse hoje.
+
 ## Onde parou
 
 A cadeia está no **Pass 4**, com as objeções corrigidas nos planos. O gate de consenso exige que os planos atacados sejam byte a byte os planos vivos (anti-spoof), então afiar os planos obriga a re-rodar o adversário — é o ciclo previsto, não um erro.

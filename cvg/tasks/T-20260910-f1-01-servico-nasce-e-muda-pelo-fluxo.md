@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo
 title: "O serviço só nasce e só muda pelo fluxo — regra no banco"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

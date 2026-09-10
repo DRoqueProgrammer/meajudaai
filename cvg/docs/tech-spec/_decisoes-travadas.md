@@ -231,3 +231,17 @@ gemini em modo read-only, executável resolvido por `shutil.which` — detalhes 
 também quebra no Windows e só alimenta o `cvg loop`, que a D-027 deixou de lado; a cerca
 que a Fatia 1 precisa é conferida pelo `taskspec accept` e pelo `cvg gate --path`.
 *Reverter custa:* reaplicar o `install.sh` do Converge.
+
+**D-030 (do controller) — Risco adormecido: o auth hook acorda as cláusulas de SysAdmin
+para a conta de exemplo.** Achado na preparação da tarefa 3. `current_app_role()` lê o papel
+de `app_metadata.app_role` no JWT, que só o `custom_access_token_hook` preenche — e o hook
+nunca foi registrado no Dashboard; nenhum usuário tem `app_role` gravado. Hoje, portanto,
+toda sessão é `cliente` para o banco, as cláusulas `current_app_role() = 'sysadmin'` (e
+`'admin'` em `servicos`) de ~20 políticas não disparam, e as telas administrativas leem com a
+chave de serviço (a Fatia 1 escopa essas leituras pela marca de exemplo). O perigo é
+futuro: registrado o hook, a conta de exemplo SysAdmin — aberta por qualquer visitante —
+leria dados de contato, serviços, acessos e mensagens reais e escreveria o banner da home
+direto no banco. Decisão: não registrar o hook antes de escopar essas cláusulas pela marca
+de exemplo (a conta de exemplo só vê e altera o mundo de exemplo, R-42). Aviso no
+`CLAUDE.md`, ao lado da pendência do hook; o escopo das políticas entra junto com o W-4 da
+Fatia 5 (leitura global de `profiles`), que já mexe nas mesmas políticas.

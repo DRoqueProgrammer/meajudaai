@@ -126,3 +126,24 @@ em qualquer `→`, `·` ou acento — e os scripts do Converge são cheios deles
 shim de `python3` em `~/bin` agora exporta `PYTHONUTF8=1` e
 `PYTHONIOENCODING=utf-8`. Sem isso, uma linha da suíte falhava só por causa de
 uma seta num `printf`.
+
+## Addendum — o prompt precisa ir por stdin (descoberto no primeiro uso real)
+
+Na primeira execução real do Pass 4 o adversário rodou e devolveu
+`REVIEW=ERROR — adversary produced no parseable judgment JSON`. O gate falhou
+fechado, corretamente. A causa não era o Gemini nem a chave:
+
+O prompt do Pass 4 é **playbook + todos os planos**. Com 6 raias e 24 legs isso
+deu **~83 KB**. O meu ramo passava o prompt como **argumento de linha de
+comando** (`-p "$(cat "$PROMPT")"`), copiando o estilo do ramo `kimi` — e o
+limite de linha de comando no Windows é de **~32 KB**. O prompt chegava truncado,
+e um adversário que só viu um terço dos planos não produz julgamento.
+
+O ramo do `codex` no script original **já fazia o certo**: `< "$PROMPT"`, por
+stdin. Corrigido: o ramo `gemini` passa o prompt por stdin e usa um `-p` curto só
+para ligar o modo headless (o Gemini CLI concatena stdin + `-p`, nessa ordem).
+
+Lição que vale além deste patch: **em qualquer engine novo, o prompt vai por
+stdin.** O tamanho do prompt cresce com o número de planos, então o limite de
+argumento é uma bomba-relógio que só estoura quando o projeto fica grande — que é
+exatamente quando a revisão adversarial mais importa.

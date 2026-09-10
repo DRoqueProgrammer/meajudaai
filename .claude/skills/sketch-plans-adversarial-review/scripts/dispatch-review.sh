@@ -140,7 +140,11 @@ case "$KIND" in
   # exigência dele em ambiente headless (sem ele recusa e rebaixa o approval
   # mode). O prompt já traz playbook e planos inline — o engine não precisa
   # de ferramenta nenhuma pra julgar.
-  gemini) to "$CMD" --skip-trust --approval-mode plan --output-format text -p "$(cat "$PROMPT")" > "$JUDG" 2>/dev/null || RC=$? ;;
+  # STDIN, nao argumento: playbook + planos passam de 80 KB e o limite de linha de
+  # comando do Windows e ~32 KB - como argumento o prompt chegava truncado e o
+  # julgamento saia sem JSON parseavel. O ramo do codex ja usava stdin; este tambem
+  # passou a usar. O -p curto so liga o modo headless (o CLI concatena stdin + -p).
+  gemini) to "$CMD" --skip-trust --approval-mode plan --output-format text -p "Ataque os planos acima seguindo o playbook. Responda SOMENTE com o JSON do julgamento." < "$PROMPT" > "$JUDG" 2>/dev/null || RC=$? ;;
   claude) to "$CMD" -p "$(cat "$PROMPT")" --output-format json --tools Read,Grep --disallowedTools "Edit,Write" > "$JUDG" 2>/dev/null || RC=$? ;;
 esac
 if [ "$RC" -eq 124 ]; then echo "TIMEOUT after ${TIMEOUT}s." >&2; echo "REVIEW=TIMEOUT"; exit 21; fi

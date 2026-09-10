@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador
 title: "O SysAdmin cria praça e vincula Administrador com praça padrão"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: L

@@ -2,63 +2,121 @@
 
 Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação depois de um tempo parado) retomar sem perder contexto. Leia nesta ordem: **este arquivo** → [ROADMAP.md](./ROADMAP.md) §0 (auditoria — o que falta, sempre atualizada) → [CLAUDE.md](./CLAUDE.md) (convenções e comandos).
 
-Última atualização: **09/09/2026 às 20:31**, mesma sessão de implementação da v2 (pivô de mural-de-vagas pra marketplace de agendamento) — esta é a segunda passada do handover; a primeira foi por volta das 20h, esta cobre mais duas horas de correções pedidas ao vivo olhando o app rodando.
+Última atualização: **09/09/2026, madrugada** — sessão do Opus 5 que instalou o Converge e desceu a cadeia até o Pass 4. Leonardo foi dormir no meio e pediu: *"tome as melhores decisões por mim, vá até o final."* Tudo que eu decidi sozinho está marcado como **meu** e listado abaixo, pra auditoria.
 
-## Onde as coisas estão agora
+---
 
-- Branch de trabalho: `feature/dev_2026-09-09`, publicada e sincronizada com `origin` (GitHub, `DRoqueProgrammer/meajudaai`). Working tree limpo, sem PR aberto ainda.
-- `npm run dev` local, servidor rodando via `preview_start` do Claude Code durante a sessão — se for retomar, só `npm run dev` de novo.
-- Supabase: projeto `opvdfyyijbgrwztnqldl` (região us-east-2), migrations até **`0037_endereco_por_servico.sql`** aplicadas e os tipos (`lib/supabase/database.types.ts`) regenerados depois da última. Confira `ls supabase/migrations` pra saber o número mais alto antes de criar a próxima — a numeração não tem gaps confiáveis documentados em outro lugar.
-- `npm run typecheck` (`tsc --noEmit`) está limpo no fim desta sessão. Todo o fluxo abaixo foi verificado rodando no browser (login real como João Ferreira/prestador e Marina Costa/cliente), não só por tipo.
-- `npm install qrcode @types/qrcode` já feito (usado pela cobrança Pix).
+## O que mudou de estrutural nesta sessão: o projeto agora roda sob Converge
 
-## O que foi construído/corrigido nesta sessão (resumo — não repetir)
+O trabalho deixou de ser "implementar o que o Leonardo pediu" e passou a seguir uma cadeia de nove passes com gates executáveis. Isso muda como uma sessão nova deve trabalhar:
 
-**Base do pivô (primeira metade da sessão):** papéis (SysAdmin/Administrador/Prestador de Serviço/Cliente) com rótulos respeitando gênero; Agenda v2 (calendário mês/semana + horário recorrente) pro Prestador e pro Cliente; `/admin/logs` e `/admin/usuarios` corrigidos; cidades via IBGE completo (~5.570 municípios); mapa reconstruído pro modelo P2P (`/mapa` do prestador, `/buscar-prestador` do cliente, pino sempre aproximado); crash de RSC corrigido (Server Component passando função pra Client Component); nome da marca corrigido ("Me Ajuda Aí"); categorias com nomes reais (Eletricista, Pedreiro, Mestre de Obras, etc.).
+- **A fonte de intenção continua sendo o [ROADMAP.md](./ROADMAP.md)** (é o BRD).
+- **A fonte de requisito** virou [`cvg/docs/tech-spec/fechar-v2-marketplace.md`](./cvg/docs/tech-spec/fechar-v2-marketplace.md) — assinado `canonical`, 36 requisitos com id estável (`R-n`), cada um falsificável.
+- **A fonte de terreno** são os 9 ADRs em [`cvg/docs/adrs/`](./cvg/docs/adrs/) — fatos medidos contra o banco real, não presumidos de documento.
+- **O vocabulário canônico** está em [`cvg/docs/CONTEXT.md`](./cvg/docs/CONTEXT.md). Use os termos de lá; não invente sinônimo.
+- **O plano de construção** são as 6 raias em [`cvg/swimlanes/`](./cvg/swimlanes/), com 24 legs.
 
-**Segunda metade (correções ao vivo olhando o app, esta passada):**
-- **Agenda do prestador, redesenhada de verdade:**
-  - Clicar num evento abre um **card efêmero centralizado na tela** (`EventoPopover`, overlay `fixed` com fundo escurecido) — não mais expandindo inline embaixo da linha do tempo, que quebrava texto e empurrava a página. Mostra nome do cliente, data/hora, descrição, preço, status, e um botão "Ver serviço completo" pra `/agenda/[slotId]` (onde ficam as ações: aceitar, cancelar, observações privadas, cobrança Pix, dados do cliente).
-  - Texto do bloco de evento na linha do tempo (hora + descrição) agora centralizado, não mais no canto superior esquerdo de uma barra alta.
-  - Células do calendário de mês mostram hora+descrição de cada evento (até 3, com "+N"), não mais um pontinho colorido genérico com "1 horário".
-  - Card "Você está aberto para" (novo `lib/agenda-resumo.ts`) resume em texto os períodos recorrentes já configurados — antes não existia nenhum resumo, só o calendário cheio de bolinhas.
-- **Endereço é POR SERVIÇO, não do perfil** (migration `0037`: `servicos.endereco/lat/lng`) — o mesmo cliente pode pedir serviço em endereços diferentes (a própria casa, a de um parente, o escritório). `SlotReservar` (cliente reservando um horário) agora exige marcar o endereço via `AddressMapPicker`: `reservarSlotAction` valida e grava. **Serviços criados antes desta migration não têm endereço** (mostram "Sem localização exata cadastrada" graciosamente — não é bug).
-- **Dados do cliente na página do serviço** (`/agenda/[slotId]`, novo `components/agenda/cliente-do-servico.tsx`): nome (popover clicável → perfil, abre em nova aba), telefone formatado com ícone oficial do WhatsApp (`components/telefone-whatsapp.tsx`, `lib/format.ts::formatTelefone`), endereço, mapa Leaflet com o PIN exato do serviço, botões "Abrir no Google Maps" e "Compartilhar no WhatsApp" (`lib/whatsapp.ts::waShareLink`).
-- **Cobrança Pix por serviço** — completa agora: `lib/pix/static-qr.ts` (builder EMV/BR Code portado de `refs/foco-contabil`), campo "Chave Pix" em `/perfil/editar` (grava em `profiles_pii.chave_pix` via `salvarPerfilAction`), `components/pix/cobranca-pix.tsx` (QR + copia-e-cola, nome do cliente/data/valor no meio) exibido em `/agenda/[slotId]` quando o prestador tem chave configurada. **Não resolvido:** "administrador configurar a chave Pix em nome do prestador" — hoje só o dono edita (RLS `pii_update_self`).
-- **Home do Prestador, reconstruída do zero** — antes era 100% v1 ("QUERO TRABALHAR", "Próximas diárias em `<cidade>`" puxando a tabela `vagas`, nada relevante pro papel novo). Agora: atalhos reais (Minha agenda, Meus clientes), nudge "Complete seu perfil" (falta foto/bio/categoria/preço/chave Pix — link direto pra editar), 4 KPIs (próximos horários ou hoje, pendentes aguardando resposta — destacado em amarelo, faturado no mês, realizados total — link pro próprio perfil), gráfico de faturamento dos últimos 6 meses (SVG próprio, sem lib — `components/dashboard/grafico-faturamento.tsx`, hover mostra nº de serviços e nº de clientes distintos do mês), e uma lista "Hoje" (ou "Próximos horários" se hoje estiver vazio) clicável pra cada slot.
-- **Contador de "serviços realizados"** — `profiles.servicos_realizados` (migration `0035`, denormalizado via trigger `atualizar_servicos_realizados`) porque `servicos` tem RLS restrita às partes envolvidas; um cliente vendo o perfil público de um prestador que nunca contratou precisa ver o total real, não um SELECT que a RLS zeraria pra zero. Aparece na home do prestador **e** no perfil público (`/perfil/[id]`) — o v1 mostrava "diárias concluídas" (sempre 0 pra um prestador v2); agora mostra o número certo quando `tipo_base = prestador_servico`.
-- **Home do Cliente:** seção "Últimos serviços" (5 mais recentes, popover do prestador, status colorido, "Ver todos" pra `/meus-servicos`).
-- **Aba Clientes do prestador tinha um bug real de fluxo:** dava pra Renegociar ou Cancelar um serviço pendente, mas não pra **Aceitar** — só existia esse botão em `/agenda/[slotId]`. Corrigido em `components/clientes/servico-cliente-card.tsx`.
-- Cards de serviço (Clientes do prestador, Meus Serviços do cliente) refeitos compactos com data+hora real (não só a data de criação) e status colorido — antes eram linhas largas com pouco conteúdo.
-- `migration 0036`: `profile_local` também liberado entre partes de um serviço (`tem_servico_com`) como capacidade geral — não é o caminho usado pelo endereço por serviço (que vive em `servicos` direto, mais simples), mas fica disponível se algo precisar da localização "residencial" cadastrada da pessoa.
-- `PerfilPopover`: corrigido z-index (`z-[1001]`, estava atrás de mapas Leaflet — Leaflet usa panes com z-index ~200-650); link "Ver perfil completo" agora sempre abre em nova aba.
-- Nav lateral: bloco de tema/Sair usava `mt-auto` e colava no fundo do viewport, abrindo um vão enorme em páginas com poucos itens de menu — agora fica logo após o último item do menu. Toggle de tema virou ícone só (sem o texto "Ativar modo escuro/claro").
-- `lib/categorias.ts`, tagline da landing, rótulo "Categorias de Prestadores de Serviços" — pequenos textos corrigidos.
+### Comandos que você vai precisar
 
-Lista completa e detalhada (com o que ainda falta) está em **[ROADMAP.md §0](./ROADMAP.md#0-auditoria--o-que-falta)**.
+```bash
+cvg doctor          # prontidão do adversário do Pass 4
+taskspec doctor     # prontidão do engine de Task-Spec
+cvg review --check --dir cvg/swimlanes   # gate de consenso do Pass 4
+npm run test:coverage        # cobertura de lib/ inteiro
+npm run test:coverage:puro   # cobertura só da lógica pura
+```
 
-## Pendências conhecidas (ver ROADMAP §0 pra versão viva, com mais contexto)
+### Armadilhas de ambiente já resolvidas (não repita o diagnóstico)
 
-- **Recibos de serviço** e **aba Financeiro do prestador** — Leonardo pediu explicitamente pra deixar pra depois ("vamos adicionar depois"). Apontou `refs/foco-contabil` e `refs/careconnect` como referência (ler o `.ua/` desses repos antes de desenhar do zero) e mencionou o próprio recurso deveria existir também num terceiro repo, "amazing-school", não clonado em `refs/`. Detalhe já dado: o prestador pode subir uma assinatura (upload) pra usar nos recibos; se não tiver, o recibo sai só com nome + função, pra imprimir/assinar à mão ou mandar sem assinar mesmo.
-- **SysAdmin e Administrador sem dashboard próprio** — ainda caem no `/inicio` genérico (que hoje só tem branches pra Cliente/Prestador/Empresa-vagas). Confirmado ao vivo que isso está errado; ninguém pediu o desenho ainda, então não foi feito.
-- **Hero card "feio"** — pendência de design (não de função) que o Leonardo repetiu mais de uma vez sem dar direção concreta do que trocar. Não mexido nesta sessão — precisa de uma conversa de design antes de tentar de novo às cegas.
-- Carrossel de fotos do prestador (schema só tem `foto_url` único); aprovação de cadastro do prestador (Telegram/site) + selo "aguardando aprovação"; Telegram (bloqueado — precisa das credenciais do bot do Leonardo); papéis customizados dinâmicos além de "funcionário"; seletor de ícone/logo do workspace; mostrar o comentário público do admin na UI do prestador/cliente (RLS já libera, falta só exibir); verificar se `login_logs` está gravando de fato num login novo pelo formulário (visto vazio numa sessão com cookie antigo — pode não ser bug).
+Nada disso estava no PATH do MSYS e tudo é exigido pela cadeia. Há shims em `~/bin`:
+`python3` (com `PYTHONUTF8=1` — sem isso o Python do Windows estoura `UnicodeEncodeError` em qualquer `→` dos scripts do Converge), `node`, `npm`, `npx`, `shellcheck`, `gemini`, `claude`, `cvg`, `taskspec`.
 
-## Tensão de arquitetura não resolvida
+**`.agents/` não é espelho descartável.** O CLI `cvg` procura o tool home testando `.agents` **antes** de `.claude`, então é de lá que ele executa. Patch em `.claude/skills/` sozinho não tem efeito. Os dois precisam ficar em sincronia.
 
-O modelo P2P v2 (Prestador de Serviço não pertence a workspace nenhum) conflita com partes do modelo v1 que ainda estão em uso (Administrador/Funcionário publicam/gerenciam `vagas` dentro de um `workspace`). Hoje isso convive como **dois sistemas paralelos na mesma base de código** — `/mapa`, por exemplo, tem branches de código completamente diferentes pra Prestador (v2, `meus_clientes_no_mapa`) vs Administrador/Funcionário (v1, `vaga_local`); `/inicio` também. Antes de expandir qualquer feature que dependa de "Administrador enxerga/gerencia um Prestador" (inclusive o dashboard do Administrador acima), é preciso decidir: prestadores autônomos passam a ser membros de um workspace, ou o conceito de workspace fica restrito ao fluxo antigo de diária? Ver ROADMAP.md §2.2 e a nota ❓ na seção 0.
+---
+
+## Decisões travadas — o que está fechado
+
+Todas em [`cvg/docs/tech-spec/_decisoes-travadas.md`](./cvg/docs/tech-spec/_decisoes-travadas.md), com o porquê de cada uma.
+
+**Do Leonardo (D-001 a D-009):**
+
+1. **Workspace virou praça.** A decisão que destravou a tensão aberta na §0 desde o pivô. Não é "uma empresa dentro do app" — é um **tenant de praça**: uma instalação por cidade, com nome próprio. *"Podemos deployar em Niterói com um nome e em Maceió com outro. O workspace deve ser respeitado."*
+2. Prestador **e** cliente pertencem a uma praça, com **isolamento total** — cliente de Niterói nunca vê prestador de Maceió.
+3. A pessoa entra na praça **pela instalação**, sem escolher.
+4. Escopo do ciclo: **todo o backlog da §0 + a comissão**, menos o que está bloqueado por fator externo (Telegram, por credencial).
+5. Pronto = a jornada ponta a ponta roda **sem intervenção manual no banco**.
+6. Dataset refeito: ≥24 meses até dez/2026, futuros ≤6 meses.
+7. Comissão: a dívida nasce quando o serviço vira **`realizado`** — *"é um evento que confirma Valor"*.
+8. Inadimplência: avisos diários + e-mail, **suspensão no 3º dia**, com canal pro Administrador.
+9. Alíquota em **4 níveis**: serviço → categoria → prestador → praça.
+10. **Cobertura: meta 100%**, em duas medidas separadas.
+
+**Minhas, tomadas enquanto ele dormia (D-010 a D-012)** — confira estas primeiro:
+
+- **D-010** — Praça não tem dono pessoa física. `workspaces.owner_id` passa a significar *administrador responsável*. Reverter custa uma migration.
+- **D-011** — SysAdmin é **supra-praça**, não recebe praça. Reverter custa uma linha no backfill.
+- **D-012** — A instalação declara sua praça por **variável de ambiente**. Reverter custa trocar a resolução num ponto só.
+
+---
+
+## O que o Pass 2 mediu — e corrigiu de premissa
+
+Três coisas que estavam sendo assumidas erradas, medidas contra o banco real:
+
+1. **O papel `ajudante` já não existe** desde a migration `0022`. O `DESIGN_MEAJUDAAI_V2.md` diz "65 arquivos, refactor grande" — está velho. São 8 ocorrências do literal de papel; os 57 arquivos são a coluna `ajudante_id` do subsistema de vagas. **Onde aquele documento contradisser os ADRs, valem os ADRs** (ADR 0008).
+2. **O dataset já tem 35,3 meses de amplitude** — acima dos 24 pedidos. O defeito é **densidade** (~1,4 horário/mês) e não alcançar dezembro/2026. Gerar mais passado seria esforço no eixo errado (ADR 0007).
+3. **`login_logs` grava sim** — 11 linhas. A suspeita do ROADMAP §0 está resolvida; R-29 virou verificação, não construção.
+
+E o achado mais sério: **`profiles_select_all` usa `using (true)`** e nunca foi substituída em 37 migrations. Hoje qualquer autenticado lê todos os perfis. Isolar por praça não é "ajustar consulta", é trocar a política de leitura da tabela mais central do produto (ADR 0002).
+
+---
+
+## Pass 4 — o que o adversário encontrou
+
+Gemini (família google, cross-family de verdade) atacou os 31 arquivos de plano. Veredito **REVISE**, 6 objeções. Duas valem destaque porque mudam construção:
+
+- **C2 (CRITICAL)** — "decidido no servidor" era ambíguo e perigoso. Neste produto o navegador fala **direto** com o banco usando chave pública: qualquer filtro em camada de aplicação é contornável por fora. A fronteira precisa morar na **política da própria tabela**. O plano foi reescrito e ganhou um critério de aceite que testa chamada feita por fora da aplicação.
+- **H1 (HIGH)** — sem atomicidade entre "serviço virou realizado" e "dívida criada", nascem **serviços fantasma**: executados, e cobrados de ninguém. O vazamento é silencioso porque ninguém reclama de uma cobrança que não veio.
+
+Uma objeção (M1) tinha **premissa falsa** e eu verifiquei antes de aceitar: o gatilho periódico já existe (`vercel.json` + `CRON_SECRET`, em uso para lembretes de avaliação).
+
+---
+
+## Onde parou
+
+A cadeia está no **Pass 4**, com as objeções corrigidas nos planos. O gate de consenso exige que os planos atacados sejam byte a byte os planos vivos (anti-spoof), então afiar os planos obriga a re-rodar o adversário — é o ciclo previsto, não um erro.
+
+**Próximo passo:** fechar o gate do Pass 4 e descer para o **Pass 5** (Task-Specs assinados, um eval por task), depois **Pass 7** (contrato de runtime) e **Pass 8** (o loop de execução).
+
+**A ordem de construção não é a ordem de dependência.** O primeiro leg do programa inteiro é `swimlane-jornada-leg-01`: o spike que descobre se um código de cobrança com dados no centro ainda é lido por app de banco. Se falhar, R-14 e R-15 mudam de forma e a raia comissão muda junto — e descobrir isso depois de construir a cobrança seria o desperdício mais caro deste programa.
+
+---
+
+## Pendências que continuam abertas
+
+- **Telegram** — bloqueado nas credenciais do bot. Declarado `wont` neste ciclo (W-1).
+- **Hero "feio"** — deliberadamente **não** virou requisito. Sem direção concreta não é falsificável, e a regra do Pass 1 é que requisito que não dá pra avaliar vai pro registro de lacunas. Está como GAP-002, esperando uma conversa de design.
+- **C1 do Pass 4** — a base é compartilhada, então **uma pessoa não pode existir em duas praças com o mesmo e-mail**. Declarei isso como restrição explícita; falta o Leonardo confirmar que serve por enquanto.
+- GAP-001, 003, 004, 005, 007 do tech-spec — todas `minor`, todas com padrão assumido e dono nomeado.
+
+---
 
 ## Acesso e credenciais — o que NÃO está neste repositório
 
-- **Conta real de SysAdmin do Leonardo** (e-mail/senha reais, não as contas de exemplo): foram passadas verbalmente na conversa, não estão em nenhum arquivo do repo por design (não commitar credenciais reais). Se precisar testar como o SysAdmin de verdade, peça de novo ao Leonardo.
-- **Token do Supabase** (`SUPABASE_TOKEN` em `.env.local`, não comitado): Personal/Management API Token da conta inteira do Leonardo, autorizado por ele pra uso livre **neste projeto** (criar tabelas, aplicar migrations, o que for preciso). Não é o mesmo que `SUPABASE_SERVICE_ROLE_KEY` (esse sim é lido pelo app; o `SUPABASE_TOKEN` só serve pra CLI).
-- **Credenciais das contas de exemplo** (não sensíveis, são dados fake): estão em `lib/auth/contas-exemplo.ts` e no README — senha única `MeAjudaAi2026!`.
+- **Conta real de SysAdmin do Leonardo**: passada verbalmente, não está em arquivo nenhum por design.
+- **`SUPABASE_TOKEN`** em `.env.local`: Personal/Management API Token, autorizado pra uso livre neste projeto.
+- **`GEMINI_API_KEY`** em `.env.local`: usada só pelo Gemini CLI como adversário do Pass 4. Sem ela o `cvg doctor` volta a FAIL.
+- **Contas de exemplo** (dados fake): `lib/auth/contas-exemplo.ts`, senha `MeAjudaAi2026!`.
+
+---
 
 ## Convenções que valem a pena internalizar antes de mexer em UI
 
-- `lib/papel-label.ts` (`papelLabel(role, genero)`) e `lib/saudacao.ts` (`boasVindas(genero, nome)`) seguem a mesma regra de 3 formas (masculino/feminino/neutro-com-"e"). Qualquer texto novo que mencione o papel de alguém deve usar `papelLabel`, não uma string fixa.
-- Server Component não pode passar função como prop pra Client Component (RSC não serializa closures) — se precisar de um "renderer" customizado vindo de uma página server, passe dados serializáveis + uma prop `variant` e deixe o componente cliente decidir internamente (ver `AgendaCalendarV2`/`DiaTimeline`).
-- Nunca expor `profile_local.lat`/`lng` (coordenada exata da residência) fora de RLS restrita — proximidade/mapa de terceiros sempre via função `SECURITY DEFINER` que só devolve distância ou `lat_aprox`/`lng_aprox` (migration `0033`). Já o endereço **de um serviço específico** vive direto em `servicos.endereco/lat/lng` (migration `0037`) porque `servicos` já tem RLS restrita às partes envolvidas — não precisa desse cuidado extra.
-- Popovers/overlays client-side: cuidado com z-index perto de mapas Leaflet (panes usam ~200-650) — use `z-[1000]+` pra qualquer coisa que deva ficar por cima de um mapa.
-- Cards de lista (serviços, clientes) seguem um padrão compacto consolidado nesta sessão: `rounded-xl border border-line bg-card px-3 py-2.5`, status como pílula colorida (`STATUS_ESTILO` — mesmo mapa de cores repetido em alguns arquivos, poderia virar um util compartilhado se aparecer de novo), nunca o `.card` genérico (p-4, mais espaçoso) pra itens de lista repetidos.
-- Todo texto do produto é em PT-BR; comentários de código também.
+- `lib/papel-label.ts` e `lib/saudacao.ts` seguem a regra de 3 formas (masculino/feminino/neutro-com-"e"). Texto novo que mencione papel usa `papelLabel`, nunca string fixa.
+- Server Component não passa função como prop pra Client Component — passe dados serializáveis + uma prop `variant`.
+- Nunca expor `profile_local.lat`/`lng` fora de RLS restrita. Endereço **de um serviço** é diferente: vive em `servicos.endereco/lat/lng` porque `servicos` já tem RLS restrita às partes.
+- Popover perto de mapa Leaflet: `z-[1000]+` (Leaflet usa panes ~200-650).
+- Cards de lista: `rounded-xl border border-line bg-card px-3 py-2.5`, status como pílula colorida, nunca o `.card` genérico.
+- Horário livre na agenda **não é clicável** — não há serviço pra abrir.
+- Todo texto do produto em PT-BR; comentários de código também.

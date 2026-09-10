@@ -274,3 +274,20 @@ tarefa, TaskPlan com carimbo HMAC e Pass 4 sobre planos. Quatro lotes: A fundaç
 cor, contraste, quick wins), B casca desktop e Início (Hero da D-022, copy v2), C landing e
 páginas públicas, D seletor de horário e formulários. *Reverter custa:* voltar ao TaskPlan
 por tarefa — os lotes são commits separados.
+
+## Rodada 7 — 10/09/2026 · Fatia 2 (vitrine e LGPD)
+
+**D-033 (do controller) — A Fatia 2 roda em lotes, com gabarito só onde há dado pessoal.**
+Leonardo aprovou o redesign e pediu para seguir (*"pode continuar"*). O que da Fatia 2 já
+saiu antes: senha no navegador e endereço exposto (Fatia 1), header mobile, 404 e copy v2 da
+landing (Fatia 3). O resto vai em três lotes em paralelo, como a Fatia 3 (D-032): **2A**
+Privacidade e Termos reescritos para a v2 (base legal por finalidade, operadores e
+transferência internacional, encarregado — D-024, prazos, versão); **2C** vitrine e
+privacidade técnica (fonte servida pelo app em vez do Google Fonts, clima do Hero buscado pelo
+servidor, aviso de cookies honesto — só há armazenamento essencial —, Open Graph, robots,
+sitemap, fotos de demonstração sem pessoas reais, "Localizar" no cadastro sem login); **2B**
+direitos do titular (D-023). O 2B mexe em dado pessoal e no banco, então volta o rigor da
+Fatia 1: gabarito escrito antes (`tests/fatia2/titular.test.ts`), migration nova com COMMENT,
+tier 2 e a regressão verde. Conta de exemplo não pede exclusão (qualquer visitante as abre).
+Fica em aberto, para o dono: qual é a ação principal do Administrador na v2 (o Início dele
+ainda oferece "Publique uma vaga", do mural da v1).

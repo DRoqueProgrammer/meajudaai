@@ -20,7 +20,9 @@ next-env.d.ts
 # Cache local do Supabase CLI (project-ref, versões, url do pooler) — por máquina, não versionar
 /supabase/.temp
 
-# Converge/Task-Spec: skills espelhadas para outras harnesses (Codex/Kimi e Grok Build).
-# Só usamos Claude Code aqui — .claude/skills/ é a cópia versionada. Regeneráveis com install.sh.
-/.agents
+# Converge/Task-Spec: .agents/ NÃO é espelho descartável — é o tool home que o
+# CLI `cvg` executa (ele procura .agents antes de .claude ao subir a árvore, ver
+# `resolve_home` em bin/cvg). Fica versionado junto com .claude/skills/, senão um
+# clone novo tem as skills mas o CLI quebra. Já o /.grok atende só o Grok Build,
+# que não usamos; regenerável com o install.sh do Converge.
 /.grok

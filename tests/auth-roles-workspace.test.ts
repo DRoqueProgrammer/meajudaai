@@ -7,7 +7,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ── estado controlado pelos testes ──────────────────────────────────────────
 let authUser: { id: string; email: string | null } | null = null;
-let perfil: { tipo_base: unknown } | null = null;
+let perfil: { tipo_base: unknown; exemplo?: boolean } | null = null;
 let membros: { workspace_id: string; role: string; workspaces: { nome: string } | null }[] = [];
 let membroUnico: { role: string } | null = null;
 let cookieWs: string | undefined;
@@ -62,8 +62,15 @@ beforeEach(() => {
 });
 
 describe("getCurrentUser", () => {
-  it("devolve id, e-mail e papel lido do perfil", async () => {
-    expect(await getCurrentUser()).toEqual({ id: "u-1", email: "leo@meajudaai.app", role: "admin" });
+  it("devolve id, e-mail, papel e marca de exemplo lidos do perfil", async () => {
+    expect(await getCurrentUser()).toEqual({ id: "u-1", email: "leo@meajudaai.app", role: "admin", exemplo: false });
+    perfil = { tipo_base: "sysadmin", exemplo: true };
+    expect((await getCurrentUser())!.exemplo).toBe(true);
+  });
+
+  it("sem perfil, a pessoa não é de exemplo (o piso é conta real sem privilégio)", async () => {
+    perfil = null;
+    expect(await getCurrentUser()).toMatchObject({ role: "cliente", exemplo: false });
   });
 
   it("devolve nulo sem sessão", async () => {

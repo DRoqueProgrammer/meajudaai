@@ -34,11 +34,8 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     .eq("user_id", user.id)
     .maybeSingle();
   const role = isAppRole(prof?.tipo_base) ? prof.tipo_base : "cliente";
-  // `exemplo` é `not null default false` no banco (migration 0040) — só fica
-  // indefinido aqui se não houver perfil nenhum (`prof` nulo), o mesmo caso em
-  // que `role` já cai em "cliente" por segurança; o cast é seguro porque quem
-  // usa `exemplo` sempre trata falsy (undefined ou false) como "não é de exemplo".
-  return { id: user.id, email: user.email ?? null, role, exemplo: prof?.exemplo as boolean };
+  // Sem perfil, a pessoa não é de exemplo — o mesmo piso em que `role` cai em "cliente".
+  return { id: user.id, email: user.email ?? null, role, exemplo: prof?.exemplo === true };
 }
 
 /** Como `getCurrentUser`, mas lança se não houver sessão. Use em rotas/actions protegidas. */

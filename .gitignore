@@ -30,3 +30,6 @@ next-env.d.ts
 
 # Cache do Python gerado pelos scripts das skills (.agents/) — por máquina, não versionar
 __pycache__/
+
+# Worktrees temporárias dos agentes executores (Agent tool) — não versionar
+/.claude/worktrees/

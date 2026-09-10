@@ -16,6 +16,16 @@ const chaveServico = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const podeRodar = Boolean(url && anon && chaveServico) && process.env.RUN_INTEGRATION === "1";
 
+// Um gabarito pulado deixa o vitest verde sem ter provado nada — pior que um
+// vermelho. Quem pediu integração (RUN_INTEGRATION=1) e não tem credencial recebe
+// um erro, nunca um "skipped". Acontece, por exemplo, numa cópia de trabalho sem o
+// .env.local: exporte as três variáveis no shell que roda o teste.
+if (process.env.RUN_INTEGRATION === "1" && !podeRodar) {
+  throw new Error(
+    "gabarito da Fatia 1: RUN_INTEGRATION=1 mas faltam NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY ou SUPABASE_SERVICE_ROLE_KEY — o teste de integração não pode ser pulado.",
+  );
+}
+
 export const SENHA = "senha-gabarito-fatia1";
 
 /** Cliente com a chave de serviço — só para preparar e limpar o cenário, nunca para "atacar". */

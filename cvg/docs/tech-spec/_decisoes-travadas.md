@@ -202,3 +202,22 @@ necessário porque aceitar a renegociação é o cliente copiando `preco_pendent
 `preco_valor` (`responderRenegociacaoAction`). A Fatia 1 preserva a renegociação e trata só
 de estado; a integridade do valor final é pré-requisito da comissão (R-11) e entra no
 programa "Fechar a v2".
+
+**D-027 (do controller) — O Pass 8 da Fatia 1 executa pelo protocolo do motor Task-Spec,
+não pelo `cvg loop`.** Verificado no kernel (`.agents/skills/task-loop/scripts`): o
+adaptador do Claude roda `claude -p --permission-mode acceptEdits` — edita arquivos, mas
+não tem autoridade de shell —, e o isolamento padrão é um worktree de estado commitado,
+sem `.env.local` nem o vínculo do Supabase. As tarefas 1, 2, 3 e 5 precisam aplicar
+migration no único banco e regenerar os tipos; nenhuma das duas coisas cabe nesse
+envelope. O caminho escolhido é o que a própria skill `task-spec` prescreve para qualquer
+executor: `taskspec handoff` (contrato só de leitura) → um agente **Sonnet** executa, com
+contexto novo e shell → o controller revisa o diff → verificação independente de tier 2
+(`cvg verify`, exigida pela lane) → `taskspec accept --stamp` re-roda os evals e confere
+HMAC, dependências e escopo de escrita. As tarefas andam uma de cada vez no checkout
+principal, porque as migrations formam uma fila e várias tarefas tocam os mesmos arquivos.
+*Reverter custa:* nada — a mesma task-spec assinada serve ao `cvg loop` quando o adaptador
+ganhar shell.
+
+**D-028 (do controller) — Gabarito sem credencial quebra, não pula.** Um teste de
+integração pulado deixa o vitest verde sem provar nada; o `tests/fatia1/harness.ts` lança
+erro quando `RUN_INTEGRATION=1` e faltam as variáveis do Supabase.

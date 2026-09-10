@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-08-login-lembra-so-o-email
 title: "O login lembra só o e-mail"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: XS
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:28:42Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T20:05:46Z
 signed_off_sig: hmac-sha256-v3:9648e21f:fd7ea1d81e649eeb881b372a5c5996f40ec81303820884cbdd066ad03431cf58
+accepted_tier: 1
+accepted_attempt_id: fd29f0ea-d635-41cb-90a7-20512246cb1d
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:fd7ea1d81e649eeb881b372a5c5996f40ec81303820884cbdd066ad03431cf58
+acceptance_record_digest: sha256:1fbce4bfdfe1e10f91e3f1451027400af239127f469e9c3c7c9bdb6f6ea9f741
 ---
 
 # O login lembra só o e-mail

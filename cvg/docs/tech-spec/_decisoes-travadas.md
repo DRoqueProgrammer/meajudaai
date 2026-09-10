@@ -72,3 +72,29 @@ mais simples que atende "deployar em Niterói com um nome e em Maceió com outro
 (D-001/D-007), não exige tabela de domínios, e um deploy novo é uma variável a
 mais. *Reverter custa:* trocar a fonte da resolução em um ponto só —
 `leg-03-cadastro` isola isso de propósito.
+
+**D-013 (minha) — A cerca de escrita fica como está; migration é trabalho autorizado por humano.**
+O `.cvg/gate.yaml` — o teto que nenhuma task pode alargar — protege
+`**/migrations/**` e `**/auth/**`, e limita a 12 arquivos por task. A raia
+fundação (`praca`) precisa exatamente desses caminhos: `leg-01` cria coluna e
+faz backfill, e a correção do ADR 0009 mexe em autenticação.
+
+Decisão: **não alarguei a cerca.** O próprio arquivo diz *"Review it for the
+consuming repository before unattended execution"* — é uma decisão de quem
+responde pelo repositório, não minha, e o efeito de errar é um agente autônomo
+escrevendo migration num banco de produção às três da manhã.
+
+Consequência prática: o loop do Pass 8 pode executar as raias `superficies`,
+`prestador` (parcial) e `dados`, mas **não** a raia `praca` nem a correção do
+0009. Essas duas precisam de você na cadeira — ou de uma decisão explícita de
+alargar a cerca.
+
+**D-014 (minha) — Não registrei o auth hook enquanto você dormia.**
+O ADR 0009 mostrou que 45 cláusulas de policy dependem de um claim que não
+existe, e a correção "certa" é registrar o `custom_access_token_hook` no painel
+do Supabase — o que eu conseguiria fazer com o token de gestão.
+
+Não fiz. Registrar um auth hook muda como **todo** JWT do projeto é emitido; se
+sair errado, ninguém entra no app, e você descobriria isso acordando com o
+produto fora do ar. O achado — que é a parte valiosa — está registrado e
+verificado. A correção espera você.

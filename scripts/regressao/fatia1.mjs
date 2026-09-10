@@ -281,13 +281,13 @@ async function entrarComoExemplo(pagina, papel) {
 /** A cliente reserva um horário do prestador pela tela do perfil dele. */
 async function reservar(pagina, slot, descricao) {
   await pagina.goto(`/prestador/${cenario.prestador}`);
-  const botao = pagina.getByRole("button", { name: `${dataBr(slot.data)} · ${slot.inicio}–${slot.fim}` });
-  await botao.click();
-  const cartao = botao.locator("xpath=..");
-  await cartao.getByPlaceholder("O que você precisa?").fill(descricao);
-  await cartao.getByPlaceholder("Rua, número, bairro").fill("Rua Moreira César, 54 — Icaraí, Niterói");
-  await cartao.getByRole("button", { name: /Usar minha localização/ }).click();
-  await cartao.getByRole("button", { name: "Reservar horário" }).click();
+  // O seletor de horário (Fatia 3, lote D) dá a cada chip o nome "dd/mm/aaaa · HH:MM–HH:MM";
+  // escolher um chip revela, abaixo dos horários, o formulário daquele horário.
+  await pagina.getByRole("button", { name: `${dataBr(slot.data)} · ${slot.inicio}–${slot.fim}` }).click();
+  await pagina.getByPlaceholder("O que você precisa?").fill(descricao);
+  await pagina.getByPlaceholder("Rua, número, bairro").fill("Rua Moreira César, 54 — Icaraí, Niterói");
+  await pagina.getByRole("button", { name: /Usar minha localização/ }).click();
+  await pagina.getByRole("button", { name: "Reservar horário" }).click();
   await pagina.getByText("Pedido enviado!").waitFor();
 }
 

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 // agenda direto, avalia dos dois lados. Nada de "diária"/"candidatura": esse
 // era o modelo da v1 (mural de vagas), substituído pela agenda do prestador.
 const COMO_FUNCIONA = [
-  ["01", "Busque por perto", "Veja prestadores da sua região, com nota de quem já contratou e preço médio do serviço."],
+  ["01", "Busque por perto", "Veja prestadores da sua região, com a nota de quem já contratou e o preço de cada um."],
   ["02", "Marque um horário", "Escolha um horário livre na agenda dele e diga o que você precisa. Sem esperar candidatura, sem mural de vagas."],
   ["03", "Combine e avalie", "O prestador confirma o agendamento. No fim do serviço, os dois se avaliam — a nota fica pra sempre no perfil."],
 ];

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-02-contato-e-endereco-entre-as-partes
 title: "Contato, chave e endereço só entre as partes de um serviço válido"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

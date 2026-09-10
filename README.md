@@ -6,8 +6,10 @@
 
 | Medida | Comando | Hoje | Meta |
 |---|---|---|---|
-| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 61,78% | 100% |
+| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 66,19% | 100% |
 | `lib/` inteiro, incluindo ações de servidor | `npm run test:coverage` | 9,84% | 100% (via teste de integração) |
+
+O que ainda falta na lógica pura são módulos que **exigem runtime de servidor ou rede**, não lógica destestada: `ibge.ts` (chama a API do IBGE), `site-url.ts` (lê cabeçalhos) e `auth/*` (cliente de servidor e cookies). Esses caem na segunda medida, por integração.
 
 As ações de servidor estão em 0% porque todo o corpo delas fala com o banco — cobri-las exige teste de integração contra banco real (`npm run test:integration`), não banco falso. O primeiro passo nessa direção são os **22 testes de regra de permissão já escritos** em `tests/rls.test.ts`, hoje desligados atrás de `RUN_INTEGRATION`. Ver R-33 a R-36 no [tech-spec](./cvg/docs/tech-spec/fechar-v2-marketplace.md).
 

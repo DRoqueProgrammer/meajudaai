@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-07-modulos-presos-a-empresa
 title: "Liberação de módulo vale só na empresa que liberou"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

@@ -16,3 +16,4 @@
 {"schema_version":1,"ts":"2026-09-10T19:24:37Z","task":"T-20260910-f1-06-administrador-ve-so-as-pracas-dele","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}
 {"acceptance_record_digest":"sha256:0a4af633f3a99daebebcfbaf9d878c1efa3eec966f11e68e87dfeed309482e0c","acceptance_tier":1,"attempt_id":"4d9d04d5-3ab6-4266-af90-27e57b77b47a","author":"operator","event":"accepted","schema_version":1,"task":"T-20260910-f1-06-administrador-ve-so-as-pracas-dele","ts":"2026-09-10T19:35:38Z"}
 {"schema_version":1,"ts":"2026-09-10T19:35:39Z","task":"T-20260910-f1-06-administrador-ve-so-as-pracas-dele","event":"status_change","from":"in-progress","to":"done","reason":"aceita Tier 1; tier 2 UPHELD (gemini)"}
+{"schema_version":1,"ts":"2026-09-10T19:35:57Z","task":"T-20260910-f1-07-modulos-presos-a-empresa","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}

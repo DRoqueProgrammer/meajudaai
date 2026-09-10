@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-04-ninguem-vira-administrador-sozinho
 title: "Ninguém se torna Administrador por conta própria"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:29:59Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T18:55:09Z
 signed_off_sig: hmac-sha256-v3:9648e21f:b4b1b1b449473d5950cac0c105a4499e2452a035cde6288230fee98663985d16
+accepted_tier: 1
+accepted_attempt_id: f6e3936a-d460-433b-855b-9aa3c67366e0
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:b4b1b1b449473d5950cac0c105a4499e2452a035cde6288230fee98663985d16
+acceptance_record_digest: sha256:6e4d9e9a9abdc3c8298e00d58b344562cb022506b143ae47348dec9a53274d99
 ---
 
 # Ninguém se torna Administrador por conta própria

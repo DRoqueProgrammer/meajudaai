@@ -10,6 +10,11 @@ import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
+// "admin" continua no tipo por causa do cadastro por convite (owner → admin,
+// ver lib/actions/auth.ts) e da querystring `?papel=` que `page.tsx` já lê —
+// mas a tela pública (`PAPEIS` abaixo) não oferece mais essa opção (R-44,
+// D-016: Administrador nasce só por ação do SysAdmin). `papelOfertado`
+// blinda o estado do formulário contra esse valor chegando por fora.
 export type Papel = "admin" | "prestador_servico" | "cliente";
 
 export interface ConviteInfo {
@@ -32,13 +37,12 @@ const PAPEIS = [
     desc: "Ofereço minha agenda e atendo clientes direto.",
     confirmacao: "Sua conta vai montar um perfil e receber pedidos de agendamento.",
   },
-  {
-    valor: "admin" as const,
-    titulo: "Tenho uma empresa",
-    desc: "Publico vagas e gerencio uma equipe.",
-    confirmacao: "Sua conta vai criar um workspace e gerenciar equipe.",
-  },
 ];
+
+/** Só aceita o papel se for uma das opções que a tela de fato oferece. */
+function papelOfertado(valor: unknown): Papel | null {
+  return valor === "cliente" || valor === "prestador_servico" ? valor : null;
+}
 
 /** Formulário de cadastro (client): escolha de papel, dados pessoais e máscaras; no modo convite o papel vem fixado. */
 export function CadastroForm({
@@ -53,7 +57,7 @@ export function CadastroForm({
   const v = estado?.valores ?? {};
   const [telefone, setTelefone] = useState(v.telefone ?? "");
   const [papel, setPapel] = useState<Papel | null>(
-    (v.tipo_base as Papel | undefined) ?? papelInicial,
+    papelOfertado(v.tipo_base) ?? papelOfertado(papelInicial),
   );
   const [endereco, setEndereco] = useState("");
   const [lat, setLat] = useState<number | null>(null);
@@ -81,7 +85,7 @@ export function CadastroForm({
         ) : (
           <fieldset className="flex flex-col gap-2">
             <legend className="label mb-1">Você está aqui para quê?</legend>
-            <div className="grid gap-2 sm:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2">
               {PAPEIS.map((p) => (
                 <label
                   key={p.valor}

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { trocarMeuPapelAction } from "@/lib/actions/auth";
+import { podeTrocarPara } from "@/lib/auth/papeis";
 import { FormError } from "@/components/ui";
 
 /**
@@ -11,6 +12,11 @@ import { FormError } from "@/components/ui";
  * O papel decide o RBAC inteiro: um ajudante que virou "profissional" sem
  * querer não tem /vagas no rodapé e não consegue procurar trabalho. Até esta
  * tela existir, só o sysadmin conseguia desfazer isso.
+ *
+ * Usa a regra única de `lib/auth/papeis.ts` (R-44, D-016) para decidir, sozinho,
+ * se aparece: quem é prestador_servico não tem mais para onde trocar (o único
+ * destino seria Administrador, e Administrador nasce só por ação do SysAdmin)
+ * — o componente não renderiza nada nesse caso.
  */
 export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "prestador_servico" }) {
   const router = useRouter();
@@ -20,6 +26,8 @@ export function TrocarPapel({ papelAtual }: { papelAtual: "admin" | "prestador_s
 
   const alvo = papelAtual === "admin" ? "prestador_servico" : "admin";
   const souProfissional = papelAtual === "admin";
+
+  if (!podeTrocarPara(papelAtual, alvo)) return null;
 
   if (!confirmando) {
     return (

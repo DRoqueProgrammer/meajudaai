@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { tryWriter } from "@/lib/auth/guard";
+import { papelPermitidoNoCadastro, podeTrocarPara } from "@/lib/auth/papeis";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CadastroSchema } from "@/lib/validation";
@@ -20,10 +21,12 @@ export interface ActionResult {
 }
 
 /**
- * Cria a conta (form sem JS). Dois caminhos: via convite, o papel vem do convite
- * e o usuário entra na empresa de quem convidou (fica pendente de aprovação);
- * fora dele, admin ganha uma empresa própria. Cria auth user + profiles +
- * profiles_pii (checando telefone/e-mail únicos) e já inicia a sessão.
+ * Cria a conta (form sem JS). Dois caminhos: via convite, o papel vem do
+ * convite e o usuário entra na empresa de quem convidou (fica pendente de
+ * aprovação); fora dele, só Cliente e Prestador de Serviço passam — a regra
+ * única de `lib/auth/papeis.ts` (R-44, D-016; Administrador nasce só por ação
+ * do SysAdmin). Cria auth user + profiles + profiles_pii (checando
+ * telefone/e-mail únicos) e já inicia a sessão.
  */
 export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   // `cidadeUf` chega como "Niterói|RJ" do <select>.
@@ -64,15 +67,19 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     // ("Invalid enum value") não diria nada a quem está cadastrando.
     const erro =
       issue?.path[0] === "tipo_base"
-        ? "Escolha uma das opções: contratar um serviço, prestar serviço ou ter uma empresa."
+        ? "Escolha uma das opções: contratar um serviço ou prestar serviço."
         : (issue?.message ?? "Dados inválidos");
     return { erro, valores: preserva };
   }
-  // "funcionario" só nasce via convite; fora dele, recusa.
-  if (!invite && parsed.data.tipo_base === "funcionario") {
-    return { erro: "Dados inválidos", valores: preserva };
-  }
   const d = parsed.data;
+  // Regra única (R-44, D-016, lib/auth/papeis.ts): sem convite, só cliente e
+  // prestador_servico passam; com convite, vale o papel que ele trouxe
+  // ("funcionario" só nasce assim). A checagem vive na action, não só na tela
+  // — esconder a opção e deixar a action aceitar era o anti-padrão que
+  // permitia qualquer pessoa virar Administrador.
+  if (!papelPermitidoNoCadastro(d.tipo_base, !!invite)) {
+    return { erro: "Escolha uma das opções: contratar um serviço ou prestar serviço.", valores: preserva };
+  }
   const telefone = soDigitos(d.telefone);
 
   // Cliente e prestador_servico precisam de endereço + PIN exato (ROADMAP.md §7) —
@@ -140,18 +147,10 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
       mensagem: `${d.nome} pediu para entrar na equipe. Aprove em Equipe.`,
       link: "/equipe",
     });
-  } else if (d.tipo_base === "admin") {
-    const { data: ws } = await admin
-      .from("workspaces")
-      .insert({ owner_id: userId, nome: `Equipe de ${d.nome}`, cidade: d.cidade, estado: d.estado })
-      .select("id")
-      .single();
-    if (ws) {
-      await admin
-        .from("workspace_members")
-        .insert({ workspace_id: ws.id, user_id: userId, role: "owner" });
-    }
   }
+  // Sem convite, `d.tipo_base` só pode ser cliente ou prestador_servico (checado
+  // acima por `papelPermitidoNoCadastro`) — nenhum dos dois cria empresa própria
+  // (R-44, D-016: só o SysAdmin vincula Administrador a uma praça).
 
   const sb = await createServerClient();
   const { error: signInErr } = await sb.auth.signInWithPassword({
@@ -289,8 +288,12 @@ export async function definirSenhaAction(
  * cadastro. Antes, só o sysadmin conseguia (lib/actions/admin-users.ts), o que
  * deixava um ajudante preso numa conta de profissional sem /vagas no rodapé.
  *
- * Só vale enquanto a conta está limpa: com vaga publicada ou candidatura
- * enviada, trocar o papel deixaria registros órfãos do outro lado do marketplace.
+ * Usa a regra única de `lib/auth/papeis.ts` (R-44, D-016): a troca nunca leva
+ * a Administrador — quem já é prestador_servico perde essa saída (só o
+ * SysAdmin vincula alguém a uma praça como Administrador); quem já é admin
+ * ainda pode voltar a ser prestador_servico. Só vale enquanto a conta está
+ * limpa: com vaga publicada ou candidatura enviada, trocar o papel deixaria
+ * registros órfãos do outro lado do marketplace.
  */
 export async function trocarMeuPapelAction(novo: "admin" | "prestador_servico"): Promise<ActionResult> {
   const w = await tryWriter();
@@ -300,6 +303,9 @@ export async function trocarMeuPapelAction(novo: "admin" | "prestador_servico"):
     return { ok: false, erro: "Só profissional e ajudante podem trocar de papel por aqui." };
   }
   if (user.role === novo) return { ok: true };
+  if (!podeTrocarPara(user.role, novo)) {
+    return { ok: false, erro: "Ninguém se torna administrador por essa troca — fale com o SysAdmin." };
+  }
 
   const db = createAdminClient();
   const [{ count: vagas }, { count: candidaturas }] = await Promise.all([
@@ -315,40 +321,6 @@ export async function trocarMeuPapelAction(novo: "admin" | "prestador_servico"):
 
   const { error } = await db.from("profiles").update({ tipo_base: novo }).eq("user_id", user.id);
   if (error) return { ok: false, erro: "Não foi possível trocar o papel." };
-
-  // Virar profissional exige empresa: sem ela, /minhas-vagas e /publicar ficam
-  // inacessíveis e o usuário cai no mesmo beco de antes.
-  if (novo === "admin") {
-    const { data: ja } = await db
-      .from("workspace_members")
-      .select("workspace_id")
-      .eq("user_id", user.id)
-      .limit(1);
-    if (!ja?.length) {
-      const { data: prof } = await db
-        .from("profiles")
-        .select("nome, cidade, estado")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      const { data: ws } = await db
-        .from("workspaces")
-        .insert({
-          owner_id: user.id,
-          nome: `Equipe de ${prof?.nome ?? "novo profissional"}`,
-          cidade: prof?.cidade ?? null,
-          estado: prof?.estado ?? null,
-        })
-        .select("id")
-        .single();
-      if (ws) {
-        await db.from("workspace_members").insert({
-          workspace_id: ws.id,
-          user_id: user.id,
-          role: "owner",
-        });
-      }
-    }
-  }
 
   // O JWT carrega app_role (hook da migration 0001) e as policies leem dele via
   // current_app_role(). Sem refresh, o token fica com o papel antigo e o banco

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-04-ninguem-vira-administrador-sozinho
 title: "Ninguém se torna Administrador por conta própria"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

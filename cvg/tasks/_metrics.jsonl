@@ -7,3 +7,4 @@
 {"schema_version":1,"ts":"2026-09-10T18:24:46Z","task":"T-20260910-f1-03-mundo-de-exemplo-isolado","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}
 {"acceptance_record_digest":"sha256:c497da53069c253be03a72bb697efe39bb0bc49ed2311cd14b9a109ceacfc9ac","acceptance_tier":1,"attempt_id":"2ce0858c-8f86-4402-be17-e0d7b89cf8f7","author":"operator","event":"accepted","schema_version":1,"task":"T-20260910-f1-03-mundo-de-exemplo-isolado","ts":"2026-09-10T18:41:29Z"}
 {"schema_version":1,"ts":"2026-09-10T18:41:31Z","task":"T-20260910-f1-03-mundo-de-exemplo-isolado","event":"status_change","from":"in-progress","to":"done","reason":"aceita Tier 1; tier 2 UPHELD (gemini); migration 0040 aplicada"}
+{"schema_version":1,"ts":"2026-09-10T18:42:53Z","task":"T-20260910-f1-04-ninguem-vira-administrador-sozinho","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}

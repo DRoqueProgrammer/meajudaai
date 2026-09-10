@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo
 title: "O serviço só nasce e só muda pelo fluxo — regra no banco"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:29:07Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T18:06:32Z
 signed_off_sig: hmac-sha256-v3:9648e21f:7147a20aab53152513f2589ba6bead6cc340ceff29bc3466f9ece85b2c9a7050
+accepted_tier: 1
+accepted_attempt_id: dde2d3f1-3742-44cd-b75a-1592e7d00188
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:7147a20aab53152513f2589ba6bead6cc340ceff29bc3466f9ece85b2c9a7050
+acceptance_record_digest: sha256:0e8204b7e6162587585a7c72fd1f561b56887817aa0c6bc319a026db82791386
 ---
 
 # O serviço só nasce e só muda pelo fluxo — regra no banco

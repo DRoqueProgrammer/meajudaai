@@ -1,0 +1,40 @@
+{
+  "acceptance_tier": 1,
+  "accepted_at": "2026-09-10T18:06:32Z",
+  "accepted_by": "operator",
+  "contract": "AcceptanceRecord/v1",
+  "gate_outcomes": {
+    "authorization": {
+      "code": "AUTHORIZATION_VALID",
+      "status": "pass"
+    },
+    "evaluation": {
+      "code": "EVAL_PASSED",
+      "status": "pass"
+    },
+    "evidence": {
+      "code": "EVIDENCE_SATISFIED",
+      "proof": [
+        "format v3 or earlier: v4 policy receipts are not required"
+      ],
+      "status": "pass"
+    },
+    "preflight": {
+      "code": "PREFLIGHT_PASSED",
+      "status": "pass",
+      "warnings": []
+    }
+  },
+  "outcome": {
+    "code": "ACCEPTED_TIER_1",
+    "status": "accepted"
+  },
+  "receipts": [],
+  "subject": {
+    "attempt_id": "dde2d3f1-3742-44cd-b75a-1592e7d00188",
+    "authorization_ref": "hmac-sha256-v3:9648e21f:7147a20aab53152513f2589ba6bead6cc340ceff29bc3466f9ece85b2c9a7050",
+    "base_commit": "d71d53d8122fbac22724bdb15122e9828b5e43df",
+    "task_id": "T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo",
+    "task_revision_digest": "sha256:945e48abe6ce5c3d6bf1d4006eed982eaf32af9900605e4cbbd3bb17df6747c8"
+  }
+}

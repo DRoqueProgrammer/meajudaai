@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -937,6 +937,7 @@ export type Database = {
         Returns: boolean
       }
       is_candidato: { Args: { v_vaga: string }; Returns: boolean }
+      is_chamada_privilegiada: { Args: never; Returns: boolean }
       is_conversa_membro: { Args: { v_conversa: string }; Returns: boolean }
       is_parte_vaga: {
         Args: { v_user: string; v_vaga: string }

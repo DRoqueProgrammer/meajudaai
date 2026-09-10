@@ -76,9 +76,16 @@ export async function criarSlotsRecorrentesAction(input: {
 }
 
 /**
- * Cliente reserva um slot livre — descreve o que precisa, o slot fica
- * "pendente" e nasce um serviço com o preço vigente do prestador naquele
- * instante (histórico não muda se o prestador reconfigurar o preço depois).
+ * Cliente reserva um slot livre — descreve o que precisa e nasce um serviço
+ * pendente com o preço vigente do prestador naquele instante (histórico não
+ * muda se o prestador reconfigurar o preço depois). Quem marca o horário
+ * (`agenda_slots`) como "pendente" é o próprio banco, por gatilho, no
+ * nascimento do serviço (migration 0038, ADR 0011) — a sessão do cliente
+ * nunca teve, e continua sem ter, permissão de update em `agenda_slots` (é só
+ * do prestador dono), então esta action não depende mais disso: as checagens
+ * abaixo (horário livre, preço configurado) são só para dar um erro claro ao
+ * usuário antes de tentar; a regra que de fato vale para qualquer sessão é a
+ * policy de INSERT de `servicos` no banco.
  */
 export async function reservarSlotAction(input: {
   slotId: string;
@@ -113,13 +120,6 @@ export async function reservarSlotAction(input: {
     return { ok: false, erro: "Esse prestador ainda não configurou o preço do serviço." };
   }
 
-  const { error: updSlot } = await sb
-    .from("agenda_slots")
-    .update({ status: "pendente" })
-    .eq("id", slot.id)
-    .eq("status", "livre");
-  if (updSlot) return { ok: false, erro: "Não foi possível reservar — tente de novo." };
-
   const { error: insServico } = await sb.from("servicos").insert({
     slot_id: slot.id,
     cliente_id: w.user.id,
@@ -131,10 +131,7 @@ export async function reservarSlotAction(input: {
     lat: input.lat,
     lng: input.lng,
   });
-  if (insServico) {
-    await sb.from("agenda_slots").update({ status: "livre" }).eq("id", slot.id);
-    return { ok: false, erro: "Não foi possível registrar o serviço." };
-  }
+  if (insServico) return { ok: false, erro: "Não foi possível registrar o serviço." };
   revalidatePath("/agenda");
   return { ok: true };
 }

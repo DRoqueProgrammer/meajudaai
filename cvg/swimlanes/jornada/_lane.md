@@ -2,6 +2,8 @@
 
 lane-meta: thread=yes · risk=high · owner=plataforma
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **E · Jornada** - o esqueleto que anda: o caminho vertical mais fino que atravessa **todas** as costuras de ponta a ponta, construido e provado **antes** de qualquer raia engordar.
 Input contract: a versao minima do que cada raia publica.
 Output contract: **`jornada-verde`** - a prova executavel de que as costuras se conectam.

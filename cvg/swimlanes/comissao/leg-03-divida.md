@@ -23,6 +23,11 @@ Transformar cada servico que passa a `realizado` numa divida do prestador com a 
 - Dado um servico que passa a realizado, quando a transicao ocorrer, entao nasce exatamente 1 divida, de valor igual ao valor final vezes a aliquota vigente.
 - Dado um servico cancelado antes de realizado, quando ele for cancelado, entao a divida gerada e 0 - nao existe estorno.
 - Dado um servico renegociado antes de realizado, quando ele virar realizado, entao a divida usa o valor final, nao o original.
+- Dada uma falha no meio da transicao, quando o sistema voltar, entao nao existe
+  servico realizado sem divida correspondente - as duas coisas acontecem juntas
+  ou nenhuma acontece (objecao H1 do Pass 4: sem atomicidade nascem "servicos
+  fantasma", executados e cobrados de ninguem, e o vazamento e silencioso porque
+  ninguem reclama de uma cobranca que nao veio).
 
 ## Independence
 

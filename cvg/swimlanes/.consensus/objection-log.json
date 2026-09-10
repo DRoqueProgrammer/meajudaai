@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "pass": "4-consensus",
+  "adversary": {
+    "engine_id": "gemini",
+    "model": "gemini-2.0-flash-thinking-preview",
+    "family": "google",
+    "engine_version": "0.59.0",
+    "sandbox_mode": "read-only"
+  },
+  "author": {
+    "model": "claude",
+    "family": "anthropic"
+  },
+  "verdict": "REVISE",
+  "prompt_sha256": "4127b3b5f6baa2648b91f93c83eee12ad70f71af136d691d6e7455f86450ff73",
+  "inputs": [
+    {
+      "path": "administracao\\_lane.md",
+      "sha256": "646b1cc53e4803f8139c2bd515e89b286f42d0e3606fbf49aa30183f489d1024"
+    },
+    {
+      "path": "administracao\\leg-01-administrador.md",
+      "sha256": "9d10a6330ab9d36fa481ef8e47ae3f7e656e63f05d6a064dc0848870973994cb"
+    },
+    {
+      "path": "administracao\\leg-02-sysadmin.md",
+      "sha256": "f1a565f5c7a23909a18e7942c310141e26a5dba2231dabaa69c9c8cc1cbc9cd7"
+    },
+    {
+      "path": "administracao\\leg-03-papeis.md",
+      "sha256": "e2c3767e79ead301d9d4e1c65a15cd702385802fd973fc42272ef0282e81f5e2"
+    },
+    {
+      "path": "administracao\\leg-04-comentario.md",
+      "sha256": "2638495427405ce1415e785dee6b632b30fec8c1225a68551d1dd0b75de9e75a"
+    },
+    {
+      "path": "comissao\\_lane.md",
+      "sha256": "25e10d9cb0093af204b4471757cc80997d9ecf826beff0d512301a19612ba599"
+    },
+    {
+      "path": "comissao\\leg-01-aliquota.md",
+      "sha256": "e1d1e8152eeef87223446374277eb1b475a0e5a2a369439ec1eb9854dba85858"
+    },
+    {
+      "path": "comissao\\leg-02-recebimento.md",
+      "sha256": "72cbe828aa2ea6f24952f548c3d89601217225b3e48f58a905820dc7ae1a57b6"
+    },
+    {
+      "path": "comissao\\leg-03-divida.md",
+      "sha256": "33c10699c0ddf2cf2a0b2cf6a0e3dc5f559db8d935695a063ddc9b204505c97e"
+    },
+    {
+      "path": "comissao\\leg-04-cobranca.md",
+      "sha256": "600b20e4e7387903c3398a36bc6c5350ed6fd431c3616e5022a898c8478e5f65"
+    },
+    {
+      "path": "comissao\\leg-05-declaracao.md",
+      "sha256": "11952d95ebf8477c97270a9e7fbd044d49f5e268be4e657e2684af43655d98c4"
+    },
+    {
+      "path": "comissao\\leg-06-inadimplencia.md",
+      "sha256": "c17e19db63e628acbc7a492cde84d7852a778859556d4296c809a4abcae5b2bd"
+    },
+    {
+      "path": "dados\\_lane.md",
+      "sha256": "c3c972fff44a9b57f32d97075c09dd6e4ae8479843f307a52f62005ce7f808b7"
+    },
+    {
+      "path": "dados\\leg-01-seed.md",
+      "sha256": "2d60e9d5c290a1534abca8e95879ffb76c0f1b501092c3e6268fe284e6bea511"
+    },
+    {
+      "path": "dados\\leg-02-cobertura.md",
+      "sha256": "cd0ffc14256e7d649003b98253ecd3c5a7ed22f35d777a8203ef4647c1e9bcdd"
+    },
+    {
+      "path": "jornada\\_lane.md",
+      "sha256": "b5932386faa5f8ebf6e39028e81a96c20a2968e50fe12610fc4288396722c6c0"
+    },
+    {
+      "path": "jornada\\leg-01-qr.md",
+      "sha256": "8234ad9a12c8d17a629c8bbf09b7ede7d4817162f3f724e95aa6d47cfab94783"
+    },
+    {
+      "path": "jornada\\leg-02-esqueleto.md",
+      "sha256": "e6c54ba441fe2cdb5f8cbb102dc5db1c7c74f930b32f4e8283810fa9407a733a"
+    },
+    {
+      "path": "jornada\\leg-03-isolamento.md",
+      "sha256": "bbeefbced6845508f54afe201743b9dfc27485cd6bdbb35defcb25937eea820d"
+    },
+    {
+      "path": "jornada\\leg-04-regressao.md",
+      "sha256": "93f3f04aebe5b7a0c8e94d42e639dc2d3eaebada92c5dcf7d43cf09bb465b6a7"
+    },
+    {
+      "path": "praca\\_lane.md",
+      "sha256": "36033041db789829aba03e86742ccdeb8c662f6e2db789e0bc08c3d40625fac9"
+    },
+    {
+      "path": "praca\\leg-01-coluna.md",
+      "sha256": "b211e3954d1968623f168a0477f1b24cf6af2dadc11a4f42fb30269ad67aaa0d"
+    },
+    {
+      "path": "praca\\leg-02-escopo.md",
+      "sha256": "4fb0d164596cb501df36a814a08572c330f6dd1db45485ecaa7596934b005ec8"
+    },
+    {
+      "path": "praca\\leg-03-cadastro.md",
+      "sha256": "eae25716804c56f012a5b1ad0d3196b302aa65076ebb0c175c836795dc8bfea9"
+    },
+    {
+      "path": "praca\\leg-04-identidade.md",
+      "sha256": "4ac1e306a90d6c0abaf14e81f519d2d6a27b73a31143264e6bcf391c0f9d99f1"
+    },
+    {
+      "path": "prestador\\_lane.md",
+      "sha256": "422f70543efd6972c7a8a3a69c2b79e56cb296391bb031ad532e412858ee36c9"
+    },
+    {
+      "path": "prestador\\leg-01-aprovacao.md",
+      "sha256": "02f81498a5ff48cc2cd6a836215c9a08287184ac86d70cdd295707266274dc1a"
+    },
+    {
+      "path": "prestador\\leg-02-habilitacao.md",
+      "sha256": "7d63d128e605802a26e2be3b1b7c883a659ed7e4f2f69b9d9a4d22d62f9d78ec"
+    },
+    {
+      "path": "prestador\\leg-03-galeria.md",
+      "sha256": "97912575f7b808772e400abddf2ee219095239609863029c1574e3987da086b8"
+    },
+    {
+      "path": "prestador\\leg-04-financeiro.md",
+      "sha256": "dd5440278e5be73da185266feb70ee6a8add0d5c64300af9e165a9ef8daa8f83"
+    },
+    {
+      "path": "prestador\\leg-05-recibo.md",
+      "sha256": "3768ab007e4edc34c8e7abb557bfbae0708906a22699eeeda812c6876e4fabcd"
+    }
+  ],
+  "objections": [
+    {
+      "id": "C1",
+      "severity": "CRITICAL",
+      "rank": 1,
+      "attack_class": "IDENTITY_COLLISION",
+      "swimlane": "praca",
+      "leg": "leg-03-cadastro",
+      "location": "praca/leg-03-cadastro.md -> Responsibility",
+      "evidence": "Supabase Auth enforces unique emails per project. The plan to partition people by 'praca' (D-010/D-011) in a shared database prevents a single user from being a client in city A and a provider in city B with the same email. This breaks the 'SysAdmin' supra-praca view and fundamental user mobility across city deployments.",
+      "cites": [
+        "praca/_lane.md -> Q1/Q2",
+        "praca/leg-03-cadastro.md"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:06:59Z",
+        "note": "Objecao procede. A base e compartilhada por decisao (D-011 poe o SysAdmin acima de todas as pracas), entao identidade unica por praca e consequencia real. Declarada como Non-Goal e restricao explicita em praca/_lane.md, com criterio de recusa em leg-03. Aberto ao dono confirmar."
+      }
+    },
+    {
+      "id": "C2",
+      "severity": "CRITICAL",
+      "rank": 2,
+      "attack_class": "SECURITY_ISOLATION",
+      "swimlane": "praca",
+      "leg": "leg-02-escopo",
+      "location": "praca/leg-02-escopo.md -> Responsibility",
+      "evidence": "Isolation is described as 'decidida no servidor'. In a Next.js/Supabase stack, if isolation is not enforced via Postgres RLS (Row Level Security), any client-side SDK call using the public key can bypass application-level filters (Middleware/Actions), allowing unauthorized access to other cities' data. 'Server-decided' is a dangerous ambiguity that must be grounded in RLS.",
+      "cites": [
+        "praca/leg-02-escopo.md",
+        "ADR 0002"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:07:10Z",
+        "note": "Melhor objecao do conjunto. 'Decidido no servidor' era ambiguo e perigoso: o navegador fala direto com o banco com chave publica, entao filtro em camada de aplicacao e contornavel. leg-02 reescrito para exigir a fronteira na politica da propria tabela, com criterio de aceite que testa chamada por fora da aplicacao."
+      }
+    },
+    {
+      "id": "H1",
+      "severity": "HIGH",
+      "rank": 3,
+      "attack_class": "ATOMIC_TRANSFORM",
+      "swimlane": "comissao",
+      "leg": "leg-03-divida",
+      "location": "comissao/leg-03-divida.md -> Responsibility",
+      "evidence": "The transformation from 'realizado' to 'divida' is planned as a reactive transition. Without a database-level transaction or trigger, a system failure between the service status update and debt insertion will create 'phantom services'\u2014tasks provided and completed but never recorded as debt\u2014leading to silent financial leakage.",
+      "cites": [
+        "comissao/leg-03-divida.md",
+        "ADR 0005"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:07:11Z",
+        "note": "Procede. Sem atomicidade entre a transicao para realizado e a criacao da divida nascem servicos fantasma, e o vazamento e silencioso porque ninguem reclama de cobranca que nao veio. Criterio de aceite de atomicidade adicionado a leg-03."
+      }
+    },
+    {
+      "id": "H2",
+      "severity": "HIGH",
+      "rank": 4,
+      "attack_class": "BUILD_ORDER",
+      "swimlane": "dados",
+      "leg": "leg-01-seed",
+      "location": "dados/_lane.md -> Seam",
+      "evidence": "The seed is positioned as 'the last of all' because it consumes the final schema. This creates a circular dependency for the 'Jornada' (Steel Thread) in leg-02, which requires a seeded environment to prove the connection. Build-time testing will be blocked or forced to use manual data until the end of the program.",
+      "cites": [
+        "dados/_lane.md",
+        "jornada/leg-02-esqueleto.md"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:07:11Z",
+        "note": "Procede como leitura do plano. A confusao era minha: semente de demonstracao e semente de teste sao coisas diferentes. jornada/leg-02 agora declara que cria as proprias fixtures minimas e as descarta; dados/_lane declara que nao e pre-requisito de teste nenhum. Sem isso havia dependencia circular real."
+      }
+    },
+    {
+      "id": "M1",
+      "severity": "MEDIUM",
+      "rank": 5,
+      "attack_class": "INFRA_DEPENDENCY",
+      "swimlane": "comissao",
+      "leg": "leg-06-inadimplencia",
+      "location": "comissao/leg-06-inadimplencia.md -> Appetite",
+      "evidence": "The 3-day suspension escalation relies on a 'periodic trigger'. The current serverless-heavy stack (Next.js/Supabase) does not provide a native persistent scheduler without external configuration (pg_cron or Vercel Cron). Lack of infra-level commitment for this trigger risks inconsistent enforcement of R-18/R-19.",
+      "cites": [
+        "comissao/leg-06-inadimplencia.md",
+        "R-18",
+        "R-19"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:07:22Z",
+        "note": "Premissa meio-falsa, verificada contra o codigo: o produto JA roda tarefa diaria agendada e protegida por segredo (vercel.json + CRON_SECRET, em uso para lembretes de avaliacao). Nao falta infraestrutura; leg-06 pendura mais um passo no gatilho existente. Plano corrigido para dizer isso em vez de supor um gatilho novo."
+      }
+    },
+    {
+      "id": "M2",
+      "severity": "MEDIUM",
+      "rank": 6,
+      "attack_class": "SOURCE_CONTRACT",
+      "swimlane": "jornada",
+      "leg": "leg-01-qr",
+      "location": "jornada/leg-01-qr.md -> Proves",
+      "evidence": "Validation with only '2 independent attempts' is a statistically insignificant proof for PIX/EMV payload density. Banking app OCRs (Nubank, Ita\u00fa, BB) have varying sensitivities. A 'green' in this leg risks a production failure for a significant segment of real users whose apps cannot parse the dense code.",
+      "cites": [
+        "jornada/leg-01-qr.md",
+        "R-15"
+      ],
+      "resolution": {
+        "disposition": "FIX",
+        "decided_by": "Claude Opus 5",
+        "decided_at": "2026-09-10T01:07:22Z",
+        "note": "Procede. Duas leituras no mesmo aplicativo provam o aplicativo, nao o codigo. leg-01 subiu a barra para 3 aplicativos de bancos diferentes; R-15 continua sendo o piso do spec."
+      }
+    }
+  ],
+  "cross_lane_interfaces": [],
+  "fork": {},
+  "open_questions": [],
+  "rounds_run": 1
+}

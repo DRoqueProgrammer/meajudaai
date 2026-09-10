@@ -2,6 +2,8 @@
 
 lane-meta: thread=no · risk=med · owner=plataforma
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **F · Dados** - a base de demonstracao e a prova de qualidade: sem dado plausivel nenhuma tela nova convence, e sem medicao a meta de cobertura e so uma intencao.
 Input contract: o schema final de todas as raias.
 Output contract: nenhum - raia terminal.
@@ -42,6 +44,11 @@ Step-by-step:
 - **Nao** trava o gate de cobertura em 100% agora - a meta e registrada, a trava
   entra quando o numero estiver perto (ver R-33/R-34).
 - **Nao** refaz a faxina de linguagem da v1: isso e `swimlane-jornada-leg-04`.
+- **Nao** e pre-requisito de nenhum teste. O steel thread cria as proprias
+  fixtures minimas e as descarta (ver `swimlane-jornada-leg-02`). Semente de
+  demonstracao serve para a tela parecer viva; semente de teste serve para a
+  jornada ser provavel. Sem essa separacao haveria dependencia circular -
+  objecao H2 do Pass 4.
 
 ## Legs — index (full detail in each file)
 

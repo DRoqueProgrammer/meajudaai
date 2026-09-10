@@ -2,6 +2,8 @@
 
 lane-meta: thread=no · risk=med · owner=produto
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **D · Administracao** - as superficies de quem opera: o Administrador da praca e o SysAdmin da plataforma, que hoje caem os dois numa home generica que nao serve para nenhum.
 Input contract: `praca-corrente` (raia praca) + `conta-do-prestador` (raia comissao).
 Output contract: nenhum - esta raia e terminal. Ela **consome** contratos e nao publica nenhum.

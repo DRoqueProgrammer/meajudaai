@@ -26,6 +26,10 @@ sejam consequencia de onde a pessoa entrou, nao de um campo que ela preenche.
   de campos que pedem praca e 0.
 - Dadas duas instalacoes distintas, quando um cadastro se completar em cada uma,
   entao as duas pessoas nascem em pracas distintas.
+- Dado um e-mail que ja existe em outra praca, quando alguem tentar se cadastrar
+  com ele, entao o cadastro e recusado com explicacao - e nao cria uma segunda
+  conta silenciosamente (objecao C1 do Pass 4: a base e compartilhada, entao a
+  identidade e unica na plataforma inteira).
 
 ## Independence
 

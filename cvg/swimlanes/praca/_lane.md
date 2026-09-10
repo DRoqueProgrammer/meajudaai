@@ -2,6 +2,8 @@
 
 lane-meta: thread=no · risk=high · owner=plataforma
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **A · Praca** - transforma a instalacao em unidade de isolamento: toda pessoa e todo registro do fluxo v2 passam a pertencer a uma praca, e nenhuma leitura atravessa a fronteira.
 Input contract: nenhum - esta raia e a base, nao consome nenhuma outra.
 Output contract: **`praca-corrente`** - a praca da pessoa autenticada, e a garantia de que toda leitura ja vem escopada por ela no servidor.
@@ -52,6 +54,31 @@ Step-by-step:
 - **Nao** cria papeis novos nem mexe em autorizacao por modulo: `guardModule()`
   ja resolve modulo, e praca e outra dimensao.
 - **Nao** implementa transbordo entre pracas vizinhas - W-3 excluiu isso.
+- **Nao** permite que a mesma pessoa exista em duas pracas.
+
+### C1 - identidade e unica na plataforma inteira (objecao CRITICAL do Pass 4)
+
+O adversario apontou que a decisao de isolar por praca **dentro de uma base
+compartilhada** colide com a identidade: se o cadastro e unico por e-mail na
+plataforma, uma pessoa nao pode ser cliente em Niteroi e prestador em Maceio.
+
+A objecao procede, e a base **e** compartilhada por decisao: D-011 poe o SysAdmin
+acima de todas as pracas, e ninguem enxerga varias pracas de uma vez se cada uma
+tiver banco proprio. Logo, a consequencia e real e fica **declarada, nao
+descoberta depois**:
+
+> **Uma identidade pertence a exatamente uma praca.** Quem se cadastrar na
+> instalacao de outra praca com o mesmo e-mail nao cria uma segunda conta - o
+> sistema recusa e explica.
+
+Isso e aceitavel para o produto de hoje (praca = cidade, e uma pessoa trabalha
+onde mora) e **inaceitavel** no dia em que alguem se mudar de cidade. A saida
+naquele dia e transferir a pessoa de praca, nao duplica-la - e transferencia nao
+esta neste ciclo.
+
+**Aberto para o dono:** confirmar que uma pessoa por praca serve por enquanto.
+Se nao servir, a alternativa e identidade global com vinculo por praca, e isso
+muda `leg-01` e `leg-03`.
 
 ## Legs — index (full detail in each file)
 

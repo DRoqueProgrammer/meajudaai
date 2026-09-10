@@ -28,6 +28,14 @@ Ligar a jornada de ponta a ponta uma unica vez, com o minimo de cada raia - de m
 
 Depende do minimo de praca e comissao, e do limite ja documentado por `leg-01`. Nao depende de nenhuma tela nova de administracao: a confirmacao pode ser feita pela superficie minima.
 
+**Precisao exigida pela objecao H2 do Pass 4:** este leg **nao** depende do
+semeador de demonstracao (`swimlane-dados-leg-01`), que e o ultimo do programa.
+Ele cria os proprios dados minimos - uma praca, um prestador, um cliente, um
+servico - e os descarta no fim. Semente de demonstracao e semente de teste sao
+coisas diferentes: a primeira existe para a tela parecer viva, a segunda para a
+jornada ser provavel. Confundir as duas criaria a dependencia circular que o
+adversario apontou, e travaria a prova ate o ultimo dia.
+
 ## Consumes / produces
 
 - Consumes: praca (`leg-01`), aliquota e divida (`comissao leg-01`/`leg-03`), o limite de `leg-01`.

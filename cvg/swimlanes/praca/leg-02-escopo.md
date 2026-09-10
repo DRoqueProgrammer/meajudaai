@@ -17,8 +17,15 @@ type: leg
 ## Responsibility
 
 Trocar a leitura irrestrita de pessoas por leitura escopada pela praca de quem
-consulta, decidida no servidor - de modo que esconder o dado na interface deixe
-de ser a unica barreira.
+consulta, imposta **pela politica da propria tabela** - de modo que esconder o
+dado na interface deixe de ser a unica barreira.
+
+**Precisao exigida pela objecao C2 do Pass 4:** "decidido no servidor" era ambiguo
+e perigoso. Neste produto o navegador fala **direto** com o banco usando uma
+chave publica; qualquer filtro que viva na camada de aplicacao - middleware,
+acao de servidor, consulta montada no codigo - e contornavel por quem chamar o
+banco por fora. A fronteira precisa estar na politica da tabela, que e o unico
+ponto que o cliente do navegador nao consegue pular.
 
 ## Proves (acceptance criteria — Given/When/Then; 1-3; NO evals)
 
@@ -28,6 +35,9 @@ de ser a unica barreira.
 - Dada uma requisicao forjada pedindo o identificador de um registro da praca B,
   quando ela chegar ao servidor, entao e recusada em 100% das tentativas - nao
   apenas omitida do menu.
+- Dada uma chamada feita **por fora da aplicacao**, direto ao banco com a chave
+  publica do navegador, quando pedir dado de outra praca, entao recebe 0
+  registros - a prova de que a fronteira nao mora na camada de aplicacao.
 - Dadas as superficies que hoje leem perfil de terceiro, quando o escopo entrar,
   entao nenhuma delas passa a devolver vazio para o caso legitimo da mesma praca.
 

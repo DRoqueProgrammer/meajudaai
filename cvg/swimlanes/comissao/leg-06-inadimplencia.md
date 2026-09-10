@@ -35,7 +35,11 @@ Depende so de `leg-03` (a divida). Prova-se manipulando a idade da divida, sem c
 
 ## Appetite
 
-medium - a escala no tempo exige um gatilho periodico.
+medium - a escala no tempo exige um gatilho periodico, **que ja existe no
+terreno**: o produto ja roda uma tarefa diaria agendada, protegida por segredo,
+usada hoje para lembretes de avaliacao. A objecao M1 do Pass 4 supos que faltava
+essa infraestrutura; a verificacao mostrou que ela esta configurada e em uso.
+Este leg pendura mais um passo nesse gatilho, nao cria um novo.
 
 ## Yields at Pass 5B (named units, not specified here)
 

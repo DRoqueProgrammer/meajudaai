@@ -2,6 +2,8 @@
 
 lane-meta: thread=no · risk=high · owner=plataforma
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **C · Comissao** - a raia que faz a plataforma receber: define quanto cada servico deve, gera a divida no instante certo, cobra, registra o pagamento declarado e escala a inadimplencia.
 Input contract: `praca-corrente` (a praca e sua aliquota geral) + o servico que virou `realizado`.
 Output contract: **`conta-do-prestador`** - o saldo devedor de um prestador e o estado da conta dele: em dia, pendente ou suspensa.

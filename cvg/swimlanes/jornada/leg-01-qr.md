@@ -20,7 +20,13 @@ Resolver, antes de construir qualquer parte da cobranca, se um codigo de cobranc
 
 ## Proves (acceptance criteria — Given/When/Then; 1-3; NO evals)
 
-- Dado um codigo gerado com os 4 dados no centro, quando for lido por aplicativo de banco real, entao a leitura tem sucesso em pelo menos 2 tentativas independentes.
+- Dado um codigo gerado com os 4 dados no centro, quando for lido por aplicativo
+  de banco real, entao a leitura tem sucesso em **3 aplicativos de bancos
+  diferentes** - nao 2 tentativas no mesmo. A objecao M2 do Pass 4 esta certa: a
+  sensibilidade do leitor varia por banco, e duas leituras no mesmo aplicativo
+  provam o aplicativo, nao o codigo. R-15 pede 2 tentativas independentes como
+  piso; este plano sobe a barra porque o custo de errar aqui e uma cobranca que
+  nao entra.
 - Dado que a leitura falhe, quando o conteudo central for reduzido ou o codigo ampliado, entao existe uma combinacao documentada em que a leitura volta a funcionar.
 - Dada a combinacao encontrada, quando ela for registrada, entao a raia comissao pode construir `leg-04` sem redescobrir o limite.
 

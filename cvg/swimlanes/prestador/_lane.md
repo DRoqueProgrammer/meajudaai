@@ -2,6 +2,8 @@
 
 lane-meta: thread=no · risk=med · owner=produto
 
+FORK: B (task-driven) - o backlog inteiro desce para Task-Specs assinados no Pass 5; nao ha caminho plan-driven neste programa.
+
 Component **B · Prestador** - tudo que e do prestador: o ciclo de vida do cadastro dele, o predicado que decide se ele aparece numa busca, e as superficies onde ele ve o proprio dinheiro.
 Input contract: `praca-corrente` (raia praca) + `conta-do-prestador` (raia comissao).
 Output contract: **`habilitado`** - o predicado unico que a busca do cliente consome para decidir se um prestador aparece.

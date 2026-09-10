@@ -1,0 +1,797 @@
+api_version: taskspec.dev/v1
+kind: TaskPlan
+approved: true
+metadata:
+  name: fatia-1-seguranca
+  title: "Fatia 1 · Fechar os riscos de segurança da vistoria"
+  source: cvg/docs/tech-spec/fatia-1-seguranca.md
+  approved_by: "Leonardo Chalhoub — quebra aprovada em 10/09/2026 (aprovo, faça o que precisar para ficar bom)"
+  created: "2026-09-10"
+  notes: "Quebra aprovada pelo dono (11 tarefas) + tarefa 12 (D-025). Evals = gabaritos de tests/fatia1/, escritos antes da execução (D-026), intocáveis pelo executor e trancados no commit f251e2c. Execução: handoff, agente Sonnet, tier 2, taskspec accept (D-027). Migrations em fila: 0038, 0039, 0040, 0041. O TaskPlan não aceita parênteses em caminho; os arquivos em grupo de rota do Next (app/(app)/..., app/(auth)/...) são acrescentados ao frontmatter da spec gerada, antes do carimbo, e listados no Context de cada tarefa."
+units:
+  - id: T-20260910-f1-00-fatia-1-seguranca
+    title: "Fatia 1 · Fechar os riscos de segurança da vistoria"
+    effort: XL
+    profile: standard
+    agent: any
+    execution_backend: none
+    priority: P0
+    severity: security
+    depends_on: []
+    children: [T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo, T-20260910-f1-02-contato-e-endereco-entre-as-partes, T-20260910-f1-03-mundo-de-exemplo-isolado, T-20260910-f1-04-ninguem-vira-administrador-sozinho, T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador, T-20260910-f1-06-administrador-ve-so-as-pracas-dele, T-20260910-f1-07-modulos-presos-a-empresa, T-20260910-f1-08-login-lembra-so-o-email, T-20260910-f1-09-convite-nao-revela-conta, T-20260910-f1-10-portas-automaticas-contra-abuso, T-20260910-f1-11-regressao-no-navegador, T-20260910-f1-12-prestador-marca-realizado]
+    touches_paths: []
+    creates_paths: []
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "A vistoria de 10/09 confirmou riscos de segurança no código e o dono pediu todas as recomendações; esta fatia fecha os riscos antes de qualquer pessoa real."
+    goal: "Os requisitos R-37 a R-54 da Fatia 1 valem, provados pelos gabaritos de tests/fatia1/ e pela regressão no navegador."
+    done_condition: "Todos os filhos aceitos (taskspec accept) e os gabaritos verdes pela suíte de integração."
+    behaviors:
+      - id: B-1
+        given: "os 12 filhos entregues e aceitos"
+        when: "os gabaritos da Fatia 1 rodam pela suíte de integração contra o banco do protótipo"
+        then: "todos passam"
+    evals:
+      - id: eval_1
+        description: "Todos os gabaritos da Fatia 1 passam pela suíte de integração"
+        command: npx vitest run --config vitest.integration.config.ts tests/fatia1
+        verifies: [B-1]
+        expected_duration_sec: 300
+
+  - id: T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo
+    title: "O serviço só nasce e só muda pelo fluxo — regra no banco"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P0
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: []
+    touches_paths: [lib/actions/agenda-v2.ts, lib/supabase/database.types.ts]
+    creates_paths: [supabase/migrations/0038_servico_nasce_e_muda_pelo_fluxo.sql]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0010 — o banco confere quem escreve em servicos, não a regra do agendamento; um cliente fora da aplicação cria serviço já realizado, reserva horário ocupado, inventa preço e confirma o próprio pedido (confirmado ao vivo pelo gabarito). ADR 0011 — a reserva do cliente não consegue marcar o horário."
+    goal: "As regras de nascimento e de mudança de estado do serviço (R-37, R-38, R-39) passam a valer no banco para qualquer sessão autenticada, e o próprio banco marca o horário como pendente quando o serviço nasce."
+    done_condition: "tests/fatia1/servicos.test.ts verde contra o banco do protótipo, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia antes: cvg/docs/tech-spec/fatia-1-seguranca.md (R-37 a R-39), cvg/docs/adrs/0010, 0011 e 0017, e o cabeçalho de tests/fatia1/servicos.test.ts — ele é o contrato.\n- Nascimento: só o cliente dono insere; estado inicial pendente; horário livre e do prestador indicado; preco_tipo e preco_valor iguais aos do perfil do prestador.\n- Transições: pendente para confirmado só pelo prestador; confirmado para realizado só pelo prestador; pendente ou confirmado para cancelado por qualquer das partes, com motivo não vazio depois de trim; realizado e cancelado são finais.\n- O banco marca agenda_slots como pendente quando o serviço nasce. A sessão do cliente não tem, e não deve ganhar, permissão de atualizar agenda_slots.\n- A chave de serviço (service_role, usada por scripts de seed e código de servidor) não é barrada.\n- A renegociação continua: o prestador grava preco_pendente e o cliente copia para preco_valor ao aceitar.\nAjuste reservarSlotAction (lib/actions/agenda-v2.ts) para não depender do update do horário pela sessão do cliente.\n\nMigration: arquivo novo supabase/migrations/0038_servico_nasce_e_muda_pelo_fluxo.sql, na sequência da 0037. Nunca edite migration de outra tarefa — corrija com uma nova. Base única do protótipo, sem staging. Comandos (nunca imprima o token):\n  export SUPABASE_ACCESS_TOKEN=$(grep '^SUPABASE_TOKEN=' .env.local | cut -d= -f2-)\n  npx supabase db push --linked --yes\n  (para reaplicar a SUA 0038 enquanto itera: escreva-a idempotente, com drop if exists e create or replace, e rode)\n  npx supabase migration repair --status reverted 0038 --linked\n  npx supabase db push --linked --yes\n  npx supabase gen types typescript --linked > lib/supabase/database.types.ts\nToda tabela, coluna e função nova ganha COMMENT ON (convenção do CLAUDE.md). Função SECURITY DEFINER fixa search_path.\nOs gabaritos de integração leem as credenciais do .env.local sozinhos (tests/setup.ts)."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Regra só em lib/actions — o gabarito ataca fora da aplicação."
+      - "Barrar a service_role — quebra os scripts de seed."
+      - "Travar preco_valor para o cliente — quebra a renegociação (fica para a Fatia 5)."
+      - "Mexer na unicidade de slot_id ou fazer o cancelamento liberar o horário — é da Fatia 4 (ADR 0017)."
+      - "Reaplicar a migration editada sem migration repair."
+      - "Dar à sessão do cliente permissão de atualizar agenda_slots."
+    rollback: "Uma migration nova que remove os gatilhos e funções da 0038 e restaura as políticas de servicos da 0024."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "um cliente autenticado falando direto com o banco"
+        when: "tenta criar serviço já realizado ou confirmado, em horário ocupado, com prestador que não é o dono do horário, ou com valor ou tipo de preço diferentes do perfil"
+        then: "o banco recusa, nenhum serviço nasce e o contador público do prestador não se move"
+      - id: B-2
+        given: "um horário livre de um prestador"
+        when: "o cliente insere o próprio serviço com os dados do perfil do prestador"
+        then: "o serviço nasce pendente e o horário passa a pendente"
+      - id: B-3
+        given: "um serviço pendente, confirmado, realizado ou cancelado"
+        when: "o cliente tenta confirmar ou realizar, alguém cancela sem motivo, ou alguém muda um realizado ou cancelado"
+        then: "o estado não muda — e o prestador confirma, marca realizado (contador +1) e a renegociação segue funcionando"
+      - id: B-4
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 1 contra o banco do protótipo"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/servicos.test.ts
+        verifies: [B-1, B-2, B-3]
+        expected_duration_sec: 120
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-4]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-4]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-02-contato-e-endereco-entre-as-partes
+    title: "Contato, chave e endereço só entre as partes de um serviço válido"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P0
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo]
+    touches_paths: [lib/actions/auth.ts, lib/supabase/database.types.ts]
+    creates_paths: [supabase/migrations/0039_contato_e_endereco_entre_as_partes.sql]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0010 — tem_servico_com libera contato e ponto exato em qualquer status, inclusive cancelado. ADR 0015 — o endereço escrito mora em profiles, tabela que qualquer autenticado lê."
+    goal: "Contato, chave de recebimento e ponto exato abrem só com serviço pendente, confirmado ou realizado (R-40, D-017); o endereço escrito sai de profiles e passa a morar em profile_local.endereco, sob a mesma regra (R-41), e o cadastro grava lá."
+    done_condition: "tests/fatia1/contato.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-40, R-41), ADRs 0010 e 0015, e o cabeçalho de tests/fatia1/contato.test.ts (o contrato). profiles.endereco tem 0 linhas preenchidas (ADR 0015) e ninguém a lê — só o cadastro (cadastrarAction em lib/actions/auth.ts) grava. O endereço de um SERVIÇO (servicos.endereco) é outra coisa e não muda.\n\nMigration: arquivo novo supabase/migrations/0039_contato_e_endereco_entre_as_partes.sql. Mesmos comandos da tarefa 1 (nunca imprima o token):\n  export SUPABASE_ACCESS_TOKEN=$(grep '^SUPABASE_TOKEN=' .env.local | cut -d= -f2-)\n  npx supabase db push --linked --yes\n  (para reaplicar a SUA 0039: migration repair --status reverted 0039 --linked, depois db push)\n  npx supabase gen types typescript --linked > lib/supabase/database.types.ts\nNunca edite migration de outra tarefa. COMMENT ON na coluna nova e na função alterada."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Esconder o endereço só na tela — a leitura direta pelo banco continuaria."
+      - "Mexer em servicos.endereco (endereço do serviço, não da pessoa)."
+      - "Mudar a leitura global de profiles como um todo — é da Fatia 5 (W-4)."
+    rollback: "Migration nova que devolve profiles.endereco e restaura tem_servico_com da 0027."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "um cliente e um prestador com um único serviço entre eles"
+        when: "o serviço está pendente, confirmado ou realizado — e depois cancelado"
+        then: "cada um lê o contato e o ponto exato do outro nos três primeiros estados, e ninguém lê nada com o serviço cancelado"
+      - id: B-2
+        given: "o endereço escrito de uma pessoa"
+        when: "um estranho, a outra parte de um serviço válido e a própria pessoa tentam lê-lo"
+        then: "ele não existe mais em profiles, mora em profile_local.endereco, o estranho lê 0 e as outras duas leem"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 2 contra o banco do protótipo"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/contato.test.ts
+        verifies: [B-1, B-2]
+        expected_duration_sec: 120
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-3]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-3]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-03-mundo-de-exemplo-isolado
+    title: "Contas de exemplo presas ao mundo de exemplo"
+    effort: L
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P0
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-02-contato-e-endereco-entre-as-partes]
+    touches_paths: [lib/auth/contas-exemplo.ts, lib/auth/roles.ts, lib/actions/admin-users.ts, lib/supabase/database.types.ts]
+    creates_paths: [supabase/migrations/0040_marca_do_mundo_de_exemplo.sql, lib/auth/exemplo.ts, lib/admin/consultas.ts]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0012 — as contas de exemplo são contas reais sem marca própria, e a conta de exemplo SysAdmin, de um clique na landing, lê e altera os dados de todo mundo. O dono manteve as cinco contas (D-015); o risco fecha por isolamento."
+    goal: "Uma conta de exemplo, de qualquer papel, só enxerga e altera o mundo de exemplo (R-42), e a senha das contas de exemplo só existe no servidor (R-43)."
+    done_condition: "tests/fatia1/exemplo.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-42, R-43), ADR 0012, D-015, e o cabeçalho de tests/fatia1/exemplo.test.ts (o contrato).\n- profiles.exemplo (booleano, padrão falso); a migration marca exatamente as cinco contas de lib/auth/contas-exemplo.ts, casadas pelo e-mail.\n- lib/auth/exemplo.ts exporta podeAgirSobre(ator, alvo): conta de exemplo não age sobre quem não é de exemplo. O usuário corrente (lib/auth/roles.ts) passa a carregar se é de exemplo.\n- lib/admin/consultas.ts exporta listarAcessos(db, ator), listarServicosDaPlataforma(db, ator) e listarUsuarios(db, ator): com ator de exemplo, só o mundo de exemplo. As páginas /admin/logs (as duas abas), /admin/servicos e /admin/usuarios passam a usar essas funções.\n- definirPapelAction consulta podeAgirSobre sobre o alvo; criarAdminAction recusa ator de exemplo (criaria uma conta real).\n- lib/auth/contas-exemplo.ts ganha import server-only (o vitest já tem stub para ele).\nOs cinco botões da landing continuam entrando (a regressão da tarefa 11 confere); a rota app/api/exemplo fica como está.\n\nArquivos em grupo de rota do Next, declarados no frontmatter desta spec (o TaskPlan não aceita parênteses): app/(app)/admin/logs/page.tsx, app/(app)/admin/servicos/page.tsx, app/(app)/admin/usuarios/page.tsx.\n\nMigration: arquivo novo supabase/migrations/0040_marca_do_mundo_de_exemplo.sql. Mesmos comandos da tarefa 1 (nunca imprima o token):\n  export SUPABASE_ACCESS_TOKEN=$(grep '^SUPABASE_TOKEN=' .env.local | cut -d= -f2-)\n  npx supabase db push --linked --yes\n  (para reaplicar a SUA 0040: migration repair --status reverted 0040 --linked, depois db push)\n  npx supabase gen types typescript --linked > lib/supabase/database.types.ts\nNunca edite migration de outra tarefa. COMMENT ON na coluna nova."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, app/api/exemplo, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Remover as contas de exemplo ou os botões da landing — o dono decidiu mantê-los (D-015)."
+      - "Reconhecer conta de exemplo pelo domínio do e-mail em tempo de consulta, espalhado pelo código — a marca mora no banco e a regra num lugar só."
+      - "Filtrar só na tela sem que a função de consulta imponha o escopo."
+    rollback: "Migration nova que remove profiles.exemplo; as páginas voltam a ler sem escopo."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "a base do protótipo"
+        when: "se consulta quem carrega a marca de exemplo, e se cria uma pessoa nova"
+        then: "exatamente as cinco contas de exemplo carregam a marca, e a pessoa nova nasce sem ela"
+      - id: B-2
+        given: "uma pessoa que não é de exemplo, com acesso registrado e serviço"
+        when: "as consultas administrativas rodam com um ator de exemplo e com um ator real"
+        then: "o ator de exemplo não a vê em acessos, serviços nem usuários; o ator real vê"
+      - id: B-3
+        given: "a regra única de escrita administrativa"
+        when: "um ator de exemplo tenta agir sobre quem não é de exemplo"
+        then: "podeAgirSobre recusa, a action de mudar papel a consulta, e a senha das contas de exemplo fica só no servidor"
+      - id: B-4
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 3 (regra pura, uso nas telas e contra o banco)"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/exemplo.test.ts
+        verifies: [B-1, B-2, B-3]
+        expected_duration_sec: 120
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-4]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-4]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-04-ninguem-vira-administrador-sozinho
+    title: "Ninguém se torna Administrador por conta própria"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P0
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-02-contato-e-endereco-entre-as-partes]
+    touches_paths: [lib/actions/auth.ts, components/trocar-papel.tsx]
+    creates_paths: [lib/auth/papeis.ts]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0013 — o cadastro público aceita tipo_base admin (lib/validation.ts) e a troca de papel leva prestador a Administrador, então qualquer pessoa vira Administrador. D-016 — na v2, Administrador nasce só por ação do SysAdmin."
+    goal: "O cadastro público oferece só Cliente e Prestador de Serviço, a troca de papel nunca leva a Administrador, e os dois usam uma regra única em lib/auth/papeis.ts (R-44)."
+    done_condition: "tests/fatia1/papeis.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-44), ADR 0013, D-016, e o cabeçalho de tests/fatia1/papeis.test.ts (o contrato: PAPEIS_DO_CADASTRO_PUBLICO, papelPermitidoNoCadastro(tipo, temConvite) e podeTrocarPara(atual, novo) em lib/auth/papeis.ts). Depende da tarefa 2 porque as duas mexem em lib/actions/auth.ts. O cadastro por convite continua valendo o papel do convite. Administradores existentes não perdem acesso. O componente de troca de papel decide sozinho não aparecer quando não houver destino permitido — a página do perfil fica fora do escopo.\n\nArquivo em grupo de rota do Next, declarado no frontmatter desta spec (o TaskPlan não aceita parênteses): app/(auth)/cadastro/form.tsx."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Esconder a opção só na tela, deixando a action aceitar admin."
+      - "Quebrar o cadastro por convite."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "a regra única de papéis"
+        when: "se pergunta que papéis o cadastro público e a troca de papel aceitam"
+        then: "sem convite só Cliente e Prestador passam, papel desconhecido nunca passa, com convite vale o papel do convite, e a troca nunca leva a Administrador"
+      - id: B-2
+        given: "a tela de cadastro e as actions de cadastro e troca"
+        when: "a tarefa termina"
+        then: "a tela não oferece a opção de empresa e as duas actions usam a regra única"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 4"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/papeis.test.ts
+        verifies: [B-1, B-2]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-3]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-3]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador
+    title: "O SysAdmin cria praça e vincula Administrador com praça padrão"
+    effort: L
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-03-mundo-de-exemplo-isolado, T-20260910-f1-04-ninguem-vira-administrador-sozinho]
+    touches_paths: [lib/actions/admin-users.ts, lib/actions/convite.ts, lib/actions/workspace.ts, components/nav.tsx, components/criar-admin-form.tsx, lib/supabase/database.types.ts]
+    creates_paths: [supabase/migrations/0041_praca_padrao_do_administrador.sql, lib/actions/pracas.ts, components/admin/pracas-forms.tsx]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0013 — a praça nasce do Administrador (auto-criada, criada por ele no seletor, ou pelo convite de sócio), não existe vínculo a praça existente nem praça padrão. D-016 — só o SysAdmin cria praça e vincula Administrador."
+    goal: "O SysAdmin cria praça pela área dele e vincula um Administrador a uma ou mais praças com uma padrão (R-46, R-47); convite de Administrador e criação de praça passam a ser só dele; criar ou promover Administrador deixa de fabricar uma Empresa de nome."
+    done_condition: "tests/fatia1/pracas.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-46, R-47), ADR 0013, D-010, D-016, GAP-015, e o cabeçalho de tests/fatia1/pracas.test.ts (o contrato).\n- workspace_members.padrao (booleano): no máximo uma por pessoa (índice único parcial); a migration marca a praça atual de cada Administrador e Funcionário existente.\n- lib/actions/pracas.ts (\"use server\") exporta criarPracaAction(estado, formData), com os campos nome, cidade e estado, e vincularAdministradorAction(adminId, pracaIds, padraoId). O ator vem de tryWriter() (lib/auth/guard); quem não é SysAdmin é recusado ANTES de qualquer escrita. O vínculo SUBSTITUI o conjunto e exige a padrão entre as vinculadas. Escritas com a chave de serviço (lib/supabase/admin.ts).\n- criarConviteAction(\"owner\") recusa quem não é SysAdmin antes de qualquer consulta; criarEmpresaAction e excluirEquipeAction (lib/actions/workspace.ts) deixam de valer para quem não é SysAdmin.\n- workspaces.owner_id é obrigatório hoje e significa administrador responsável (D-010): decida na migration como fica uma praça criada pelo SysAdmin antes de ter Administrador, e registre a escolha em COMMENT ON.\n- Página /admin/pracas (criar e vincular) no menu do SysAdmin (components/nav.tsx); a página cita criarPracaAction e vincularAdministradorAction, e os formulários de cliente moram em components/admin/pracas-forms.tsx. Criar Administrador escolhe a praça padrão entre as existentes.\n- Conta de exemplo (tarefa 3): criar praça e vincular também respeitam podeAgirSobre.\n\nArquivos em grupo de rota do Next, declarados no frontmatter desta spec (o TaskPlan não aceita parênteses): app/(app)/admin/usuarios/page.tsx (alterar) e app/(app)/admin/pracas/page.tsx (criar).\n\nMigration: arquivo novo supabase/migrations/0041_praca_padrao_do_administrador.sql. Mesmos comandos da tarefa 1 (nunca imprima o token):\n  export SUPABASE_ACCESS_TOKEN=$(grep '^SUPABASE_TOKEN=' .env.local | cut -d= -f2-)\n  npx supabase db push --linked --yes\n  (para reaplicar a SUA 0041: migration repair --status reverted 0041 --linked, depois db push)\n  npx supabase gen types typescript --linked > lib/supabase/database.types.ts\nNunca edite migration de outra tarefa. COMMENT ON na coluna e no índice novos."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Checar o papel depois de escrever."
+      - "Apagar praça ou vínculo com histórico — a regra é nunca deletar (ROADMAP seção 3)."
+      - "Usar a sessão por cookie nas actions novas — o contrato é tryWriter mais chave de serviço."
+    rollback: "Migration nova que remove workspace_members.padrao; remover a página e as actions."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "os Administradores já existentes"
+        when: "a migration roda"
+        then: "cada um tem exatamente uma praça padrão"
+      - id: B-2
+        given: "um ator que não é SysAdmin"
+        when: "tenta criar praça, vincular Administrador ou gerar convite de Administrador"
+        then: "é recusado e nada é escrito"
+      - id: B-3
+        given: "o SysAdmin"
+        when: "cria duas praças e vincula um Administrador a elas, depois a uma só, e tenta uma padrão fora do conjunto"
+        then: "as praças existem, o vínculo reflete exatamente o último conjunto com uma única padrão, e a padrão fora do conjunto é recusada"
+      - id: B-4
+        given: "a interface do SysAdmin"
+        when: "a tarefa termina"
+        then: "existe /admin/pracas no menu dele, usando as duas actions, e não se fabrica mais Empresa de nome"
+      - id: B-5
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 5 (código e banco, com a sessão simulada)"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/pracas.test.ts
+        verifies: [B-1, B-2, B-3, B-4]
+        expected_duration_sec: 120
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-5]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-5]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-5]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-5]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-06-administrador-ve-so-as-pracas-dele
+    title: "O Administrador vê só as praças dele, e seletor só com duas ou mais"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: feature
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador]
+    touches_paths: [components/workspace-switcher.tsx, lib/auth/workspace.ts]
+    creates_paths: [lib/auth/praca-ativa.ts]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0013 — o seletor aparece para todo Administrador, mesmo com uma praça, com criar e excluir praça; a praça ativa é só um cookie ou a primeira da lista."
+    goal: "O Administrador entra na praça padrão, vê seletor só com duas ou mais praças, e o seletor não cria nem exclui praça (R-48, R-49)."
+    done_condition: "tests/fatia1/seletor.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-48, R-49), ADR 0013, e o cabeçalho de tests/fatia1/seletor.test.ts (o contrato: mostrarSeletorDePraca e escolherPracaAtiva em lib/auth/praca-ativa.ts). getMyWorkspaces passa a trazer a marca padrao (coluna criada na tarefa 5).\n\nArquivo em grupo de rota do Next, declarado no frontmatter desta spec (o TaskPlan não aceita parênteses): app/(app)/layout.tsx."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Esconder o seletor por CSS mantendo a lógica antiga."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "a quantidade de praças do Administrador"
+        when: "o layout decide se mostra o seletor"
+        then: "com 0 ou 1 não mostra; com 2 ou mais mostra"
+      - id: B-2
+        given: "a lista de praças do Administrador e o cookie da praça ativa"
+        when: "se escolhe a praça ativa"
+        then: "vale a do cookie se for dele, senão a padrão, senão a primeira; sem praça, nenhuma"
+      - id: B-3
+        given: "o seletor"
+        when: "a tarefa termina"
+        then: "não cria nem exclui praça, o layout usa a regra e a praça ativa sai da regra"
+      - id: B-4
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 6"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/seletor.test.ts
+        verifies: [B-1, B-2, B-3]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-4]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-4]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-4]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-07-modulos-presos-a-empresa
+    title: "Liberação de módulo vale só na empresa que liberou"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-06-administrador-ve-so-as-pracas-dele]
+    touches_paths: [lib/auth/modules.ts, lib/auth/workspace.ts, lib/actions/modules.ts]
+    creates_paths: []
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0014 — user_modules grava a liberação por empresa, mas getAllowedModules lê sem a empresa e setModuloFuncionarioAction não confere se o alvo é membro."
+    goal: "A leitura dos módulos de um funcionário considera a empresa ativa, e a concessão recusa quem não é membro da empresa (R-45)."
+    done_condition: "tests/fatia1/modulos.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-45), ADR 0014, e o cabeçalho de tests/fatia1/modulos.test.ts (o contrato: modulosDoFuncionario(db, userId, workspaceId) em lib/auth/modules.ts e ehMembroDaEmpresa(db, userId, workspaceId) em lib/auth/workspace.ts). Depende da tarefa 6 porque as duas mexem em lib/auth/workspace.ts. As chamadas atuais de getAllowedModules passam a considerar a empresa ativa."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Mudar o formato de user_modules — a empresa já está gravada (ADR 0014)."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "um funcionário membro da empresa A, com módulo liberado na A e outro liberado na B, onde não é membro"
+        when: "se leem os módulos dele na empresa A e numa empresa C sem liberação"
+        then: "na A vale só o da A; na C vale o padrão do papel"
+      - id: B-2
+        given: "a concessão de módulo"
+        when: "o alvo não é membro da empresa"
+        then: "ehMembroDaEmpresa diz não e a action de concessão a consulta"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 7 (código e banco)"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/modulos.test.ts
+        verifies: [B-1, B-2]
+        expected_duration_sec: 120
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-3]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-3]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-08-login-lembra-so-o-email
+    title: "O login lembra só o e-mail"
+    effort: XS
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: []
+    touches_paths: []
+    creates_paths: []
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "Pareceres 06 (LGPD) e 09 (code-reviewer) — a opção Salvar credenciais grava e-mail e senha em texto puro no localStorage. D-018 — lembrar só o e-mail."
+    goal: "O login guarda no máximo o e-mail; a senha fica com o gerenciador do navegador; a senha já guardada por versões antigas é apagada na próxima visita (R-50)."
+    done_condition: "tests/fatia1/login.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-50), D-018 e o cabeçalho de tests/fatia1/login.test.ts. A opção passa a se chamar Lembrar meu e-mail. Os autoComplete de e-mail e senha continuam.\n\nArquivo em grupo de rota do Next, declarado no frontmatter desta spec (o TaskPlan não aceita parênteses): app/(auth)/login/page.tsx."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Guardar a senha criptografada no navegador — a chave estaria no mesmo navegador."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "a página de login"
+        when: "a pessoa marca Lembrar meu e-mail e entra"
+        then: "o navegador guarda o e-mail e nunca a senha, a senha não é restaurada do armazenamento, e o gerenciador de senhas segue funcionando"
+      - id: B-2
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 8"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/login.test.ts
+        verifies: [B-1]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-2]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-2]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-2]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-2]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-09-convite-nao-revela-conta
+    title: "O convite para a equipe não revela quem tem conta"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador]
+    touches_paths: [lib/actions/workspace.ts, components/convidar-form.tsx]
+    creates_paths: [lib/convite-texto.ts]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "Parecer 09 (code-reviewer) — convidarMembroAction responde Nenhum usuário com este e-mail ou já faz parte da equipe, um oráculo de quem tem conta."
+    goal: "O convite responde a mesma mensagem neutra para e-mail com e sem conta (R-51)."
+    done_condition: "tests/fatia1/convite.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-51) e o cabeçalho de tests/fatia1/convite.test.ts (o contrato: MENSAGEM_CONVITE_NEUTRA em lib/convite-texto.ts, fora do arquivo use server porque ele só pode exportar funções). Depende da tarefa 5 porque as duas mexem em lib/actions/workspace.ts."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Diferenciar as respostas por tempo ou por outro campo do retorno."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "um convite para a equipe"
+        when: "o e-mail tem conta e quando não tem"
+        then: "a resposta é a mesma mensagem neutra, que não afirma nem nega a conta"
+      - id: B-2
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 9"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/convite.test.ts
+        verifies: [B-1]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-2]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-2]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-2]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-2]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-10-portas-automaticas-contra-abuso
+    title: "As portas automáticas resistem a abuso barato"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: security
+    required_tools: [bash, git, node, npx]
+    depends_on: []
+    touches_paths: [app/api/cron/lembretes-avaliacao/route.ts, lib/actions/geocode.ts]
+    creates_paths: [lib/seguranca.ts]
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "Parecer 09 (code-reviewer) — o CRON_SECRET é comparado com igualdade simples (vaza tempo) e a busca de endereço não tem limite, podendo queimar a cota do Nominatim para todo mundo."
+    goal: "A chave do agendador é conferida em tempo constante e a busca de endereço aceita no máximo 10 pedidos por pessoa a cada 60 segundos (R-52)."
+    done_condition: "tests/fatia1/portas.test.ts verde, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: cvg/docs/tech-spec/fatia-1-seguranca.md (R-52) e o cabeçalho de tests/fatia1/portas.test.ts (o contrato: segredoConfere(cabecalho, segredo) em lib/seguranca.ts). Use o rateLimit que já existe em lib/rate-limit.ts."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "timingSafeEqual em buffers de tamanhos diferentes (lança) — iguale o tamanho antes."
+      - "Deixar o agendador aberto quando CRON_SECRET não está configurado."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "a conferência da chave do agendador"
+        when: "chega a chave certa, uma errada de mesmo tamanho, uma de outro tamanho, nenhuma, ou o segredo não está configurado"
+        then: "só a certa passa, sem quebrar, comparando em tempo constante, e a rota usa essa conferência"
+      - id: B-2
+        given: "a busca de endereço"
+        when: "a mesma pessoa pede mais de 10 vezes em 60 segundos"
+        then: "o pedido 11 é recusado"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 10"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/portas.test.ts
+        verifies: [B-1, B-2]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-3]
+        expected_duration_sec: 2
+      - id: eval_3
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_4
+        description: "Lint verde"
+        command: npm run lint
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Suíte unitária verde"
+        command: npm test
+        verifies: [B-3]
+        expected_duration_sec: 60
+
+  - id: T-20260910-f1-12-prestador-marca-realizado
+    title: "O prestador marca o serviço como realizado"
+    effort: S
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: feature
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo]
+    touches_paths: [lib/actions/agenda-v2.ts, components/agenda/slot-detalhe.tsx]
+    creates_paths: []
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "ADR 0016 — não existe na aplicação o caminho de marcar um serviço como realizado; os 25 realizados vieram de script. Sem ele o R-38 não tem caminho legítimo e o roteiro do R-54 não fecha (D-025)."
+    goal: "Na tela do serviço, o prestador marca como realizado um serviço confirmado dele; a regra do banco da tarefa 1 segue valendo."
+    done_condition: "tests/fatia1/realizado.test.ts e tests/fatia1/servicos.test.ts verdes, gabarito intacto, typecheck, lint e npm test verdes."
+    context: "Leia: ADR 0016, D-025 e o cabeçalho de tests/fatia1/realizado.test.ts (o contrato: marcarRealizadoAction(servicoId) em lib/actions/agenda-v2.ts e o botão Marcar como realizado em components/agenda/slot-detalhe.tsx, só para o prestador e só com o serviço confirmado). Siga o padrão das actions vizinhas (tryWriter, sessão do usuário, revalidatePath)."
+    do_not_touch: [tests/fatia1, vitest.gabarito.config.ts, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Marcar realizado com a chave de serviço — a regra do banco tem de valer para a sessão do prestador."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "um serviço confirmado do prestador"
+        when: "ele abre a tela do serviço"
+        then: "vê Marcar como realizado, e a action existe e só vale para serviço confirmado"
+      - id: B-2
+        given: "a regra do banco da tarefa 1"
+        when: "a tarefa termina"
+        then: "o gabarito da tarefa 1 continua verde"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck, lint e testes unitários seguem verdes e o gabarito está intacto"
+    evals:
+      - id: eval_1
+        description: "Gabarito da tarefa 12"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/realizado.test.ts
+        verifies: [B-1]
+        expected_duration_sec: 30
+      - id: eval_2
+        description: "O gabarito da tarefa 1 continua verde"
+        command: npx vitest run --config vitest.gabarito.config.ts tests/fatia1/servicos.test.ts
+        verifies: [B-2]
+        expected_duration_sec: 120
+      - id: eval_3
+        description: "O gabarito não foi editado nem ganhou arquivo"
+        command: git diff --quiet f251e2c -- tests/fatia1 vitest.gabarito.config.ts && test -z "$(git status --porcelain -- tests/fatia1 vitest.gabarito.config.ts)"
+        verifies: [B-3]
+        expected_duration_sec: 2
+      - id: eval_4
+        description: "Typecheck verde"
+        command: npm run typecheck
+        verifies: [B-3]
+        expected_duration_sec: 60
+      - id: eval_5
+        description: "Lint e suíte unitária verdes"
+        command: npm run lint && npm test
+        verifies: [B-3]
+        expected_duration_sec: 120
+
+  - id: T-20260910-f1-11-regressao-no-navegador
+    title: "Regressão no navegador e gabaritos de volta à suíte de integração"
+    effort: M
+    profile: standard
+    agent: any
+    execution_backend: claude
+    priority: P1
+    severity: feature
+    required_tools: [bash, git, node, npx]
+    depends_on: [T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo, T-20260910-f1-02-contato-e-endereco-entre-as-partes, T-20260910-f1-03-mundo-de-exemplo-isolado, T-20260910-f1-04-ninguem-vira-administrador-sozinho, T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador, T-20260910-f1-06-administrador-ve-so-as-pracas-dele, T-20260910-f1-07-modulos-presos-a-empresa, T-20260910-f1-08-login-lembra-so-o-email, T-20260910-f1-09-convite-nao-revela-conta, T-20260910-f1-10-portas-automaticas-contra-abuso, T-20260910-f1-12-prestador-marca-realizado]
+    touches_paths: [vitest.config.ts, vitest.integration.config.ts, vitest.gabarito.config.ts, tsconfig.json, package.json, package-lock.json]
+    creates_paths: []
+    source_note: cvg/docs/tech-spec/fatia-1-seguranca.md
+    why: "R-53 exige os ataques como testes permanentes da suíte que fala com o banco; R-54 exige que nenhuma jornada que funcionava quebre."
+    goal: "Os gabaritos da Fatia 1 voltam à suíte de integração (fora da exclusão do npm test e do typecheck) e verdes, e o roteiro de regressão no navegador passa nos 10 passos."
+    done_condition: "Gabaritos verdes pela suíte de integração, roteiro de regressão verde contra o build de produção, typecheck e npm test verdes."
+    context: "O roteiro de regressão (scripts/regressao/) é escrito pelo controller antes do handoff desta tarefa, como gabarito do R-54 — não o edite. Esta tarefa tira a exclusão de tests/fatia1 do vitest.config.ts e do tsconfig.json (os gabaritos já compilam), leva à vitest.integration.config.ts o que os gabaritos precisam (tempo de espera de 60 s e arquivos em sequência), apaga vitest.gabarito.config.ts e o script test:gabarito, e adiciona playwright-core como devDependency (o roteiro usa o Chrome instalado)."
+    do_not_touch: [tests/fatia1, scripts/regressao, supabase/migrations, .cvg, cvg/docs, cvg/brain, .env.local]
+    anti_patterns:
+      - "Pular um passo do roteiro para ficar verde."
+    rollback: "Reverter o commit da tarefa."
+    observability: "(none)"
+    behaviors:
+      - id: B-1
+        given: "os gabaritos da Fatia 1"
+        when: "rodam pela suíte de integração normal"
+        then: "passam todos, sem configuração própria"
+      - id: B-2
+        given: "o build de produção com as contas de exemplo"
+        when: "o roteiro reserva, confirma, marca realizado, cancela com motivo, mostra o WhatsApp e entra pelos 5 botões da landing"
+        then: "os 10 passos passam"
+      - id: B-3
+        given: "o resto do app"
+        when: "a tarefa termina"
+        then: "typecheck e testes unitários seguem verdes"
+    evals:
+      - id: eval_1
+        description: "Gabaritos da Fatia 1 pela suíte de integração"
+        command: npx vitest run --config vitest.integration.config.ts tests/fatia1
+        verifies: [B-1]
+        expected_duration_sec: 300
+      - id: eval_2
+        description: "Roteiro de regressão no navegador contra o build de produção"
+        command: bash scripts/regressao/rodar-fatia1.sh
+        verifies: [B-2]
+        expected_duration_sec: 400
+      - id: eval_3
+        description: "Typecheck e suíte unitária verdes"
+        command: npm run typecheck && npm test
+        verifies: [B-3]
+        expected_duration_sec: 120

@@ -27,3 +27,6 @@ next-env.d.ts
 # que não usamos; regenerável com o install.sh do Converge.
 /.grok
 /coverage
+
+# Cache do Python gerado pelos scripts das skills (.agents/) — por máquina, não versionar
+__pycache__/

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-10-portas-automaticas-contra-abuso
 title: "As portas automáticas resistem a abuso barato"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:31:25Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T20:11:01Z
 signed_off_sig: hmac-sha256-v3:9648e21f:eec8f9d5e5115900680c93fc8445c23371b91288aeb4b151970ab03ea56f6061
+accepted_tier: 1
+accepted_attempt_id: 6d277be6-1208-4173-a601-bbec6e37b61a
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:eec8f9d5e5115900680c93fc8445c23371b91288aeb4b151970ab03ea56f6061
+acceptance_record_digest: sha256:5b5e34ffb515a14c01c5efb5e87dc05148704588571ba6da2122d9e7abfd0b22
 ---
 
 # As portas automáticas resistem a abuso barato

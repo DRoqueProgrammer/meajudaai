@@ -34,6 +34,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/lib/auth/roles", () => ({ requireUser: async () => usuarioAtual }));
 
+// R-45 (ADR 0014): a liberação de módulo vale só na empresa que liberou, então a
+// leitura do funcionário depende da empresa ativa dele.
+let empresaAtiva: { workspace_id: string; role: string; nome: string; padrao: boolean } | null = null;
+vi.mock("@/lib/auth/workspace", () => ({ getActiveWorkspace: async () => empresaAtiva }));
+
 const { getAllowedModules, getAllowedCapabilities, requireModule, guardModule, requireCapability } =
   await import("../lib/auth/modules");
 
@@ -45,6 +50,7 @@ beforeEach(() => {
   redirectSpy.mockClear();
   linhasUserModules = [];
   usuarioAtual = comoPapel("funcionario");
+  empresaAtiva = { workspace_id: "ws-1", role: "membro", nome: "Construtora Teste", padrao: true };
 });
 
 describe("getAllowedModules", () => {
@@ -61,7 +67,7 @@ describe("getAllowedModules", () => {
     }
   });
 
-  it("dá ao funcionário exatamente as linhas liberadas no banco", async () => {
+  it("dá ao funcionário exatamente as linhas liberadas na empresa ativa", async () => {
     linhasUserModules = [
       { module: "vagas", allowed: true },
       { module: "equipe", allowed: true },
@@ -81,9 +87,26 @@ describe("getAllowedModules", () => {
   });
 
   it("descarta módulo desconhecido vindo do banco", async () => {
-    // Uma linha órfã de um módulo removido não pode virar acesso a nada.
+    // Uma linha órfã de um módulo removido não pode virar acesso a nada: ela não
+    // conta como liberação de módulo, e o funcionário fica com o padrão do papel.
     linhasUserModules = [{ module: "modulo_que_nao_existe", allowed: true }];
-    expect((await getAllowedModules(comoPapel("funcionario"))).size).toBe(0);
+    const permitidos = await getAllowedModules(comoPapel("funcionario"));
+    expect(permitidos.has("modulo_que_nao_existe" as never)).toBe(false);
+    expect([...permitidos].sort()).toEqual([...FUNCIONARIO_DEFAULT].sort());
+  });
+
+  it("sem empresa ativa, vale o padrão do papel — nunca a liberação de outra empresa", async () => {
+    empresaAtiva = null;
+    linhasUserModules = [{ module: "financeiro", allowed: true }];
+    const permitidos = await getAllowedModules(comoPapel("funcionario"));
+    expect([...permitidos].sort()).toEqual([...FUNCIONARIO_DEFAULT].sort());
+  });
+
+  it("capacidade liberada na empresa não tira o padrão de módulos", async () => {
+    // user_modules guarda módulos e capacidades; só linha de módulo é liberação de módulo.
+    linhasUserModules = [{ module: CAPABILITIES[0]!, allowed: true }];
+    const permitidos = await getAllowedModules(comoPapel("funcionario"));
+    expect([...permitidos].sort()).toEqual([...FUNCIONARIO_DEFAULT].sort());
   });
 
   it("cai no padrão do papel quando o funcionário não tem linha nenhuma", async () => {

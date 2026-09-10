@@ -98,3 +98,82 @@ Não fiz. Registrar um auth hook muda como **todo** JWT do projeto é emitido; s
 sair errado, ninguém entra no app, e você descobriria isso acordando com o
 produto fora do ar. O achado — que é a parte valiosa — está registrado e
 verificado. A correção espera você.
+
+## Rodada 4 — 10/09/2026 · Fatia 1 (segurança) e adiantadas das próximas fatias
+
+Perguntas feitas depois da vistoria de 10/09 (`cvg/brain/refs/2026-09-10-vistoria/`),
+cada uma com a recomendação do controller. As respostas são do Leonardo, citadas
+literalmente; onde a resposta dele pediu uma consequência de desenho, a consequência
+está marcada como **do controller** — é aqui que se corrige se estiver errada.
+
+**Locked D-015 — Contas de exemplo: uma por papel, sempre pelos botões da landing.**
+Recomendação rejeitada (tirar SysAdmin, Administrador e Funcionário da landing).
+Palavras do dono: *"Não, uma conta fake para cada papel, para podermos mostrar o
+protótipo facilmente. As contas fake têm e-mails e senhas falsos, mas o acesso é sempre
+pelos botões da main page."*
+→ **Consequência do controller:** o risco confirmado (a conta de exemplo SysAdmin lê os
+dados de todo mundo) fecha por **isolamento**, não por remoção: uma conta de exemplo, de
+qualquer papel, só enxerga e altera o mundo de exemplo (R-42). A senha segue falsa, mas
+não pode chegar ao navegador (R-43).
+
+**Locked D-016 — Administrador nasce só por ação do SysAdmin; o SysAdmin governa praças.**
+Palavras do dono: *"Sim, vamos melhorar. Apenas um sysadmin pode assign um workspace a um
+Sócio ou mais. O padrão quando se clica um sócio é escolher o workspace padrão e ele
+apenas verá esse, a menos que o sysadmin o inclua em outro workspace. Precisa cuidar para
+que o sysadmin tenha meios, botão, para criar novos workspaces, isso não existe hoje. Se
+um admin tiver apenas UM workspace, nenhum seletor deve aparecer para ele com uma opção."*
+→ Sai "Tenho uma empresa" do cadastro público; acaba a troca prestador → Administrador;
+só o SysAdmin cria praça e vincula Administrador a uma ou mais praças, com praça padrão;
+Administrador vê só as vinculadas; com uma praça, nenhum seletor (R-44, R-46 a R-49).
+"Sócio" foi lido como **Administrador** e "workspace" como **praça** (D-001, CONTEXT.md).
+→ **Consequência do controller:** o Administrador deixa de criar empresa própria e deixa
+de convidar outro Administrador (o ROADMAP §2.2 previa isso) — segue convidando os papéis
+abaixo dele (GAP-015).
+
+**Locked D-017 — Serviço pendente já libera o contato; cancelado corta.** Resposta: *"Sim."*
+
+**Locked D-018 — "Salvar credenciais" lembra só o e-mail; a senha fica com o gerenciador
+do navegador.** Resposta: *"Sim."* Substitui o "salvar credenciais" do login pedido antes.
+
+**Locked D-019 — A conta "João Prestador (dev)" fica ativa.** Recomendação rejeitada
+(desativar). Resposta: *"Não precisa!"* → W-6.
+
+**Locked D-020 — O app não está publicado.** *"Ainda não. Fazendo tudo localmente, depois
+vai ser deployado na vercel.app."* O endereço público entra como configuração do deploy
+(Open Graph e sitemap da Fatia 2 dependem dele).
+
+**D-021 (do controller, por delegação) — A cerca de escrita é revisada: histórico
+trancado, caminho normal aberto.** Substitui a D-013. Pergunta feita: tirar
+`**/migrations/**` e `**/auth/**` do `.cvg/gate.yaml`. Resposta do dono: *"Não entendi,
+mas você sabe mais que eu. Tome a decisão melhor e ideal para esse problema."*
+Decisão:
+- **Migrations já aplicadas ao banco (0001–0037) continuam trancadas** — reescrever
+  histórico que já rodou é o erro mais caro que existe. **Migration nova passa a ser
+  permitida**: é o caminho normal de mudar o banco, e toda task que cria uma passa pela
+  verificação independente de tier 2 (a lane já exige). Quando uma migration nova é
+  aplicada, ela entra na lista trancada no mesmo commit.
+- **`app/auth/**` (as rotas de confirmação de login) continua trancado.** A camada de
+  autorização em `lib/auth/` fica editável — as fatias 1 e 5 precisam dela —, também
+  sob tier 2.
+- Todo o resto fica como estava: `.env`, segredos, chaves, `.cvg/`, workflows, pagamento
+  e cobrança; teto de 12 arquivos por task.
+*Por quê:* a D-013 deixava a Fatia 1 inexecutável pelo loop — justamente a fatia de
+segurança. A nova cerca protege o que é irreversível (histórico) e libera o que é normal
+(migration nova), em vez de tudo ou nada. *Reverter custa:* editar uma lista no
+`.cvg/gate.yaml`.
+
+**Locked D-022 (adiantada, Fatia 3) — O Hero perde a citação.** Resposta: *"OK."* Fica
+saudação, relógio e clima colapsável, na direção da conselheira-design. Substitui a
+citação aleatória do ROADMAP §2.5 e da convenção do Hero no `CLAUDE.md` — os dois são
+atualizados quando a Fatia 3 entregar.
+
+**Locked D-023 (adiantada, Fatia 2) — Direitos do titular: desativar, excluir e baixar.**
+Palavras do dono: *"Sim, e ainda coloque um botão para a pessoa poder baixar um JSON com
+todos os dados de todas suas atividades na plataforma desde o momento 1."*
+→ "Desativar" continua reversível; nasce "excluir meus dados", que anonimiza em até 15
+dias; e nasce "baixar meus dados", um arquivo com todos os dados e todas as atividades da
+pessoa desde o cadastro. Concilia o "nunca deletar" do ROADMAP §3 com o art. 18 da LGPD.
+
+**Locked D-024 (adiantada, Fatia 2) — Encarregado de dados: o próprio Leonardo.**
+Palavras do dono: *"Por enquanto sou eu, isso é um protótipo. leochalhoub@hotmail.com"*
+— esse é o contato público que a Política de Privacidade vai trazer.

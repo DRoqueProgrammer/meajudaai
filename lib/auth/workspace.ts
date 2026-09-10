@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireUser } from "./roles";
@@ -59,4 +61,24 @@ export async function requireWorkspaceRole(
   if (!data || !roles.includes(data.role)) {
     throw new Error("Forbidden — sem permissão neste workspace");
   }
+}
+
+/**
+ * `true` se o usuário tem vínculo (linha em `workspace_members`) com a
+ * empresa — usada para recusar liberação de módulo pra quem não é membro
+ * dela (R-45, ADR 0014): a liberação só vale, e só é concedida, dentro da
+ * empresa a que a pessoa pertence.
+ */
+export async function ehMembroDaEmpresa(
+  db: SupabaseClient<Database>,
+  userId: string,
+  workspaceId: string,
+): Promise<boolean> {
+  const { data } = await db
+    .from("workspace_members")
+    .select("user_id")
+    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data !== null;
 }

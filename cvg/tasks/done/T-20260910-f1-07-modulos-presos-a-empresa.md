@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-07-modulos-presos-a-empresa
 title: "Liberação de módulo vale só na empresa que liberou"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:30:50Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T19:49:10Z
 signed_off_sig: hmac-sha256-v3:9648e21f:34cc8fdad66f6bfd51050e19c3156bd9a935ea51617c980542af25dbf7c9e0bf
+accepted_tier: 1
+accepted_attempt_id: b07500ef-d525-4b8e-bfa5-e8b288fedd36
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:34cc8fdad66f6bfd51050e19c3156bd9a935ea51617c980542af25dbf7c9e0bf
+acceptance_record_digest: sha256:763e2ef2b7785222ac840604628e883bb1c3460a1178b8f8c904d53d39b4ff21
 ---
 
 # Liberação de módulo vale só na empresa que liberou

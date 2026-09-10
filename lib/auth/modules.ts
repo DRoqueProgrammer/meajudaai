@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
 import { createServerClient } from "@/lib/supabase/server";
 import { requireUser, type CurrentUser } from "@/lib/auth/roles";
+import { getActiveWorkspace } from "@/lib/auth/workspace";
 import {
   ALL_MODULES,
   CAPABILITIES,
@@ -12,20 +15,44 @@ import {
 } from "@/lib/modules";
 
 /**
+ * Módulos liberados para o funcionário NAQUELA empresa (R-45, ADR 0014):
+ * `user_modules` grava a liberação por `workspace_id`, então uma liberação
+ * feita numa empresa não pode valer em outra. Só conta linha de MÓDULO (uma
+ * linha de CAPACIDADE presente na mesma empresa não é liberação de módulo —
+ * ver `lib/modules.ts`); sem nenhuma linha de módulo ali, vale o padrão do
+ * papel (`FUNCIONARIO_DEFAULT`), mesmo que haja capacidade liberada.
+ */
+export async function modulosDoFuncionario(
+  db: SupabaseClient<Database>,
+  userId: string,
+  workspaceId: string,
+): Promise<Set<AppModule>> {
+  const { data } = await db
+    .from("user_modules")
+    .select("module, allowed")
+    .eq("user_id", userId)
+    .eq("workspace_id", workspaceId);
+  const linhasDeModulo = (data ?? []).filter((r) => isAppModule(r.module));
+  if (linhasDeModulo.length === 0) return new Set(FUNCIONARIO_DEFAULT);
+  return new Set(linhasDeModulo.filter((r) => r.allowed).map((r) => r.module as AppModule));
+}
+
+/**
  * Conjunto de módulos que o usuário pode acessar.
- * sysadmin/admin → todos. funcionário → linhas explícitas em user_modules
- * (autoritativas) ou o default do papel. Demais → nenhum (painel é da empresa).
+ * sysadmin/admin → todos. funcionário → o que `modulosDoFuncionario` decide
+ * para a empresa ativa dele (getActiveWorkspace); sem empresa ativa, o
+ * padrão do papel — nunca a liberação de outra empresa. Demais → nenhum
+ * (painel é da empresa).
  */
 export async function getAllowedModules(user: CurrentUser): Promise<Set<AppModule>> {
   if (user.role === "sysadmin" || user.role === "admin") return new Set(ALL_MODULES);
   if (user.role !== "funcionario") return new Set<AppModule>();
 
+  const ws = await getActiveWorkspace().catch(() => null);
+  if (!ws) return new Set(FUNCIONARIO_DEFAULT);
+
   const sb = await createServerClient();
-  const { data } = await sb.from("user_modules").select("module, allowed").eq("user_id", user.id);
-  if (!data || data.length === 0) return new Set(FUNCIONARIO_DEFAULT);
-  return new Set(
-    data.filter((r) => r.allowed && isAppModule(r.module)).map((r) => r.module as AppModule),
-  );
+  return modulosDoFuncionario(sb, user.id, ws.workspace_id);
 }
 
 /** Guard de server action: lança se o módulo não é permitido. */

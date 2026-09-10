@@ -1,0 +1,111 @@
+{
+  "contract": "TaskHandoff/v3",
+  "task_id": "T-20260910-f1-08-login-lembra-so-o-email",
+  "format_version": 3,
+  "spec": "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-08-login-lembra-so-o-email.md",
+  "spec_digest": "sha256:429e0e7ae7815b4836363e091402f5e1abe50412ff7f363068eab3a4f85ac3fa",
+  "task_revision_digest": "sha256:758a7bab94f76e9d30e954b0ffc9c0dc1c7a490d003cc6678e6c30e7799ad0aa",
+  "signoff_tier": 1,
+  "backend": "claude",
+  "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+  "authorization": {
+    "scheme": "hmac-sha256-v3",
+    "ref": "hmac-sha256-v3:9648e21f:fd7ea1d81e649eeb881b372a5c5996f40ec81303820884cbdd066ad03431cf58",
+    "tier": 1,
+    "signed_by": "operator",
+    "signed_at": "2026-09-10T17:28:42Z"
+  },
+  "attempt": {
+    "id": "fd29f0ea-d635-41cb-90a7-20512246cb1d",
+    "issued_at": "2026-09-10T20:00:56Z"
+  },
+  "source": {
+    "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+    "base_commit": "34ecbace0ee0c487f3236ba4c92ba0c925d03d2d"
+  },
+  "dependency_closure": {
+    "contract": "DependencyClosure/v1",
+    "task_id": "T-20260910-f1-08-login-lembra-so-o-email",
+    "digest": "sha256:0d07e202455d00718e3f2b78129ff20e6ef089a995def9a64e209fca4c01ec80",
+    "members": [
+      {
+        "task_id": "T-20260910-f1-00-fatia-1-seguranca",
+        "task_revision_digest": "sha256:eeb6db900641f8c96810b39c6768e5936201592fe1c1f762f96e0b11f411dac1"
+      },
+      {
+        "task_id": "T-20260910-f1-08-login-lembra-so-o-email",
+        "task_revision_digest": "sha256:758a7bab94f76e9d30e954b0ffc9c0dc1c7a490d003cc6678e6c30e7799ad0aa"
+      }
+    ]
+  },
+  "write_scope": {
+    "touches_paths": [
+      "app/(auth)/login/page.tsx"
+    ],
+    "creates_paths": [],
+    "do_not_touch": [
+      "tests/fatia1",
+      "vitest.gabarito.config.ts",
+      "supabase/migrations",
+      ".cvg",
+      "cvg/docs",
+      "cvg/brain",
+      ".env.local"
+    ]
+  },
+  "budgets": {
+    "iterations": 15,
+    "tokens": null,
+    "effort": "XS"
+  },
+  "agent_contract": {
+    "version": 2,
+    "read": [
+      "intent",
+      "behavior",
+      "contract",
+      "guardrails"
+    ],
+    "produce": [
+      "code",
+      "tests"
+    ],
+    "required_tools": [
+      "bash",
+      "git",
+      "node",
+      "npx"
+    ],
+    "timeout_minutes": 30,
+    "sandbox_type": "host",
+    "output_artifacts": [],
+    "mcp_dependencies": [],
+    "emit": [
+      "pass",
+      "fail",
+      "retry_with_reason",
+      "parked_with_context"
+    ],
+    "backend_metadata": {}
+  },
+  "eval_command": [
+    "taskspec",
+    "run",
+    "--ci",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-08-login-lembra-so-o-email.md"
+  ],
+  "acceptance_command": [
+    "taskspec",
+    "accept",
+    "--stamp",
+    "--handoff",
+    "<handoff.json>",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-08-login-lembra-so-o-email.md"
+  ],
+  "evaluation_policy": {},
+  "environment_contract": {},
+  "identity_policy": {},
+  "receipt_requirements": [
+    "deterministic"
+  ]
+}

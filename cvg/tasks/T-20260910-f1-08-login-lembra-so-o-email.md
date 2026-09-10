@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-08-login-lembra-so-o-email
 title: "O login lembra só o e-mail"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: XS

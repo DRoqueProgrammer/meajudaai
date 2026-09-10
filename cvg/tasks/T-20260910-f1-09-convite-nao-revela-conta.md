@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-09-convite-nao-revela-conta
 title: "O convite para a equipe não revela quem tem conta"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

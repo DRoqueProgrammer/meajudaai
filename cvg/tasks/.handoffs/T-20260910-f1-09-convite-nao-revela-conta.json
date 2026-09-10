@@ -1,0 +1,134 @@
+{
+  "contract": "TaskHandoff/v3",
+  "task_id": "T-20260910-f1-09-convite-nao-revela-conta",
+  "format_version": 3,
+  "spec": "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-09-convite-nao-revela-conta.md",
+  "spec_digest": "sha256:ccabc97a0ef2c33e776def519078f84387220ae978dd02b9015614845e7dddec",
+  "task_revision_digest": "sha256:675f3be16d8917306461107548208b9b98d33a72ac49525e2d51b8f5dac57374",
+  "signoff_tier": 1,
+  "backend": "claude",
+  "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+  "authorization": {
+    "scheme": "hmac-sha256-v3",
+    "ref": "hmac-sha256-v3:9648e21f:d39c1d6d4b436e0d3503a5e6eeabd222ce77b4e4fbd862618788e8288d2ca480",
+    "tier": 1,
+    "signed_by": "operator",
+    "signed_at": "2026-09-10T17:31:08Z"
+  },
+  "attempt": {
+    "id": "89229b1c-e17b-4057-9413-9bac3d8977c1",
+    "issued_at": "2026-09-10T19:49:41Z"
+  },
+  "source": {
+    "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+    "base_commit": "3a586cad0686007942e186544d59387bff21f33e"
+  },
+  "dependency_closure": {
+    "contract": "DependencyClosure/v1",
+    "task_id": "T-20260910-f1-09-convite-nao-revela-conta",
+    "digest": "sha256:819286183399dfbc512b41b95195f841a6457a70dd66628504c929cbaa840ffb",
+    "members": [
+      {
+        "task_id": "T-20260910-f1-00-fatia-1-seguranca",
+        "task_revision_digest": "sha256:eeb6db900641f8c96810b39c6768e5936201592fe1c1f762f96e0b11f411dac1"
+      },
+      {
+        "task_id": "T-20260910-f1-01-servico-nasce-e-muda-pelo-fluxo",
+        "task_revision_digest": "sha256:945e48abe6ce5c3d6bf1d4006eed982eaf32af9900605e4cbbd3bb17df6747c8"
+      },
+      {
+        "task_id": "T-20260910-f1-02-contato-e-endereco-entre-as-partes",
+        "task_revision_digest": "sha256:318a6517c9f406369161d0f71930c6678013ad3945b881e57c5e10481af6e927"
+      },
+      {
+        "task_id": "T-20260910-f1-03-mundo-de-exemplo-isolado",
+        "task_revision_digest": "sha256:0ad71505a381b8e1c355136a82604cf15c14aae747acfbb4661b9b78f890864e"
+      },
+      {
+        "task_id": "T-20260910-f1-04-ninguem-vira-administrador-sozinho",
+        "task_revision_digest": "sha256:40e15cebd41da56e75ca091e7570e7bc029371b290d42a120942e2321493b757"
+      },
+      {
+        "task_id": "T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador",
+        "task_revision_digest": "sha256:078677ed4be425bcad37c8a5411c727914478a93f02db5c94ccc13ef1a23049e"
+      },
+      {
+        "task_id": "T-20260910-f1-09-convite-nao-revela-conta",
+        "task_revision_digest": "sha256:675f3be16d8917306461107548208b9b98d33a72ac49525e2d51b8f5dac57374"
+      }
+    ]
+  },
+  "write_scope": {
+    "touches_paths": [
+      "lib/actions/workspace.ts",
+      "components/convidar-form.tsx"
+    ],
+    "creates_paths": [
+      "lib/convite-texto.ts"
+    ],
+    "do_not_touch": [
+      "tests/fatia1",
+      "vitest.gabarito.config.ts",
+      "supabase/migrations",
+      ".cvg",
+      "cvg/docs",
+      "cvg/brain",
+      ".env.local"
+    ]
+  },
+  "budgets": {
+    "iterations": 15,
+    "tokens": null,
+    "effort": "M"
+  },
+  "agent_contract": {
+    "version": 2,
+    "read": [
+      "intent",
+      "behavior",
+      "contract",
+      "guardrails"
+    ],
+    "produce": [
+      "code",
+      "tests"
+    ],
+    "required_tools": [
+      "bash",
+      "git",
+      "node",
+      "npx"
+    ],
+    "timeout_minutes": 30,
+    "sandbox_type": "host",
+    "output_artifacts": [],
+    "mcp_dependencies": [],
+    "emit": [
+      "pass",
+      "fail",
+      "retry_with_reason",
+      "parked_with_context"
+    ],
+    "backend_metadata": {}
+  },
+  "eval_command": [
+    "taskspec",
+    "run",
+    "--ci",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-09-convite-nao-revela-conta.md"
+  ],
+  "acceptance_command": [
+    "taskspec",
+    "accept",
+    "--stamp",
+    "--handoff",
+    "<handoff.json>",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-09-convite-nao-revela-conta.md"
+  ],
+  "evaluation_policy": {},
+  "environment_contract": {},
+  "identity_policy": {},
+  "receipt_requirements": [
+    "deterministic"
+  ]
+}

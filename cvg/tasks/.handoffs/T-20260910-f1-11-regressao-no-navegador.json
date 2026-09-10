@@ -16,12 +16,12 @@
     "signed_at": "2026-09-10T20:59:29Z"
   },
   "attempt": {
-    "id": "435467bc-1a7c-43fb-acf1-fbc86e388563",
-    "issued_at": "2026-09-10T20:59:55Z"
+    "id": "8c39c6fa-bd78-48d3-b6ab-24563f3d7239",
+    "issued_at": "2026-09-10T22:00:44Z"
   },
   "source": {
     "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
-    "base_commit": "c288f07d779a22b8bf7d5a9537127d4a49ecc68c"
+    "base_commit": "1b0d2f3cd46ae1b7eb7604bb82ed6dd1a6f84116"
   },
   "dependency_closure": {
     "contract": "DependencyClosure/v1",

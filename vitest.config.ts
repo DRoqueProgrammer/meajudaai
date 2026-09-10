@@ -9,10 +9,11 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    // Os gabaritos da Fatia 1 (tests/fatia1/) nascem vermelhos de propósito: importam
-    // módulos que as tarefas ainda vão criar. Rodam só em `npm run test:gabarito`
-    // (vitest.gabarito.config.ts) até a tarefa 11 devolvê-los à suíte normal.
-    exclude: [...configDefaults.exclude, "tests/fatia1/**"],
+    // Os gabaritos da Fatia 1 (tests/fatia1/) e tests/rls.test.ts entram aqui como
+    // qualquer outro arquivo: o bloco de integração de cada um se pula sozinho sem
+    // `RUN_INTEGRATION=1` (ver tests/fatia1/harness.ts e tests/setup.ts), então
+    // `npm test` roda só a parte pura/de leitura de código, sem bater no Supabase.
+    exclude: [...configDefaults.exclude],
     setupFiles: ["tests/setup.ts"],
     alias: {
       "server-only": new URL("./tests/stubs/server-only.ts", import.meta.url).pathname,

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-11-regressao-no-navegador
 title: "Regressão no navegador e gabaritos de volta à suíte de integração"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T20:59:29Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T22:06:29Z
 signed_off_sig: hmac-sha256-v3:9648e21f:f2be42d4991e4fc9db2320c70e888ddb05490c9cb1054d1fc6b1fb44403127c8
+accepted_tier: 1
+accepted_attempt_id: 8c39c6fa-bd78-48d3-b6ab-24563f3d7239
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:f2be42d4991e4fc9db2320c70e888ddb05490c9cb1054d1fc6b1fb44403127c8
+acceptance_record_digest: sha256:74204a037620299b9300f4ddeabbb20e27dd9d87fde075a2371174c972a2e083
 ---
 
 # Regressão no navegador e gabaritos de volta à suíte de integração

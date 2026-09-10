@@ -1,0 +1,40 @@
+{
+  "acceptance_tier": 1,
+  "accepted_at": "2026-09-10T22:06:29Z",
+  "accepted_by": "operator",
+  "contract": "AcceptanceRecord/v1",
+  "gate_outcomes": {
+    "authorization": {
+      "code": "AUTHORIZATION_VALID",
+      "status": "pass"
+    },
+    "evaluation": {
+      "code": "EVAL_PASSED",
+      "status": "pass"
+    },
+    "evidence": {
+      "code": "EVIDENCE_SATISFIED",
+      "proof": [
+        "format v3 or earlier: v4 policy receipts are not required"
+      ],
+      "status": "pass"
+    },
+    "preflight": {
+      "code": "PREFLIGHT_PASSED",
+      "status": "pass",
+      "warnings": []
+    }
+  },
+  "outcome": {
+    "code": "ACCEPTED_TIER_1",
+    "status": "accepted"
+  },
+  "receipts": [],
+  "subject": {
+    "attempt_id": "8c39c6fa-bd78-48d3-b6ab-24563f3d7239",
+    "authorization_ref": "hmac-sha256-v3:9648e21f:f2be42d4991e4fc9db2320c70e888ddb05490c9cb1054d1fc6b1fb44403127c8",
+    "base_commit": "1b0d2f3cd46ae1b7eb7604bb82ed6dd1a6f84116",
+    "task_id": "T-20260910-f1-11-regressao-no-navegador",
+    "task_revision_digest": "sha256:9ad4be078d0b44dede50e9336f856fb9f136daba94274cfcdb700f011df34586"
+  }
+}

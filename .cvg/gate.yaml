@@ -2,6 +2,14 @@
 #
 # Task-Specs narrow authority. This policy is the standing ceiling that no task
 # may widen. Review it for the consuming repository before unattended execution.
+#
+# Revisada em 2026-09-10 por delegação do dono (D-021 em
+# cvg/docs/tech-spec/_decisoes-travadas.md, substitui a D-013):
+#   - migrations: trancadas só as JÁ APLICADAS ao banco — histórico não se reescreve.
+#     Migration nova é o caminho normal de mudar o banco e passa pela verificação
+#     tier-2. Ao aplicar uma migration nova, acrescente-a aqui no mesmo commit.
+#   - auth: trancadas as rotas de confirmação de login (app/auth/**); a camada de
+#     autorização em lib/auth/ fica editável, sob tier-2.
 version: 2
 
 protected_paths:
@@ -15,8 +23,19 @@ protected_paths:
   - "**/*_secret*"
   - "**/id_rsa*"
   - "**/.terraform/**"
-  - "**/migrations/**"
-  - "**/auth/**"
+  # migrations já aplicadas (0001–0037)
+  - "supabase/migrations/000*"
+  - "supabase/migrations/001*"
+  - "supabase/migrations/002*"
+  - "supabase/migrations/0030_*"
+  - "supabase/migrations/0031_*"
+  - "supabase/migrations/0032_*"
+  - "supabase/migrations/0033_*"
+  - "supabase/migrations/0034_*"
+  - "supabase/migrations/0035_*"
+  - "supabase/migrations/0036_*"
+  - "supabase/migrations/0037_*"
+  - "app/auth/**"
   - "**/payments/**"
   - "**/billing/**"
   - ".cvg/gate.yaml"

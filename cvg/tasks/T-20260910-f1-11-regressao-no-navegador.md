@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-11-regressao-no-navegador
 title: "Regressão no navegador e gabaritos de volta à suíte de integração"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

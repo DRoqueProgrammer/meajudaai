@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatData, formatHora } from "@/lib/format";
 import { SlotReservar, type SlotBasico } from "@/components/agenda/slot-reservar";
 
@@ -22,8 +22,17 @@ export function SlotPicker({ slots }: { slots: SlotBasico[] }) {
   const ordemFocal = useMemo(() => grupos.flatMap((g) => g.slots), [grupos]);
   const [selecionadoId, setSelecionadoId] = useState<string | null>(null);
   const botoesRef = useRef(new Map<string, HTMLButtonElement>());
+  const formularioRef = useRef<HTMLDivElement>(null);
 
   const selecionado = ordemFocal.find((s) => s.id === selecionadoId) ?? null;
+
+  // Com os dias em grade, o formulário do horário escolhido pode nascer fora da tela:
+  // leva a pessoa até ele (sem animação para quem pediu movimento reduzido).
+  useEffect(() => {
+    if (!selecionadoId || !formularioRef.current) return;
+    const reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    formularioRef.current.scrollIntoView({ behavior: reduzir ? "auto" : "smooth", block: "nearest" });
+  }, [selecionadoId]);
 
   /** Move o foco pro chip vizinho (seta ← ↑ volta, → ↓ avança), passando de um dia para o outro nas pontas. */
   function focarVizinho(atualId: string, delta: 1 | -1) {
@@ -39,52 +48,56 @@ export function SlotPicker({ slots }: { slots: SlotBasico[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      {grupos.map((grupo) => {
-        const rotuloDia = labelDia(grupo.data);
-        return (
-          <div key={grupo.data} className="flex flex-col gap-2">
-            <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">{rotuloDia}</p>
-            <div role="group" aria-label={`Horários de ${rotuloDia}`} className="flex flex-wrap gap-2">
-              {grupo.slots.map((slot) => {
-                const ativo = slot.id === selecionadoId;
-                const nomeAcessivel = `${formatData(slot.data)} · ${formatHora(slot.hora_inicio)}–${formatHora(slot.hora_fim)}`;
-                return (
-                  <button
-                    key={slot.id}
-                    ref={(el) => {
-                      if (el) botoesRef.current.set(slot.id, el);
-                      else botoesRef.current.delete(slot.id);
-                    }}
-                    type="button"
-                    aria-pressed={ativo}
-                    aria-label={nomeAcessivel}
-                    onClick={() => setSelecionadoId((atual) => (atual === slot.id ? null : slot.id))}
-                    onKeyDown={(e) => {
-                      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                        e.preventDefault();
-                        focarVizinho(slot.id, 1);
-                      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                        e.preventDefault();
-                        focarVizinho(slot.id, -1);
-                      }
-                    }}
-                    className={`chip gap-1.5 font-semibold ${ativo ? "chip-on" : "chip-off"}`}
-                  >
-                    {/* O estado de seleção não depende só da cor (item [ALTO] do parecer): o
-                        chip ativo também ganha o ✓ e o negrito, então dá pra distinguir sem
-                        depender de percepção de cor. */}
-                    {ativo ? <span aria-hidden="true">✓</span> : null}
-                    {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
-                  </button>
-                );
-              })}
+      {/* Um cartão por dia, em grade: no desktop a agenda ocupa a largura em vez de
+          descer um dia por linha. */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {grupos.map((grupo) => {
+          const rotuloDia = labelDia(grupo.data);
+          return (
+            <div key={grupo.data} className="flex flex-col gap-2 rounded-2xl border border-line bg-card p-3">
+              <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">{rotuloDia}</p>
+              <div role="group" aria-label={`Horários de ${rotuloDia}`} className="flex flex-wrap gap-2">
+                {grupo.slots.map((slot) => {
+                  const ativo = slot.id === selecionadoId;
+                  const nomeAcessivel = `${formatData(slot.data)} · ${formatHora(slot.hora_inicio)}–${formatHora(slot.hora_fim)}`;
+                  return (
+                    <button
+                      key={slot.id}
+                      ref={(el) => {
+                        if (el) botoesRef.current.set(slot.id, el);
+                        else botoesRef.current.delete(slot.id);
+                      }}
+                      type="button"
+                      aria-pressed={ativo}
+                      aria-label={nomeAcessivel}
+                      onClick={() => setSelecionadoId((atual) => (atual === slot.id ? null : slot.id))}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                          e.preventDefault();
+                          focarVizinho(slot.id, 1);
+                        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                          e.preventDefault();
+                          focarVizinho(slot.id, -1);
+                        }
+                      }}
+                      className={`chip gap-1.5 font-semibold ${ativo ? "chip-on" : "chip-off"}`}
+                    >
+                      {/* O estado de seleção não depende só da cor (item [ALTO] do parecer): o
+                          chip ativo também ganha o ✓ e o negrito, então dá pra distinguir sem
+                          depender de percepção de cor. */}
+                      {ativo ? <span aria-hidden="true">✓</span> : null}
+                      {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       {/* `key` reinicia o formulário (descrição/endereço) quando o cliente troca de horário. */}
-      {selecionado ? <SlotReservar key={selecionado.id} slot={selecionado} /> : null}
+      <div ref={formularioRef}>{selecionado ? <SlotReservar key={selecionado.id} slot={selecionado} /> : null}</div>
     </div>
   );
 }

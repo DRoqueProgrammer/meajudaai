@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { confirmarServicoAction, cancelarServicoAction, escreverLogServicoAction } from "@/lib/actions/agenda-v2";
+import {
+  confirmarServicoAction,
+  marcarRealizadoAction,
+  cancelarServicoAction,
+  escreverLogServicoAction,
+} from "@/lib/actions/agenda-v2";
 import { FormError } from "@/components/ui";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 
@@ -27,9 +32,10 @@ export interface SlotDetalheProps {
 
 /**
  * Detalhe de um horário da agenda — descrição do serviço (se houver), log
- * privado e ações (aceitar/cancelar). Por padrão expande/recolhe ao clicar no
- * cabeçalho (usado dentro de um card efêmero); `paginaCompleta` pula o
- * cabeçalho clicável e mostra tudo aberto (usado em /agenda/[slotId]).
+ * privado e ações (aceitar / marcar como realizado / cancelar). Por padrão
+ * expande/recolhe ao clicar no cabeçalho (usado dentro de um card efêmero);
+ * `paginaCompleta` pula o cabeçalho clicável e mostra tudo aberto (usado em
+ * /agenda/[slotId]).
  */
 export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: SlotDetalheProps & { paginaCompleta?: boolean }) {
   const router = useRouter();
@@ -93,6 +99,24 @@ export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: Slo
                   }
                 >
                   Aceitar serviço
+                </button>
+              ) : null}
+
+              {servico.status === "confirmado" ? (
+                <button
+                  type="button"
+                  disabled={pending}
+                  className="btn-action self-start px-4 text-xs"
+                  onClick={() => {
+                    if (!window.confirm("Marcar este serviço como realizado? Essa ação não pode ser desfeita.")) return;
+                    start(async () => {
+                      const r = await marcarRealizadoAction(servico.id);
+                      if (r.ok) router.refresh();
+                      else setErro(r.erro ?? "Não foi possível marcar como realizado.");
+                    });
+                  }}
+                >
+                  Marcar como realizado
                 </button>
               ) : null}
 

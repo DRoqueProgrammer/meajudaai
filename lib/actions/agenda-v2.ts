@@ -156,6 +156,30 @@ export async function confirmarServicoAction(servicoId: string): Promise<ActionR
   return { ok: true };
 }
 
+/**
+ * Prestador marca como realizado um serviço confirmado — ação sem volta (a
+ * regra do banco, migration 0038, trava "realizado" como estado final: nem
+ * este mesmo prestador consegue mudar de novo). O horário em `agenda_slots`
+ * continua "confirmado" — não existe status "realizado" para horário.
+ */
+export async function marcarRealizadoAction(servicoId: string): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  const sb = await createServerClient();
+  const { data: servico } = await sb
+    .from("servicos")
+    .select("id, prestador_id, status")
+    .eq("id", servicoId)
+    .maybeSingle();
+  if (!servico || servico.prestador_id !== w.user.id) return { ok: false, erro: "Serviço não encontrado." };
+  if (servico.status !== "confirmado") return { ok: false, erro: "Esse serviço não está confirmado." };
+
+  const { error } = await sb.from("servicos").update({ status: "realizado" }).eq("id", servico.id);
+  if (error) return { ok: false, erro: "Não foi possível marcar como realizado." };
+  revalidatePath("/agenda");
+  return { ok: true };
+}
+
 /** Prestador propõe um novo valor pro serviço — fica pendente até o cliente aceitar ou recusar. */
 export async function proporRenegociacaoAction(input: { servicoId: string; novoValor: number }): Promise<ActionResult> {
   const w = await tryWriter();

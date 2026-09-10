@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-12-prestador-marca-realizado
 title: "O prestador marca o serviço como realizado"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: S
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:31:42Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T20:55:50Z
 signed_off_sig: hmac-sha256-v3:9648e21f:c36736dc9ae6b0f1a63431cc51cd2cd7a501f983a6e27f955a0650ab90169dcf
+accepted_tier: 1
+accepted_attempt_id: a41fa94d-fb5d-4522-b5dc-1fdc1caa99fc
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:c36736dc9ae6b0f1a63431cc51cd2cd7a501f983a6e27f955a0650ab90169dcf
+acceptance_record_digest: sha256:33a372ed970516a550304ff2e129130d2db4e8fa5eef8d0642fbdb3ab50ab85b
 ---
 
 # O prestador marca o serviço como realizado

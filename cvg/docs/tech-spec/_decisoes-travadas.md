@@ -221,3 +221,13 @@ ganhar shell.
 **D-028 (do controller) — Gabarito sem credencial quebra, não pula.** Um teste de
 integração pulado deixa o vitest verde sem provar nada; o `tests/fatia1/harness.ts` lança
 erro quando `RUN_INTEGRATION=1` e faltam as variáveis do Supabase.
+
+**D-029 (do controller) — Tier 2 no Windows pelo gemini, e sem Pass 7 na Fatia 1.** O
+`cvg verify` não subia o juiz no Windows (o `CreateProcess` não acha o `gemini.CMD`) e
+passava o diff como argumento, o que estoura o limite de linha de comando num diff de
+migration. Fork mínimo do `verify-work.py` nos dois tool homes: prompt por stdin,
+gemini em modo read-only, executável resolvido por `shutil.which` — detalhes em
+`cvg/brain/decisions/2026-09-10-verificacao-tier2-no-windows.md`. O `cvg bind` (Pass 7)
+também quebra no Windows e só alimenta o `cvg loop`, que a D-027 deixou de lado; a cerca
+que a Fatia 1 precisa é conferida pelo `taskspec accept` e pelo `cvg gate --path`.
+*Reverter custa:* reaplicar o `install.sh` do Converge.

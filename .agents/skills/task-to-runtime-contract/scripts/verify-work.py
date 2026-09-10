@@ -187,15 +187,24 @@ Reply with ONLY this JSON and nothing else:
 
 def run_judge(engine: str, prompt: str, timeout: int) -> tuple[bool, str]:
     """Dispatch headless + read-only. Any failure is a failure — never a pass."""
+    # Me Ajuda Aí (fork local, ver cvg/brain/decisions/2026-09-10-verificacao-tier2-no-windows.md):
+    # o gemini recebe o prompt por STDIN e roda em modo read-only (`--approval-mode plan`),
+    # o mesmo contrato do dispatch-review.sh do Pass 4. Por argumento, um diff de
+    # migration estoura o limite de linha de comando do Windows (~32 KB; ~8 KB via .CMD).
     commands = {
         "codex": ["codex", "exec", "--skip-git-repo-check", prompt],
         "claude": ["claude", "-p", prompt],
         "kimi": ["kimi", "-p", prompt],
-        "gemini": ["gemini", "-p", prompt],
+        "gemini": ["gemini", "--skip-trust", "--approval-mode", "plan", "--output-format", "text",
+                   "-p", "Julgue a mudanca descrita acima e responda SOMENTE com o JSON pedido."],
     }
+    via_stdin = {"gemini"}
     cmd = commands.get(engine)
     if not cmd:
         return False, f"no dispatch recipe for engine: {engine}"
+    # O CreateProcess do Windows não consulta o PATHEXT: "gemini" não acha o gemini.CMD
+    # do npm. O caminho resolvido pelo shutil.which funciona nos dois sistemas.
+    cmd = [shutil.which(cmd[0]) or cmd[0], *cmd[1:]]
     try:
         # Vendor CLIs may inspect stdin or spawn helpers. Close stdin explicitly
         # and own a fresh process group so a timeout kills the whole dispatch,
@@ -203,14 +212,19 @@ def run_judge(engine: str, prompt: str, timeout: int) -> tuple[bool, str]:
         proc = subprocess.Popen(
             cmd,
             text=True,
-            stdin=subprocess.DEVNULL,
+            encoding="utf-8",
+            stdin=subprocess.PIPE if engine in via_stdin else subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             start_new_session=True,
         )
         try:
-            stdout, stderr = proc.communicate(timeout=timeout)
+            stdout, stderr = proc.communicate(input=prompt if engine in via_stdin else None, timeout=timeout)
         except subprocess.TimeoutExpired:
+            if not hasattr(os, "killpg"):
+                # Windows não tem grupo de processo POSIX: derruba a árvore (cmd → node).
+                subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True, check=False)
+                return False, f"judge timed out after {timeout}s"
             try:
                 os.killpg(proc.pid, signal.SIGTERM)
             except ProcessLookupError:

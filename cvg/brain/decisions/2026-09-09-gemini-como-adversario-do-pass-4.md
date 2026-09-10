@@ -96,3 +96,33 @@ Converge, este patch precisa ser reaplicado** — o `install.sh --force`
 sobrescreve os scripts. Se o upstream implementar gemini de verdade, o fork
 desaparece; vale abrir issue lá apontando a divergência entre a descrição da
 skill e o código.
+
+## Verificação — baseline medido, não presumido
+
+A suíte do Pass 4 (`skills/sketch-plans-adversarial-review/tests/run-tests.sh`)
+foi rodada nos dois lados antes de concluir qualquer coisa:
+
+| Alvo | Resultado |
+|---|---|
+| Checkout original do Converge, **sem** o patch | **2 de 23 vermelhas** |
+| Nosso install, com o patch e o tool home completo | **2 de 23 vermelhas** — as mesmas |
+
+As duas (`fork-a-retired`, `dispatch-multi`) falham com
+`FileNotFoundError: .../objection-log.json` e **já falhavam no upstream nesta
+máquina** — é problema de ambiente Windows do vendor, anterior a nós. O patch do
+gemini não regrediu nada.
+
+No meio do caminho o nosso install falhava **4** — as duas extras
+(`resolve-records` com exit 127, e `resolved-then-green` como consequência)
+vinham de um **tool home incompleto**, não do patch: o `install.sh --copy` deixou
+`.agents/bin/` com só três helpers Python, sem o launcher `cvg` nem o companion
+`.cvg-ui.sh` (dotfile) que ele exige ao lado. Completamos o diretório — agora
+`bash .agents/bin/cvg` funciona num clone novo sem nenhum install global.
+
+## Outro ajuste de ambiente (Windows)
+
+O Python do Windows assume **cp1252** no stdout e estoura `UnicodeEncodeError`
+em qualquer `→`, `·` ou acento — e os scripts do Converge são cheios deles. O
+shim de `python3` em `~/bin` agora exporta `PYTHONUTF8=1` e
+`PYTHONIOENCODING=utf-8`. Sem isso, uma linha da suíte falhava só por causa de
+uma seta num `printf`.

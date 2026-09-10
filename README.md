@@ -1,6 +1,15 @@
 # Me Ajuda Aí — Protótipo (v2)
 
-**Versão 0.0.2** — a versão vive no `version` do [package.json](./package.json) e é lida de lá pelo rodapé do site (`components/footer.tsx`), que a mostra em todas as páginas. Fonte única: bumpe no `package.json` e o site acompanha. A cada entrega relevante fazemos um bump e registramos o que entrou.
+**Versão 0.0.2** — a versão vive no `version` do [package.json](./package.json) e é lida de lá pelo rodapé do site (`components/footer.tsx`), que a mostra em todas as páginas. Fonte única: bumpe no `package.json` e o site acompanha.
+
+**Convenção de bump:** toda entrega que muda o produto sobe a versão e reporta a cobertura junto. A meta é **100%**, medida em dois números separados porque a maquinaria é diferente:
+
+| Medida | Comando | Hoje | Meta |
+|---|---|---|---|
+| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 29,16% | 100% |
+| `lib/` inteiro, incluindo ações de servidor | `npm run test:coverage` | 9,84% | 100% (via teste de integração) |
+
+As ações de servidor estão em 0% porque todo o corpo delas fala com o banco — cobri-las exige teste de integração contra banco real (`npm run test:integration`), não banco falso. O primeiro passo nessa direção são os **22 testes de regra de permissão já escritos** em `tests/rls.test.ts`, hoje desligados atrás de `RUN_INTEGRATION`. Ver R-33 a R-36 no [tech-spec](./cvg/docs/tech-spec/fechar-v2-marketplace.md).
 
 Marketplace de agendamento de serviços de manutenção civil: **Prestador de Serviço** mantém uma agenda de horários disponíveis, **Cliente** busca por proximidade e agenda direto com ele — mais parecido com um sistema de salão/clínica do que um mural de vagas. Quatro papéis: **SysAdmin** (dono da plataforma), **Administrador** (dono/gestor de um workspace), **Prestador de Serviço** e **Cliente**.
 

@@ -205,6 +205,23 @@ Prioridade: `must` só para o que o resultado declarado falha sem. `should` e
   2 ícones aprovados, ou envia um logo próprio. *Verificável:* remover o logo
   enviado devolve exatamente o ícone escolhido antes, em 100% dos casos.
 
+### Qualidade medida
+
+- **R-33 (must)** — Cobertura de linha da lógica pura de `lib/` (tudo que não
+  fala com o banco) chega a 100%. *Verificável:* hoje 29,16% (245 de 840
+  linhas); alvo 100%.
+- **R-34 (must)** — Cobertura de linha das ações de servidor chega a 100%,
+  medida por teste de integração contra banco real — não por teste unitário com
+  banco falso, que mediria linha sem provar comportamento. *Verificável:* hoje
+  0% (15 arquivos, 0 de ~1.600 linhas); alvo 100%.
+- **R-35 (must)** — Os 22 testes de regra de permissão já escritos e hoje
+  desligados passam a rodar. *Verificável:* 22 de 22 executando e passando, em
+  vez de 22 pulados. Vem antes de R-34: é o que prova a propriedade de segurança
+  que a porcentagem sozinha não prova.
+- **R-36 (should)** — Toda entrega que muda o produto sobe a versão e reporta as
+  2 medidas de cobertura junto. *Verificável:* 0 versões publicadas sem o par de
+  números registrado.
+
 ### Exclusões declaradas
 
 - **W-1 (wont)** — Notificação por Telegram. Bloqueada por credencial externa:
@@ -227,6 +244,9 @@ com o dono (D-003) e cada uma tem um estado atual medido, não estimado.
 | Superfícies com isolamento por praça | 0 (o conceito não existe para prestador e cliente) | 100% das superfícies que listam pessoas, horários, serviços ou logs |
 | Amplitude do histórico na base de demonstração | insuficiente ("bem ruim", palavras do dono) | >= 24 meses até dez/2026, futuros <= 6 meses |
 | Telas do fluxo v2 falando a língua da v1 | presente na landing e em rotas de diária | 0 |
+| Cobertura de linha — lógica pura de `lib/` | 29,16% (245/840) | 100% |
+| Cobertura de linha — ações de servidor | 0% (0 de ~1.600 linhas) | 100%, por teste de integração |
+| Testes de regra de permissão em execução | 0 de 22 (todos desligados) | 22 de 22 |
 
 ## Dados nomeados (Data named)
 
@@ -302,9 +322,9 @@ spec assume enquanto a resposta não vem.
   type: number
   severity: minor
   question: "Cobertura de teste tem meta numérica? A intenção de amarrar o bump de versão à cobertura ficou sem métrica."
-  blocks: "convenção de versionamento no README"
+  blocks: "R-33, R-34, R-36"
   owner: "Leonardo Chalhoub"
-  resolution: "Assumido: medimos a cobertura atual e propomos a meta com o número na mão, em vez de arbitrar agora."
+  resolution: "RESOLVIDO 09/09/2026 — meta é 100%, decidida pelo dono depois de ver o número medido (9,84% em lib/**). Dividida em duas medidas porque a maquinaria difere: R-33 (lógica pura, teste unitário) e R-34 (ações de servidor, teste de integração contra banco real). R-35 vem antes das duas."
 
 - id: GAP-007
   type: definition

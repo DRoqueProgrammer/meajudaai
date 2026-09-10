@@ -26,3 +26,4 @@ next-env.d.ts
 # clone novo tem as skills mas o CLI quebra. Já o /.grok atende só o Grok Build,
 # que não usamos; regenerável com o install.sh do Converge.
 /.grok
+/coverage

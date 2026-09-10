@@ -16,7 +16,7 @@ const STATUS_ESTILO: Record<string, string> = {
 
 function StatusPill({ status }: { status: string }) {
   return (
-    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[status] ?? "bg-surface text-muted"}`}>
+    <span className={`shrink-0 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[status] ?? "bg-surface text-muted"}`}>
       {status}
     </span>
   );

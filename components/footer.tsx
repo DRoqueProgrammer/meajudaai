@@ -33,12 +33,16 @@ const AUTORES: { nome: string; linkedin: string | null; whatsapp?: string }[] = 
 export function Footer() {
   return (
     <footer className="border-t border-line bg-card">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 px-6 py-5 text-[12.5px] text-muted sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-3 px-6 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+        {/* meta (12px) — já era o texto mais fino do rodapé (era 12,5px arbitrário) */}
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="shrink-0">Feito por</span>
           {AUTORES.map((autor, i) => (
             <span key={autor.nome} className="flex items-center gap-1.5">
-              {i > 0 ? <span aria-hidden className="mr-1 text-line">·</span> : null}
+              {/* Separador só decorativo — era text-line (borda) usado como
+                  cor de texto: 1,25:1 contra --card, ilegível. text-muted
+                  chega a ~6:1 (problema ALTO do parecer de design). */}
+              {i > 0 ? <span aria-hidden className="mr-1 text-muted">·</span> : null}
               {autor.linkedin ? (
                 <a
                   href={autor.linkedin}
@@ -77,7 +81,7 @@ export function Footer() {
           <a href={mailtoSuporte()} className="hover:text-brand">
             Suporte
           </a>
-          <span aria-hidden className="text-line">
+          <span aria-hidden className="text-muted">
             ·
           </span>
           <span className="tabular-nums" title="Versão do Me Ajuda Aí em exibição">

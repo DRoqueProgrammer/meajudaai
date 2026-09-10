@@ -81,7 +81,7 @@ export default async function ClienteDetalhePage({
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-semibold text-muted">Serviços</h2>
         {(servicos ?? []).length === 0 ? (
-          <p className="text-sm text-muted">Nenhum serviço com esse cliente ainda.</p>
+          <p className="card-vazio">Nenhum serviço com esse cliente ainda.</p>
         ) : (
           (servicos ?? []).map((s) => (
             <ServicoClienteCard key={s.id} servico={s} slot={slotDe.get(s.slot_id) ?? null} logs={logsDe.get(s.id) ?? []} />

@@ -23,7 +23,7 @@ export default async function ClientesPage() {
       <h1 className="text-xl font-semibold">Clientes</h1>
       <p className="text-sm text-muted">Pessoas que já solicitaram algum serviço com você.</p>
       {(perfis ?? []).length === 0 ? (
-        <p className="text-sm text-muted">Nenhum cliente ainda.</p>
+        <p className="card-vazio">Nenhum cliente ainda.</p>
       ) : (
         (perfis ?? []).map((p) => (
           <Link key={p.user_id} href={`/clientes/${p.user_id}`} className="card flex items-center gap-3">

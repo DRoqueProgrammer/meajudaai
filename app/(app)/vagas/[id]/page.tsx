@@ -102,7 +102,7 @@ export default async function VagaDetalhePage({
         </div>
 
         <div className="card flex items-baseline justify-between gap-3">
-          <span className="text-[22px] font-bold text-brand">
+          <span className="text-2xl font-bold text-brand">
             {formatBRL(vaga.valor_diaria)}
             <span className="text-xs font-normal text-muted"> / diária</span>
           </span>

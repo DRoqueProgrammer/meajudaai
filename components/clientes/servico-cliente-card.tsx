@@ -52,14 +52,16 @@ export function ServicoClienteCard({ servico, slot, logs }: ServicoClienteCardPr
         </div>
         <div className="shrink-0 text-right">
           <p className="text-sm font-semibold text-brand">{formatBRL(servico.preco_valor)}</p>
-          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>
+          <span className={`inline-block rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>
             {servico.status}
           </span>
         </div>
       </button>
 
+      {/* `text-accent` (#FFC107 puro) como texto dava baixo contraste sobre
+          --card; `tint-warn-ink` é a tinta pensada pra isso. */}
       {servico.preco_pendente != null ? (
-        <p className="text-xs text-accent">Renegociação pendente: {formatBRL(servico.preco_pendente)} (aguardando cliente)</p>
+        <p className="text-xs text-tint-warn-ink">Renegociação pendente: {formatBRL(servico.preco_pendente)} (aguardando cliente)</p>
       ) : null}
 
       {aberto ? (

@@ -151,7 +151,7 @@ export default async function BuscarVagasPage({
 
         <div className="flex flex-col gap-4 border-t border-line px-4 py-4">
           <div className="flex flex-col gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Categoria</p>
+            <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">Categoria</p>
             <div className="flex flex-wrap gap-2">
               <Chip href={qs({ categoria: undefined })} active={!categoria}>
                 Todas
@@ -165,7 +165,7 @@ export default async function BuscarVagasPage({
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Cidade</p>
+            <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">Cidade</p>
             <div className="flex flex-wrap gap-2">
               <Chip href={qs({ cidade: "todas" })} active={verTodasCidades}>
                 Todas

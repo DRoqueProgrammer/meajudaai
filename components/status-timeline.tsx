@@ -43,7 +43,7 @@ export function StatusTimeline({
             <li key={s.label} className="flex gap-3">
               <div className="flex flex-col items-center">
                 <span
-                  className={`grid h-6 w-6 flex-none place-items-center rounded-full text-[11px] font-bold ${
+                  className={`grid h-6 w-6 flex-none place-items-center rounded-full text-rotulo font-bold ${
                     done
                       ? "bg-action-dark text-white"
                       : active
@@ -68,7 +68,7 @@ export function StatusTimeline({
                 >
                   {s.label}
                   {active && (
-                    <span className="rounded-full bg-tint-info px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand">
+                    <span className="rounded-full bg-tint-info px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide text-brand">
                       você está aqui
                     </span>
                   )}

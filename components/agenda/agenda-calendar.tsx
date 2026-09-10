@@ -78,7 +78,7 @@ export function AgendaCalendar({
         </button>
       </div>
 
-      <div className="grid grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-muted">
+      <div className="grid grid-cols-7 text-center text-rotulo font-semibold uppercase tracking-wide text-muted">
         {WD.map((w, i) => (
           <div key={i} className="py-1">
             {w}
@@ -105,18 +105,18 @@ export function AgendaCalendar({
               } ${isBloco ? "bg-surface opacity-70" : "bg-card"}`}
             >
               <span
-                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+                className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-rotulo ${
                   isHoje ? "bg-brand-fill font-bold text-white" : "text-muted"
                 }`}
               >
                 {d}
               </span>
               {ds.length ? (
-                <span className="mt-0.5 block truncate text-[10px] font-medium text-brand">
+                <span className="mt-0.5 block truncate text-rotulo font-medium text-brand">
                   {ds.length === 1 ? ds[0]!.titulo : `${ds.length} diárias`}
                 </span>
               ) : null}
-              {isBloco ? <span className="mt-0.5 block text-[10px] text-muted">🚫 indisponível</span> : null}
+              {isBloco ? <span className="mt-0.5 block text-rotulo text-muted">🚫 indisponível</span> : null}
             </button>
           );
         })}

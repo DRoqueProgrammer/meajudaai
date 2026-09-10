@@ -44,7 +44,7 @@ export function ModulosFuncionario({
     <div className="mt-2 flex flex-col gap-3 border-t border-line pt-2">
       {grupos.map((g) => (
         <div key={g.titulo} className="flex flex-col gap-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{g.titulo}</p>
+          <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">{g.titulo}</p>
           <div className="flex flex-wrap gap-1.5">
             {g.chaves.map((k) => {
               const on = !!state[k];

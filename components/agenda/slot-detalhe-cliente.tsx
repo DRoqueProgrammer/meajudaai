@@ -27,7 +27,7 @@ export function SlotDetalheCliente({ evento, prestador }: { evento: DiaTimelineE
             {formatData(slot.data)} · {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>
+        <span className={`shrink-0 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>
           {servico.status}
         </span>
       </div>

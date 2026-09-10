@@ -83,7 +83,7 @@ export function AgendaCalendarV2({
         } ${foraDoMes ? "opacity-40" : ""}`}
       >
         <span
-          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[11px] ${
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-rotulo ${
             isHoje ? "bg-brand-fill font-bold text-white" : "text-muted"
           }`}
         >
@@ -93,11 +93,11 @@ export function AgendaCalendarV2({
           {visiveis.map((e) => (
             <div key={e.slot.id} className="flex items-baseline gap-1 overflow-hidden">
               <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`} />
-              <span className="shrink-0 text-[9px] tabular-nums text-muted">{e.slot.hora_inicio.slice(0, 5)}</span>
-              <span className="truncate text-[10px] leading-tight text-ink">{e.servico?.descricao ?? "Livre"}</span>
+              <span className="shrink-0 text-rotulo tabular-nums text-muted">{e.slot.hora_inicio.slice(0, 5)}</span>
+              <span className="truncate text-rotulo leading-tight text-ink">{e.servico?.descricao ?? "Livre"}</span>
             </div>
           ))}
-          {resto > 0 ? <span className="text-[9px] text-muted">+{resto}</span> : null}
+          {resto > 0 ? <span className="text-rotulo text-muted">+{resto}</span> : null}
         </div>
       </button>
     );
@@ -172,14 +172,14 @@ export function AgendaCalendarV2({
         </button>
       </div>
 
-      <div className="grid grid-cols-7 text-center text-[10px] font-semibold uppercase tracking-wide text-muted">
+      <div className="grid grid-cols-7 text-center text-rotulo font-semibold uppercase tracking-wide text-muted">
         {WD.map((w) => (
           <div key={w} className="py-1">{w}</div>
         ))}
       </div>
       {grade}
 
-      <div className="flex flex-wrap gap-3 text-[11px] text-muted">
+      <div className="flex flex-wrap gap-3 text-rotulo text-muted">
         {Object.entries(corPorStatus).map(([status, cor]) => (
           <span key={status} className="inline-flex items-center gap-1.5">
             <span className={`h-2 w-2 rounded-full ${cor}`} /> {status}

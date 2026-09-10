@@ -46,7 +46,9 @@ export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: Slo
 
   const corStatus: Record<string, string> = {
     livre: "text-muted",
-    pendente: "text-accent",
+    // `text-accent` (#FFC107 puro) como texto dava ~1,5:1 sobre --card — ilegível.
+    // `tint-warn-ink` é a tinta pensada pra isso (ver tailwind.config.ts).
+    pendente: "text-tint-warn-ink",
     confirmado: "text-action",
     cancelado: "text-danger",
     realizado: "text-brand",

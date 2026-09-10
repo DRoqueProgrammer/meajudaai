@@ -57,7 +57,7 @@ export function UsuarioPapel({
           </option>
         ))}
       </select>
-      {isSelf ? <span className="text-[10px] text-muted">(você)</span> : null}
+      {isSelf ? <span className="text-rotulo text-muted">(você)</span> : null}
       {erro ? <FormError className="text-xs">{erro}</FormError> : null}
     </div>
   );

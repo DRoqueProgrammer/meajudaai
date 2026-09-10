@@ -16,7 +16,7 @@ function mesLabel(ym: string) {
 function Kpi({ label, valor, nota }: { label: string; valor: string; nota?: string }) {
   return (
     <div className="card">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">{label}</p>
       <p className="mt-1 text-xl font-bold text-brand">{valor}</p>
       {nota ? <p className="mt-0.5 text-xs text-muted">{nota}</p> : null}
     </div>
@@ -107,7 +107,7 @@ export default async function FinanceiroPage({
 
           {meses.length > 0 ? (
             <section className="card flex flex-col gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Por mês</p>
+              <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">Por mês</p>
               {meses.map(([ym, v]) => (
                 <div key={ym} className="flex items-center gap-3">
                   <span className="w-14 text-xs text-muted">{mesLabel(ym)}</span>
@@ -124,7 +124,7 @@ export default async function FinanceiroPage({
           ) : null}
 
           <section className="flex flex-col gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Por vaga</p>
+            <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">Por vaga</p>
             {vagaCusto.map((v) => (
               <div key={v.id} className="card flex items-center justify-between gap-3">
                 <div>

@@ -46,7 +46,9 @@ export function AvaliarForm({
           {[5, 4, 3, 2, 1].map((n) => (
             <label
               key={n}
-              className="cursor-pointer text-line-strong transition-colors has-[:checked]:text-accent [&:has(~label_input:checked)]:text-accent"
+              // `accent-strong` (var(--star)) é a estrela recalibrada pro contraste
+              // de 4,5:1 — `accent` puro (#FFC107) some sobre fundo claro.
+              className="cursor-pointer text-line-strong transition-colors has-[:checked]:text-accent-strong [&:has(~label_input:checked)]:text-accent-strong"
             >
               <input
                 type="radio"

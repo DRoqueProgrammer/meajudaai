@@ -45,9 +45,7 @@ export default async function MapaPage() {
           </p>
         </div>
         {pontos.length === 0 ? (
-          <div className="card">
-            <p className="text-sm text-muted">Nenhum serviço pendente ou confirmado no momento.</p>
-          </div>
+          <p className="card-vazio">Nenhum serviço pendente ou confirmado no momento.</p>
         ) : (
           <PontosMap pontos={pontos} />
         )}
@@ -94,9 +92,7 @@ export default async function MapaPage() {
         <p className="mt-0.5 text-sm text-muted">As vagas da sua equipe, no ponto exato da obra.</p>
       </div>
       {points.length === 0 ? (
-        <div className="card">
-          <p className="text-sm text-muted">Nenhuma vaga com localização no mapa ainda.</p>
-        </div>
+        <p className="card-vazio">Nenhuma vaga com localização no mapa ainda.</p>
       ) : (
         <VagasMap points={points} />
       )}

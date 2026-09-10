@@ -135,7 +135,7 @@ function Badge({ n, rotulo }: { n: number; rotulo: string }) {
   return (
     <span
       aria-label={`${n} ${n === 1 ? "novo" : "novos"} em ${rotulo}`}
-      className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-danger-fill px-1 text-[10px] font-bold leading-none text-white"
+      className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-danger-fill px-1 text-rotulo font-bold leading-none text-white"
     >
       {n > 9 ? "9+" : n}
     </span>
@@ -245,7 +245,7 @@ export function Nav({
       <aside className="hidden w-60 shrink-0 flex-col gap-1 border-r border-line bg-card p-4 md:flex">
         <div className="mb-4 px-2">
           <Logo />
-          <span className="mt-2 inline-block rounded-full bg-brand-fill px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+          <span className="mt-2 inline-block rounded-full bg-brand-fill px-2.5 py-0.5 text-rotulo font-semibold uppercase tracking-wide text-white">
             {papelLabel(role, genero)}
           </span>
         </div>
@@ -288,7 +288,7 @@ export function Nav({
             key={it.href}
             href={it.href}
             aria-current={active(it.href) ? "page" : undefined}
-            className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] leading-tight focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
+            className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-rotulo leading-tight focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
               active(it.href) ? "text-brand" : "text-muted"
             }`}
           >
@@ -306,7 +306,7 @@ export function Nav({
           perfilHref={`/perfil/${userId}`}
           nome={nome}
           mostrarDiarias={role !== "sysadmin"}
-          className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[11px] leading-tight focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
+          className={`flex min-h-11 flex-1 flex-col items-center justify-center gap-0.5 py-2 text-rotulo leading-tight focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand ${
             path.startsWith("/perfil") ? "text-brand" : "text-muted"
           }`}
         >

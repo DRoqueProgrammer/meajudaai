@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<string, string> = {
 function Kpi({ label, valor, nota }: { label: string; valor: string; nota?: string }) {
   return (
     <div className="card">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
+      <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">{label}</p>
       <p className="mt-1 text-xl font-bold text-brand">{valor}</p>
       {nota ? <p className="mt-0.5 text-xs text-muted">{nota}</p> : null}
     </div>
@@ -103,7 +103,7 @@ export default async function RelatoriosPage({
           </div>
 
           <section className="card flex flex-col gap-2">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">Vagas por status</p>
+            <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">Vagas por status</p>
             {vlist.length === 0 ? (
               <p className="text-sm text-muted">Nenhuma vaga publicada.</p>
             ) : (
@@ -127,7 +127,7 @@ export default async function RelatoriosPage({
 
           {cats.length > 0 ? (
             <section className="card flex flex-col gap-2">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+              <p className="text-rotulo font-semibold uppercase tracking-wide text-muted">
                 Categorias mais publicadas
               </p>
               {cats.map(([cat, n]) => (

@@ -56,7 +56,7 @@ export function GraficoFaturamento({ meses }: { meses: MesFaturamento[] }) {
                 rx={4}
                 className={emHover ? "fill-brand-fillhover" : "fill-brand-fill"}
               />
-              <text x={x + larguraBarra / 2} y={H - 6} textAnchor="middle" className="fill-current text-[10px] text-muted" fontSize={10}>
+              <text x={x + larguraBarra / 2} y={H - 6} textAnchor="middle" className="fill-current text-rotulo text-muted" fontSize={11}>
                 {m.rotulo}
               </text>
             </g>

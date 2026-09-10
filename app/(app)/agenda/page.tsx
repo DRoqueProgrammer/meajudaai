@@ -133,7 +133,7 @@ export default async function AgendaPage() {
       <div className="card flex flex-col gap-1.5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">Você está aberto para</p>
         {periodosAbertos.length === 0 ? (
-          <p className="text-sm text-muted">Nenhum horário aberto no momento — crie um abaixo.</p>
+          <p className="card-vazio">Nenhum horário aberto no momento — crie um abaixo.</p>
         ) : (
           periodosAbertos.map((p) => (
             <p key={`${p.horaInicio}-${p.horaFim}`} className="text-sm">

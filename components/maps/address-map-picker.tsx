@@ -115,7 +115,7 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
         >
           {geoBusy ? "Obtendo…" : "📍 Usar minha localização"}
         </button>
-        {geoErr ? <span className="text-[11px] text-danger">{geoErr}</span> : null}
+        {geoErr ? <span className="text-rotulo text-danger">{geoErr}</span> : null}
       </div>
 
       {hits.length > 1 ? (

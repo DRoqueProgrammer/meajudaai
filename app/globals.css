@@ -35,8 +35,11 @@
   --brand-fill-hover: #0a3a85;
   --danger-fill: #c62828;
 
-  /* Estrela que CARREGA a nota (escura no claro, brilhante no escuro) */
-  --star: #b8860b;
+  /* Estrela que CARREGA a nota (escura no claro, brilhante no escuro).
+     #b8860b (goldenrod) dava só 3,25:1 sobre branco — abaixo do texto pequeno
+     do WCAG (4,5:1). #b45309 (amber-700) chega a 5,02:1 sobre --card e 4,86:1
+     sobre --surface, mantendo o tom de ouro. */
+  --star: #b45309;
 
   /* Tints de status: fundo + a tinta do amarelo (as demais tintas reusam os inks) */
   --tint-info: #e6effb;
@@ -85,6 +88,15 @@ html,
 body {
   background: var(--surface);
   color: var(--ink);
+}
+
+/* Tiles do Leaflet (mapa) no tema escuro: sem o filtro, o tile claro do
+   provedor (OpenStreetMap) estourava contra o resto da UI escura (quick win
+   4 do parecer). `.leaflet-tile-pane` é só a camada de imagens do mapa-base —
+   marcadores (`.leaflet-marker-pane`) e popups (`.leaflet-popup-pane`) ficam
+   em outras camadas e não são afetados. */
+:root[data-theme="dark"] .leaflet-tile-pane {
+  filter: grayscale(0.3) brightness(0.8);
 }
 
 /* Quem marcou "reduzir movimento" no sistema não deve receber o pulse dos

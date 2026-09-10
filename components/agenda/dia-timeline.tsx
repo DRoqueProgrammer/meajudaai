@@ -49,7 +49,7 @@ export function DiaTimeline({
   const [selecionadoId, setSelecionadoId] = useState<string | null>(null);
 
   if (eventos.length === 0) {
-    return <p className="text-sm text-muted">Nenhum horário nesse dia.</p>;
+    return <p className="card-vazio">Nenhum horário nesse dia.</p>;
   }
 
   const selecionado = eventos.find((e) => e.slot.id === selecionadoId) ?? null;
@@ -58,7 +58,7 @@ export function DiaTimeline({
     <div className="flex">
       <div className="relative w-9 shrink-0" style={{ height: 24 * HOUR_PX }}>
         {MARCOS.map((h) => (
-          <span key={h} className="absolute -top-2 text-[9px] text-muted" style={{ top: h * HOUR_PX }}>
+          <span key={h} className="absolute -top-2 text-rotulo text-muted" style={{ top: h * HOUR_PX }}>
             {String(h % 24).padStart(2, "0")}h
           </span>
         ))}
@@ -78,10 +78,10 @@ export function DiaTimeline({
           }`;
           const rotulo = (
             <>
-              <span className="shrink-0 text-[10px] text-muted">
+              <span className="shrink-0 text-rotulo text-muted">
                 {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
               </span>
-              <span className="shrink-0 text-[10px] text-muted">—</span>
+              <span className="shrink-0 text-rotulo text-muted">—</span>
               <span className="truncate font-medium text-ink">{e.servico?.descricao ?? "Livre"}</span>
             </>
           );

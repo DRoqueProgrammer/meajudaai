@@ -51,6 +51,27 @@ const config: Config = {
       // Sem sobrescrever `xl`: em 14px ele ficava a 2px do `rounded-2xl` (16px)
       // e o uso misto dos dois não comunicava nada. Com o padrão do Tailwind a
       // escala volta a ter degrau legível — 12px em controle, 16px em card.
+      //
+      // Escala tipográfica (direção "b" do parecer de design — ver
+      // cvg/brain/refs/2026-09-10-vistoria/pareceres/01-conselheira-design.md).
+      // Havia ~69 tamanhos arbitrários `text-[Npx]` espalhados por app/ e
+      // components/; a escala fixa tamanho + entrelinha por papel e deixa o
+      // peso como um `font-*` explícito no call site (ex.: "text-2xl
+      // font-bold" no H1 de página) — assim quem já usava text-sm/base/xs/2xl
+      // sem querer peso extra não é afetado, só ganha a entrelinha corrigida.
+      fontSize: {
+        // Rótulo: uppercase + tracking (aplicados como utilities no call
+        // site). Único tamanho abaixo de 12px permitido — tudo que era
+        // text-[9px]/[10px]/[11px] (calendário, badges de status, contadores)
+        // converge aqui.
+        rotulo: ["11px", { lineHeight: "1.4" }],
+        xs: ["12px", { lineHeight: "1.4" }], // meta
+        sm: ["14px", { lineHeight: "1.6" }], // corpo
+        base: ["16px", { lineHeight: "1.375" }], // H2 / título de card
+        "2xl": ["24px", { lineHeight: "1.25" }], // H1 de página
+        // Display: só o H1 da landing (lote C) — cresce com o viewport.
+        display: ["clamp(38px, 4.6vw, 60px)", { lineHeight: "1.05" }],
+      },
     },
   },
   plugins: [],

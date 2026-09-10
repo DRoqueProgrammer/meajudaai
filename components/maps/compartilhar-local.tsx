@@ -85,7 +85,7 @@ export function CompartilharLocal({
           </>
         ) : null}
       </div>
-      {erro ? <span className="text-[11px] text-danger">{erro}</span> : null}
+      {erro ? <span className="text-rotulo text-danger">{erro}</span> : null}
     </div>
   );
 }

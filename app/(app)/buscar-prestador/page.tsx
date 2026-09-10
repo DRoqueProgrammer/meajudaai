@@ -61,7 +61,7 @@ export default async function BuscarPrestadorPage({
 
       <div className="flex flex-col gap-2">
         {(resultados ?? []).length === 0 ? (
-          <p className="text-sm text-muted">Nenhum prestador encontrado.</p>
+          <p className="card-vazio">Nenhum prestador encontrado.</p>
         ) : (
           (resultados ?? []).map((r) => (
             <Link key={r.prestador_id} href={`/prestador/${r.prestador_id}`} className="card flex items-center justify-between">

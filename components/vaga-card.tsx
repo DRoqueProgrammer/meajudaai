@@ -63,8 +63,8 @@ export function VagaCard({
             <CategoriaIcon slug={vaga.categoria} className="h-5 w-5" />
           </span>
           <div className="min-w-0">
-            <p className="text-[16px] font-semibold leading-tight">{vaga.titulo}</p>
-            <p className="mt-1 text-[12.5px] text-muted">
+            <p className="text-base font-semibold leading-tight">{vaga.titulo}</p>
+            <p className="mt-1 text-xs text-muted">
               {subtitle ?? (
                 <>
                   {nomeCategoria(vaga.categoria)} · {vaga.cidade}
@@ -81,17 +81,17 @@ export function VagaCard({
       </div>
 
       {descricao && vaga.descricao ? (
-        <p className="mt-3 text-[13px] leading-relaxed text-muted">{vaga.descricao}</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted">{vaga.descricao}</p>
       ) : null}
 
       <div className="mt-3 flex items-baseline justify-between gap-3 border-t border-[#EEF1F5] pt-3">
         {meta ?? (
           <>
-            <span className="text-[20px] font-bold text-brand">
+            <span className="text-2xl font-bold text-brand">
               {formatBRL(vaga.valor_diaria)}{" "}
               <span className="text-xs font-normal text-muted">/ diária</span>
             </span>
-            <span className="text-[12.5px] font-medium text-muted">
+            <span className="text-xs font-medium text-muted">
               {formatData(vaga.data_servico)} {formatHora(vaga.hora_inicio)}
             </span>
           </>

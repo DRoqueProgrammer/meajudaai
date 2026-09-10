@@ -102,12 +102,12 @@ export function ChatThread({
               >
                 {m.conteudo}
               </span>
-              {enviando ? <span className="mt-0.5 text-[11px] text-muted">enviando…</span> : null}
+              {enviando ? <span className="mt-0.5 text-rotulo text-muted">enviando…</span> : null}
             </div>
           );
         })}
         {visiveis.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted">Ainda não há mensagens. Comece a conversa.</p>
+          <p className="card-vazio">Ainda não há mensagens. Comece a conversa.</p>
         ) : null}
         <div ref={fim} />
       </div>

@@ -12,12 +12,16 @@ import { Footer } from "@/components/footer";
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-surface">
+      {/* `gap-x-2` entre logo e nav: sem isso "Aí" (fim da logo) colava em
+          "Termos" (início da nav). `flex-wrap` garante que a nav desça pra
+          uma 2ª linha em vez de cortar em 390px (hoje 405px sem isso) — ver
+          quick win 1 do parecer de design da vistoria. */}
       <header className="border-b border-line bg-card">
-        <div className="mx-auto flex max-w-[720px] items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-[720px] flex-wrap items-center justify-between gap-x-2 gap-y-2 px-4 py-4 sm:px-6">
           <Link href="/" aria-label="Início do Me Ajuda Aí" className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
             <Logo />
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
+          <nav className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
             <Link href="/termos" className="text-muted hover:text-brand">
               Termos
             </Link>

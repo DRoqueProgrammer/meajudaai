@@ -1,0 +1,114 @@
+{
+  "contract": "TaskHandoff/v3",
+  "task_id": "T-20260910-f1-10-portas-automaticas-contra-abuso",
+  "format_version": 3,
+  "spec": "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-10-portas-automaticas-contra-abuso.md",
+  "spec_digest": "sha256:a2a29a3e17460ef609661ed98829cad554e247ed2a36a00c512b5dc1c3fba6d2",
+  "task_revision_digest": "sha256:d6d4b1a85ec1147633aca9ea235dc5b81ff1788b7b3f2e21b272830a3fa09337",
+  "signoff_tier": 1,
+  "backend": "claude",
+  "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+  "authorization": {
+    "scheme": "hmac-sha256-v3",
+    "ref": "hmac-sha256-v3:9648e21f:eec8f9d5e5115900680c93fc8445c23371b91288aeb4b151970ab03ea56f6061",
+    "tier": 1,
+    "signed_by": "operator",
+    "signed_at": "2026-09-10T17:31:25Z"
+  },
+  "attempt": {
+    "id": "6d277be6-1208-4173-a601-bbec6e37b61a",
+    "issued_at": "2026-09-10T20:06:02Z"
+  },
+  "source": {
+    "workspace": "C:\\Users\\leoch\\projects\\meajudaai",
+    "base_commit": "2353782127467c24352a68c0c93dd12c9e6e057d"
+  },
+  "dependency_closure": {
+    "contract": "DependencyClosure/v1",
+    "task_id": "T-20260910-f1-10-portas-automaticas-contra-abuso",
+    "digest": "sha256:644c71f38a81cb82ed425b029e2bc6279da8a27ceca6797bb5871a8690d5e5f6",
+    "members": [
+      {
+        "task_id": "T-20260910-f1-00-fatia-1-seguranca",
+        "task_revision_digest": "sha256:eeb6db900641f8c96810b39c6768e5936201592fe1c1f762f96e0b11f411dac1"
+      },
+      {
+        "task_id": "T-20260910-f1-10-portas-automaticas-contra-abuso",
+        "task_revision_digest": "sha256:d6d4b1a85ec1147633aca9ea235dc5b81ff1788b7b3f2e21b272830a3fa09337"
+      }
+    ]
+  },
+  "write_scope": {
+    "touches_paths": [
+      "app/api/cron/lembretes-avaliacao/route.ts",
+      "lib/actions/geocode.ts"
+    ],
+    "creates_paths": [
+      "lib/seguranca.ts"
+    ],
+    "do_not_touch": [
+      "tests/fatia1",
+      "vitest.gabarito.config.ts",
+      "supabase/migrations",
+      ".cvg",
+      "cvg/docs",
+      "cvg/brain",
+      ".env.local"
+    ]
+  },
+  "budgets": {
+    "iterations": 15,
+    "tokens": null,
+    "effort": "M"
+  },
+  "agent_contract": {
+    "version": 2,
+    "read": [
+      "intent",
+      "behavior",
+      "contract",
+      "guardrails"
+    ],
+    "produce": [
+      "code",
+      "tests"
+    ],
+    "required_tools": [
+      "bash",
+      "git",
+      "node",
+      "npx"
+    ],
+    "timeout_minutes": 30,
+    "sandbox_type": "host",
+    "output_artifacts": [],
+    "mcp_dependencies": [],
+    "emit": [
+      "pass",
+      "fail",
+      "retry_with_reason",
+      "parked_with_context"
+    ],
+    "backend_metadata": {}
+  },
+  "eval_command": [
+    "taskspec",
+    "run",
+    "--ci",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-10-portas-automaticas-contra-abuso.md"
+  ],
+  "acceptance_command": [
+    "taskspec",
+    "accept",
+    "--stamp",
+    "--handoff",
+    "<handoff.json>",
+    "C:\\Users\\leoch\\projects\\meajudaai\\cvg\\tasks\\T-20260910-f1-10-portas-automaticas-contra-abuso.md"
+  ],
+  "evaluation_policy": {},
+  "environment_contract": {},
+  "identity_policy": {},
+  "receipt_requirements": [
+    "deterministic"
+  ]
+}

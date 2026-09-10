@@ -25,3 +25,4 @@
 {"schema_version":1,"ts":"2026-09-10T20:00:46Z","task":"T-20260910-f1-08-login-lembra-so-o-email","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}
 {"acceptance_record_digest":"sha256:1fbce4bfdfe1e10f91e3f1451027400af239127f469e9c3c7c9bdb6f6ea9f741","acceptance_tier":1,"attempt_id":"fd29f0ea-d635-41cb-90a7-20512246cb1d","author":"operator","event":"accepted","schema_version":1,"task":"T-20260910-f1-08-login-lembra-so-o-email","ts":"2026-09-10T20:05:46Z"}
 {"schema_version":1,"ts":"2026-09-10T20:05:47Z","task":"T-20260910-f1-08-login-lembra-so-o-email","event":"status_change","from":"in-progress","to":"done","reason":"aceita Tier 1; tier 2 UPHELD (gemini)"}
+{"schema_version":1,"ts":"2026-09-10T20:05:52Z","task":"T-20260910-f1-10-portas-automaticas-contra-abuso","event":"status_change","from":"ready","to":"in-progress","reason":"handoff emitido; executor Sonnet (D-027)"}

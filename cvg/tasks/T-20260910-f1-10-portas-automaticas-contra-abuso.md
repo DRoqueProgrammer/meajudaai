@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-10-portas-automaticas-contra-abuso
 title: "As portas automáticas resistem a abuso barato"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: M

@@ -340,8 +340,12 @@ spec assume enquanto a resposta não vem.
 Este documento é um objeto de consenso: ele não autoriza a descida ao Pass 2
 enquanto o dono do produto não assinar.
 
-- Sign-off verdict: **pending** — aguardando revisão de Leonardo Chalhoub
-- Data: (a preencher na assinatura)
+- Sign-off verdict: **canonical**
+- Data: 2026-09-09
 
-Ao assinar, trocar o veredito por `canonical` e preencher a data no formato
-`AAAA-MM-DD`. Só então o Pass 2 (`tech-req-to-adrs`) pode consumir este spec.
+Assinado a mando de **Leonardo Chalhoub**, dono do produto, depois do recap das
+9 decisões travadas e das 3 interpretações que sinalizei como risco de leitura
+errada (a desambiguação de "sem tocar no banco", a codificação da escala de
+inadimplência em 3 dias, e os 4 níveis de precedência de alíquota). A partir
+daqui o Pass 2 (`tech-req-to-adrs`) pode consumir este spec e fundamentá-lo
+contra o código real.

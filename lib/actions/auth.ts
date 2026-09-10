@@ -110,10 +110,14 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     estado: d.estado,
     tipo_base: d.tipo_base,
     genero: d.genero,
-    ...(precisaLocalizacao ? { endereco } : {}),
   });
   if (precisaLocalizacao) {
-    await admin.from("profile_local").insert({ user_id: userId, lat: Number(latStr), lng: Number(lngStr) });
+    // Endereço escrito e ponto exato moram juntos em profile_local, sob a mesma
+    // RLS (dono, sysadmin, ou a outra parte de um serviço válido) — nunca em
+    // `profiles`, que qualquer autenticado lê (R-41, ADR 0015, migration 0039).
+    await admin
+      .from("profile_local")
+      .insert({ user_id: userId, lat: Number(latStr), lng: Number(lngStr), endereco });
   }
   const { error: piiErr } = await admin
     .from("profiles_pii")

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-02-contato-e-endereco-entre-as-partes
 title: "Contato, chave e endereço só entre as partes de um serviço válido"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:29:24Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T18:22:50Z
 signed_off_sig: hmac-sha256-v3:9648e21f:63318f0faa4c1e5ec8f9491fcd52f1a105d4f8a7d8e1efccd747c4683fd6c4bf
+accepted_tier: 1
+accepted_attempt_id: a461cd5c-37d5-4fbf-8188-fd34ce733343
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:63318f0faa4c1e5ec8f9491fcd52f1a105d4f8a7d8e1efccd747c4683fd6c4bf
+acceptance_record_digest: sha256:376e70d840af14057c344eb9fc6c54d5c5703dec37fe04f86296f74abea39e1f
 ---
 
 # Contato, chave e endereço só entre as partes de um serviço válido

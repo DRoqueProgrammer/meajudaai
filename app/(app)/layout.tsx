@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { getAllowedModules } from "@/lib/auth/modules";
 import { getMyWorkspaces, getActiveWorkspace } from "@/lib/auth/workspace";
+import { mostrarSeletorDePraca } from "@/lib/auth/praca-ativa";
 import { isDemo } from "@/lib/auth/demo";
 import { createServerClient } from "@/lib/supabase/server";
 import { Nav } from "@/components/nav";
@@ -18,9 +19,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const modules =
     user.role === "funcionario" ? [...(await getAllowedModules(user))] : undefined;
 
-  // Seletor de empresa — o admin pode ser dono de várias.
+  // Seletor de praça — só o Administrador tem praças, e só aparece com duas ou
+  // mais vinculadas pelo SysAdmin (R-48, R-49, D-016): com 0 ou 1, mostrarSeletorDePraca
+  // já devolve falso, então não precisa checar o papel de novo na hora de renderizar.
   const wsList = user.role === "admin" ? await getMyWorkspaces() : [];
   const activeWs = user.role === "admin" ? (await getActiveWorkspace())?.workspace_id : undefined;
+  const temSeletor = mostrarSeletorDePraca(wsList.length);
 
   // O nome alimenta a folha de conta do rodapé mobile, não só o banner de demo.
   const demo = isDemo(user);
@@ -62,9 +66,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex-1 pb-20 md:pb-0">
         {demo ? <DemoBanner nome={nome} /> : null}
         <main id="conteudo" className="mx-auto max-w-3xl px-4 py-4">
-          {user.role === "admin" ? (
-            <WorkspaceSwitcher workspaces={wsList} active={activeWs} />
-          ) : null}
+          {temSeletor ? <WorkspaceSwitcher workspaces={wsList} active={activeWs} /> : null}
           {children}
         </main>
         <Footer />

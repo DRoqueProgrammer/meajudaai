@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-06-administrador-ve-so-as-pracas-dele
 title: "O Administrador vê só as praças dele, e seletor só com duas ou mais"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:30:33Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T19:35:38Z
 signed_off_sig: hmac-sha256-v3:9648e21f:b2957bc6ad94aeaf341faa98cdc43fc21a1a8ec1f9ac0b32c6a954ca746f5028
+accepted_tier: 1
+accepted_attempt_id: 4d9d04d5-3ab6-4266-af90-27e57b77b47a
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:b2957bc6ad94aeaf341faa98cdc43fc21a1a8ec1f9ac0b32c6a954ca746f5028
+acceptance_record_digest: sha256:0a4af633f3a99daebebcfbaf9d878c1efa3eec966f11e68e87dfeed309482e0c
 ---
 
 # O Administrador vê só as praças dele, e seletor só com duas ou mais

@@ -4,7 +4,21 @@
 
 ---
 
-## 0. Auditoria — o que falta (atualizada em 09/09/2026 às 19:54, sessão de implementação)
+## 0. Auditoria — o que falta (atualizada em 09/09/2026, madrugada — sessão que instalou o Converge)
+
+> **Este documento continua sendo a fonte da intenção — e virou o BRD de uma cadeia formal.**
+> Desde 09/09/2026 o projeto roda sob **Converge**: o backlog abaixo foi compilado num
+> tech-spec assinado com 36 requisitos falsificáveis, fundamentado contra o banco real em
+> 9 ADRs, decomposto em 6 raias com 24 legs, e atacado por um adversário de outra família.
+> Antes de implementar qualquer item desta lista, leia nesta ordem:
+> [`cvg/docs/tech-spec/fechar-v2-marketplace.md`](./cvg/docs/tech-spec/fechar-v2-marketplace.md)
+> (o requisito, com id estável `R-n`) → [`cvg/docs/adrs/`](./cvg/docs/adrs/) (o terreno medido)
+> → [`cvg/docs/CONTEXT.md`](./cvg/docs/CONTEXT.md) (o vocabulário) →
+> [`cvg/swimlanes/`](./cvg/swimlanes/) (o plano de construção).
+>
+> **A ordem de construção não é a ordem desta lista.** O primeiro item do programa é o spike
+> do QR (`swimlane-jornada-leg-01`), porque é o maior risco: ver
+> `design/spike-qr/index.html`.
 
 Lista de tudo que foi pedido e ainda **não está construído**, pra não perder de vista no meio da implementação incremental. Ver também [HANDOVER.md](./HANDOVER.md) pra continuidade entre sessões/modelos.
 
@@ -22,9 +36,18 @@ Lista de tudo que foi pedido e ainda **não está construído**, pra não perder
 - [ ] Papéis customizados dinâmicos além de "funcionário" fixo (§4) — hoje o admin convida como funcionário, mas não cria papéis novos
 - [ ] Seletor de ícone/logo do workspace pelo Administrador (§15) — só o ícone global do app (favicon/logo) foi trocado
 - [ ] Mostrar o comentário público do admin na UI do prestador/cliente (a permissão RLS já existe, falta só a leitura+exibição nas telas de serviço)
-- [ ] Verificar se `login_logs` está mesmo gravando em login real pelo formulário (visto vazio numa sessão já autenticada por cookie antigo — pode ser só falta de um login novo desde que a tabela existe, não um bug; checar antes de mexer)
+- [x] ~~Verificar se `login_logs` está gravando~~ — **resolvido**: 11 linhas na base, medido no Pass 2. A tabela grava. Virou verificação de não-regressão (R-29), não construção. Ver [ADR 0000](./cvg/docs/adrs/0000-context.md).
 
-❓ **Tensão não resolvida:** o modelo P2P (prestador_servico sem workspace) conflita com "Administrador vê a agenda completa do workspace" (§2.2) — hoje um prestador não pertence a workspace nenhum, então esse comentário/visão de admin ficou restrito ao SysAdmin (que enxerga tudo). Precisa de uma decisão de produto: prestadores autônomos viram membros de um workspace, ou o conceito de "Administrador de workspace" só se aplica a quem usa o fluxo antigo de vagas?
+✅ **Tensão RESOLVIDA em 09/09/2026 (D-001).** A pergunta era se prestadores autônomos viram
+membros de um workspace. A resposta do Leonardo redefiniu o próprio termo: **workspace não é
+"uma empresa dentro do app", é uma praça** — uma instalação por cidade, com nome próprio
+(*"podemos deployar em Niterói com um nome e em Maceió com outro; o workspace deve ser
+respeitado"*). Prestador **e** cliente pertencem a uma praça, com isolamento total, e a pessoa
+entra na praça pela instalação, sem escolher (D-006, D-007). Isso destrava de uma vez a
+comissão, o dashboard do Administrador, a agenda completa e o comentário de admin em serviço.
+Consequência descoberta pelo adversário do Pass 4 e declarada: como a base é compartilhada
+(o SysAdmin é supra-praça), **uma pessoa não pode existir em duas praças com o mesmo e-mail**.
+Detalhes em [`cvg/docs/tech-spec/_decisoes-travadas.md`](./cvg/docs/tech-spec/_decisoes-travadas.md).
 
 **Já feito** (pra referência, não repetir): pivô de papéis (SysAdmin/Administrador/Prestador/Cliente) com rótulos respeitando gênero (masculino/feminino/neutro, `lib/papel-label.ts`) aplicados em nav/perfil/logs/usuários; correção do seletor de papel em `/admin/usuarios` (opções v1 tinham sumido cliente/prestador_servico); Agenda v2 com horário recorrente + calendário mês/semana + linha do tempo por hora, agora também pro Cliente (aba Agenda própria); resumo em texto de "você está aberto para X, dias Y, até Z" acima do formulário de abrir horário; células do mês mostrando hora+descrição de cada evento (não só um pontinho); card efêmero ao clicar num evento da agenda (`EventoPopover`), com link pra página de detalhe completo em `/agenda/[slotId]` (ações de aceitar/cancelar/log ficaram lá, não mais expandindo inline); "Meus serviços" do cliente com cards compactos, popover de perfil do prestador (clica no nome, abre card efêmero, fecha ao clicar fora) e filtro/paginação (10 + "ver todos"); `/admin/logs` com abas SysAdmin (log geral) / Administração (log só de admins), conforme a matriz de visibilidade do §5.2; cidades via IBGE completo (~5.570 municípios, busca com cache, substitui a lista fixa de 14); mapa reconstruído pro modelo P2P (`/buscar-prestador` com prestadores próximos no mapa, `/mapa` do prestador com clientes de serviço pendente/confirmado — pino sempre aproximado, nunca coordenada exata); categorias de prestador com nomes reais (Eletricista, Pedreiro, Mestre de Obras, etc.) em vez de "Ajudante de X"; nome da marca corrigido ("Me Ajuda Aí", com espaço); busca por proximidade sem expor coordenada exata; cadastro de Cliente/Prestador com PIN exato obrigatório; preço e categoria do prestador; cancelamento com justificativa; login completo (mostrar/ocultar senha com ícone, salvar credenciais, esqueci senha); logout sempre pra home; Hero (saudação por gênero/citação/relógio/previsão do tempo); banner de cookies; ícone da chave inglesa (logo + favicon), corrigido pra não sumir em zoom/tela estreita; RLS de PII entre partes de um serviço; link de WhatsApp (`lib/whatsapp.ts`); dataset de demonstração com 3 anos de histórico + fotos licenciadas; ciclo de vida de conta (desativar/reativar).
 

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
-import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { listarUsuarios } from "@/lib/admin/consultas";
 import { UsuarioPapel } from "@/components/usuario-papel";
 import { CriarAdminForm } from "@/components/criar-admin-form";
 import { papelLabel } from "@/lib/papel-label";
@@ -13,13 +14,18 @@ const ORDEM: Record<string, number> = {
   cliente: 4,
 };
 
-/** Rota `/admin/usuarios` (sysadmin): lista de usuários e troca de papel global. */
+/**
+ * Rota `/admin/usuarios` (sysadmin): lista de usuários e troca de papel global.
+ * R-42 (ADR 0012, D-015): `listarUsuarios` (`lib/admin/consultas.ts`) impõe o
+ * recorte de exemplo — um sysadmin de exemplo só vê o mundo de exemplo; o
+ * sysadmin real vê todo mundo, como sempre viu.
+ */
 export default async function AdminUsuariosPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "sysadmin") redirect("/inicio");
 
-  const sb = await createServerClient();
-  const { data: perfis } = await sb.from("profiles").select("user_id, nome, tipo_base, genero");
+  const admin = createAdminClient();
+  const perfis = await listarUsuarios(admin, { exemplo: user.exemplo });
   const lista = (perfis ?? []).sort(
     (a, b) => (ORDEM[a.tipo_base] ?? 9) - (ORDEM[b.tipo_base] ?? 9) || a.nome.localeCompare(b.nome),
   );

@@ -6,6 +6,8 @@ export interface CurrentUser {
   id: string;
   email: string | null;
   role: AppRole;
+  /** Pessoa do mundo de exemplo (R-42, ADR 0012, D-015) — ver `lib/auth/exemplo.ts`. */
+  exemplo: boolean;
 }
 
 const ROLES: readonly AppRole[] = ["sysadmin", "admin", "funcionario", "prestador_servico", "cliente"];
@@ -28,11 +30,15 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!user) return null;
   const { data: prof } = await sb
     .from("profiles")
-    .select("tipo_base")
+    .select("tipo_base, exemplo")
     .eq("user_id", user.id)
     .maybeSingle();
   const role = isAppRole(prof?.tipo_base) ? prof.tipo_base : "cliente";
-  return { id: user.id, email: user.email ?? null, role };
+  // `exemplo` é `not null default false` no banco (migration 0040) — só fica
+  // indefinido aqui se não houver perfil nenhum (`prof` nulo), o mesmo caso em
+  // que `role` já cai em "cliente" por segurança; o cast é seguro porque quem
+  // usa `exemplo` sempre trata falsy (undefined ou false) como "não é de exemplo".
+  return { id: user.id, email: user.email ?? null, role, exemplo: prof?.exemplo as boolean };
 }
 
 /** Como `getCurrentUser`, mas lança se não houver sessão. Use em rotas/actions protegidas. */

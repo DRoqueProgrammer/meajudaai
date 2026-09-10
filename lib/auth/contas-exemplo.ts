@@ -1,8 +1,14 @@
+import "server-only";
+
 /**
  * Contas de exemplo REAIS (não são o modo demo read-only de lib/auth/demo.ts,
  * que ficou obsoleto — os usuários stub de lá nunca chegaram a ser semeados).
  * Estas vêm de `scripts/seed-fake-data.mjs`: contas de verdade, editáveis,
  * uma por papel, pra mostrar o protótipo funcionando. Ver ROADMAP.md.
+ *
+ * R-43 (ADR 0012): a senha compartilhada (`SENHA_CONTA_EXEMPLO`) só existe no
+ * servidor — `import "server-only"` estoura a build se algum componente de
+ * cliente importar este arquivo, mesmo sem usar a senha diretamente.
  */
 export const CONTAS_EXEMPLO = {
   cliente: {

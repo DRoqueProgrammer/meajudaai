@@ -506,6 +506,7 @@ export type Database = {
           created_at: string
           disponibilidade: string | null
           estado: string | null
+          exemplo: boolean
           foto_url: string | null
           genero: string | null
           nome: string
@@ -528,6 +529,7 @@ export type Database = {
           created_at?: string
           disponibilidade?: string | null
           estado?: string | null
+          exemplo?: boolean
           foto_url?: string | null
           genero?: string | null
           nome?: string
@@ -550,6 +552,7 @@ export type Database = {
           created_at?: string
           disponibilidade?: string | null
           estado?: string | null
+          exemplo?: boolean
           foto_url?: string | null
           genero?: string | null
           nome?: string

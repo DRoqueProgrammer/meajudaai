@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { listarAcessos } from "@/lib/admin/consultas";
 import { papelLabel } from "@/lib/papel-label";
 
 /**
@@ -13,6 +14,10 @@ import { papelLabel } from "@/lib/papel-label";
  * contas de Administrador, que a regra reserva exclusivamente ao SysAdmin.
  * Cross-workspace: RLS de login_logs também restringe a select-sysadmin-only,
  * então mesmo com o admin client isso é defesa em profundidade, não a única.
+ * R-42 (ADR 0012, D-015): o recorte de exemplo é imposto por `listarAcessos`
+ * (`lib/admin/consultas.ts`), nunca aqui na tela — um sysadmin de exemplo só
+ * vê logs de gente do mundo de exemplo; o sysadmin real vê todo mundo, como
+ * sempre viu.
  */
 export default async function AdminLogsPage({
   searchParams,
@@ -28,17 +33,9 @@ export default async function AdminLogsPage({
   const papeisDaAba: AppRole[] = aba === "administracao" ? ["admin"] : ["cliente", "prestador_servico", "funcionario"];
 
   const { data: perfisDaAba } = await admin.from("profiles").select("user_id, nome, tipo_base, genero").in("tipo_base", papeisDaAba);
-  const idsDaAba = (perfisDaAba ?? []).map((p) => p.user_id);
   const perfilDe = new Map((perfisDaAba ?? []).map((p) => [p.user_id, p]));
 
-  const { data: logs } = idsDaAba.length
-    ? await admin
-        .from("login_logs")
-        .select("id, user_id, ip, user_agent, cidade, pais, created_at")
-        .in("user_id", idsDaAba)
-        .order("created_at", { ascending: false })
-        .limit(200)
-    : { data: [] };
+  const logs = await listarAcessos(admin, { exemplo: user.exemplo }, papeisDaAba);
 
   function dispositivo(ua: string | null): string {
     if (!ua) return "—";

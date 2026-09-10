@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-03-mundo-de-exemplo-isolado
 title: "Contas de exemplo presas ao mundo de exemplo"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: L
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:29:42Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T18:41:29Z
 signed_off_sig: hmac-sha256-v3:9648e21f:c67e80d6efe3ec7e96cb3b27c787b2bf7dce1a780093d763db076e58cbd00446
+accepted_tier: 1
+accepted_attempt_id: 2ce0858c-8f86-4402-be17-e0d7b89cf8f7
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:c67e80d6efe3ec7e96cb3b27c787b2bf7dce1a780093d763db076e58cbd00446
+acceptance_record_digest: sha256:c497da53069c253be03a72bb697efe39bb0bc49ed2311cd14b9a109ceacfc9ac
 ---
 
 # Contas de exemplo presas ao mundo de exemplo

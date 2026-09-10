@@ -1,20 +1,23 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { listarServicosDaPlataforma } from "@/lib/admin/consultas";
 import { ComentarServico } from "@/components/admin/comentar-servico";
 import { formatBRL, formatData } from "@/lib/format";
 
-/** Rota `/admin/servicos` (SysAdmin): todos os serviços da plataforma, com comentário privado/público. Ver ROADMAP.md §6.4. */
+/**
+ * Rota `/admin/servicos` (SysAdmin): todos os serviços da plataforma, com
+ * comentário privado/público. Ver ROADMAP.md §6.4. R-42 (ADR 0012, D-015):
+ * `listarServicosDaPlataforma` (`lib/admin/consultas.ts`) impõe o recorte de
+ * exemplo — um sysadmin de exemplo só vê serviços entre duas contas de
+ * exemplo; o sysadmin real vê todos, como sempre viu.
+ */
 export default async function AdminServicosPage() {
   const user = await getCurrentUser();
   if (!user || user.role !== "sysadmin") redirect("/inicio");
 
   const admin = createAdminClient();
-  const { data: servicos } = await admin
-    .from("servicos")
-    .select("id, descricao, preco_valor, status, prestador_id, cliente_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const servicos = await listarServicosDaPlataforma(admin, { exemplo: user.exemplo });
 
   const ids = [...new Set((servicos ?? []).flatMap((s) => [s.prestador_id, s.cliente_id]))];
   const { data: perfis } = ids.length ? await admin.from("profiles").select("user_id, nome").in("user_id", ids) : { data: [] };

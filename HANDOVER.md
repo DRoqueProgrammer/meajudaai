@@ -2,7 +2,41 @@
 
 Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação depois de um tempo parado) retomar sem perder contexto. Leia nesta ordem: **este arquivo** → [ROADMAP.md](./ROADMAP.md) §0 (auditoria — o que falta, sempre atualizada) → [CLAUDE.md](./CLAUDE.md) (convenções e comandos).
 
-Última atualização: **09/09/2026, madrugada** — sessão do Opus 5 que instalou o Converge e desceu a cadeia até o Pass 4. Leonardo foi dormir no meio e pediu: *"tome as melhores decisões por mim, vá até o final."* Tudo que eu decidi sozinho está marcado como **meu** e listado abaixo, pra auditoria.
+Última atualização: **10/09/2026, noite** — sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes e **Fatia 1 (segurança) entregue**. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
+
+---
+
+## Sessão de 10/09 — vistoria e Fatia 1
+
+**Vistoria.** Nove agentes (do projeto, do Mirante dos Dados e do AgentSpec) deram nota ao app: **48/100**. Pareceres, métricas e 101 telas "antes" em [`cvg/brain/refs/2026-09-10-vistoria/`](./cvg/brain/refs/2026-09-10-vistoria/README.md). Leonardo: *"Faça todas as recomendações destes agentes."* Viraram 5 fatias ([decisão](./cvg/brain/decisions/2026-09-10-vistoria-em-fatias.md)); o design "feio" é a **Fatia 3**, ainda não começada.
+
+**Fatia 1 — entregue.** Spec assinado ([`fatia-1-seguranca.md`](./cvg/docs/tech-spec/fatia-1-seguranca.md)), ADRs 0010–0017, 12 task-specs em `cvg/tasks/done/`, migrations **0038–0041** aplicadas e trancadas na cerca. Fechou: serviço forjado/auto-confirmado (regra no banco), contato e endereço só entre as partes de serviço ativo, contas de exemplo presas ao mundo de exemplo, ninguém vira Administrador sozinho, SysAdmin cria praça e vincula Administrador (`/admin/pracas`), seletor só com 2+ praças, módulos por empresa, login sem senha guardada, convite neutro, cron/geocode contra abuso, botão "Marcar como realizado".
+
+**Como a Fatia 1 foi executada (D-026, D-027) — use o mesmo molde nas próximas:**
+1. O controller escreve os **gabaritos antes** (`tests/fatia1/`), o executor não os edita.
+2. `taskspec handoff` → um agente **Sonnet** implementa no checkout principal, sem commitar.
+3. O controller revisa o diff — e achou coisa em quase toda tarefa: re-vínculo de serviço a outra pessoa (T1), vínculo de praça não atômico e responsável da praça (T5), teste antigo exigindo o defeito (T7), mensagem no campo de erro (T9).
+4. `cvg verify --judge gemini` (tier 2, família independente) → `taskspec accept --stamp` → `transition done` → commit (com a migration nova na cerca do `.cvg/gate.yaml`).
+
+**Variáveis que o Task-Spec precisa neste repositório** (o backlog mora em `cvg/tasks`, não em `tasks/`):
+```bash
+export TASKSPEC_BACKLOG_DIR=C:/Users/leoch/projects/meajudaai/cvg/tasks
+export TASKSPEC_WORKSPACE_ROOT=C:/Users/leoch/projects/meajudaai   # sem isto os evals rodam dentro de cvg/
+export TASKSPEC_ACCEPTANCE_DIR=C:/Users/leoch/projects/meajudaai/.taskspec/acceptance
+export GEMINI_API_KEY=$(grep '^GEMINI_API_KEY=' .env.local | cut -d= -f2-)
+export GEMINI_MODEL=gemini-3.6-flash   # o modelo padrão do CLI vive sobrecarregado (503) e o juiz estoura o tempo
+```
+
+**Consertos de ferramenta no Windows** (reaplicar se reinstalar): `verify-work.py` do Converge nos dois tool homes (D-029); `src/dispatch/handoff.py` do Task-Spec **fora do repositório** (`~/.local/share/task-spec/3.8.0`, usa `shutil.which("bash")` — o `bash` puro achava o do WSL). O Pass 7 (`cvg bind`) ficou de fora (D-029).
+
+**Testes agora:** `npm test` (unidade, sem banco); `npm run test:integration` (banco real — inclui os 13 gabaritos da Fatia 1; o único vermelho é o banner do SysAdmin, ADR 0009); `bash scripts/regressao/rodar-fatia1.sh` (build de produção + 10 passos no Chrome, 10/10).
+
+**Achados que ficaram para depois** (também no ROADMAP §0):
+- **D-031** — cancelar serviço às vezes deixa o botão em "Cancelando…" (o cancelamento salva; a resposta da action é cancelada no navegador). Intermitente, medido via CDP. → Fatia 4.
+- **"Localizar" no cadastro** exige login (a busca de endereço tem `requireUser`) e o cadastro é antes do login. → Fatia 2.
+- **D-030** — não registrar o auth hook antes de escopar as cláusulas de SysAdmin pela marca de exemplo; senão a conta de exemplo, aberta por qualquer visitante, ganha o banco inteiro (liga com o ADR 0009 e a D-014).
+
+**Próximo passo:** Fatia 2 (vitrine v2 e LGPD) ou, se o Leonardo preferir ver resultado visual antes, a Fatia 3 (redesign). Perguntar.
 
 ---
 

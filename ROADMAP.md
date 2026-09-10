@@ -29,13 +29,16 @@
 > **1 · Segurança** (NORMAL) → **2 · Vitrine v2 e LGPD** (NORMAL) → **3 · Redesign**
 > (FULL) e **4 · Agenda e desempenho** (NORMAL) → **5 · Crescer** (FULL, emenda do
 > programa "Fechar a v2"). **Isso muda a ordem de construção acima:** a segurança e a
-> vitrine vêm antes do spike do QR e da fronteira de praça. A Fatia 1 está no Pass 1:
-> [`cvg/docs/tech-spec/fatia-1-seguranca.md`](./cvg/docs/tech-spec/fatia-1-seguranca.md).
+> vitrine vêm antes do spike do QR e da fronteira de praça. **A Fatia 1 (segurança) está
+> entregue** — 12 tarefas, migrations 0038–0041, 95 gabaritos contra o banco e a regressão
+> de 10 passos no navegador verdes
+> ([spec](./cvg/docs/tech-spec/fatia-1-seguranca.md), tarefas em `cvg/tasks/done/`).
 > O Hero "feio" (GAP-002) agora tem direção: a da conselheira-design, no parecer 01.
 
 Lista de tudo que foi pedido e ainda **não está construído**, pra não perder de vista no meio da implementação incremental. Ver também [HANDOVER.md](./HANDOVER.md) pra continuidade entre sessões/modelos.
 
-- [ ] **Recomendações da vistoria de 10/09** — todas, pedido do Leonardo, em 5 fatias (ver o bloco acima). Fatia 1 (segurança) no Pass 1, esperando as decisões das lacunas GAP-008 a GAP-013.
+- [ ] **Recomendações da vistoria de 10/09** — todas, pedido do Leonardo, em 5 fatias (ver o bloco acima). **Fatia 1 (segurança) entregue em 10/09.** Faltam as Fatias 2 (vitrine e LGPD), 3 (redesign), 4 (agenda e desempenho) e 5 (crescer).
+- [ ] **Defeitos achados na Fatia 1, fora do escopo dela:** a tela de cancelar serviço às vezes fica em "Cancelando…" com o cancelamento salvo (D-031 → Fatia 4); o "Localizar" do cadastro chama a busca de endereço, que exige login, e o cadastro é antes do login (→ Fatia 2); banner da home e comentário do SysAdmin não salvam para ninguém porque o auth hook nunca foi registrado (ADR 0009) — e o hook só pode ser registrado depois de escopar as cláusulas de SysAdmin pela marca de exemplo (D-030).
 - [x] ~~Cobrança Pix por serviço~~ — **construída** no commit `541d6e0` (a vistoria de 10/09 apontou que esta linha estava desatualizada): `lib/pix/static-qr.ts`, card `components/pix/cobranca-pix.tsx` exibido em `/agenda/[slotId]`, campo "Chave Pix" no perfil gravando em `profiles_pii`. **Resta:** "o administrador configura a chave Pix em nome do prestador" continua sem solução — hoje só o dono edita `profiles_pii` (RLS `pii_update_self`).
 - [ ] **Comissão da plataforma (Pix)** — pedido novo de 09/09/2026, escopo grande. O Prestador de Serviço paga um percentual de cada serviço à plataforma; o Administrador define a alíquota e a chave Pix da plataforma no próprio perfil; o prestador vê a alíquota e o quanto deve "naquele dia", clica e abre um QR com o valor já preenchido; um botão "Enviei o Pix" gera pendência que o Administrador confirma. Alíquota em três níveis (geral / por prestador / por serviço), configurável só por Administrador ou SysAdmin. **Bloqueado por decisão de produto:** no modelo P2P o prestador não pertence a workspace nenhum, então falta definir qual Administrador o cobra (mesma tensão ❓ do fim desta seção). Detalhamento e as 7 lacunas em [§16](#16-comissão-da-plataforma-pix) e em `cvg/brain/notes/2026-09-09-comissao-da-plataforma.md`.
 - [ ] **Recibos de serviço** — ainda não iniciado. Leonardo apontou que o padrão já está resolvido em `refs/foco-contabil` (recibos de fatura) e em `refs/careconnect` — ler o `.ua/` desses dois repos antes de desenhar do zero.

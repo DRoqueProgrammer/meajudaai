@@ -8,10 +8,14 @@
  * `valores` devolve o que a pessoa digitou para repopular os campos quando dá
  * erro. Sem isso, no caminho sem JS o formulário volta vazio e ela redigita
  * tudo. Campo de senha NUNCA entra aqui.
+ *
+ * `mensagem` é o texto de sucesso que a própria action decide (ex.: a resposta
+ * neutra do convite, R-51) — `erro` fica só para erro.
  */
 export type EstadoForm = {
   erro?: string;
   ok?: boolean;
+  mensagem?: string;
   valores?: Record<string, string>;
 } | null;
 

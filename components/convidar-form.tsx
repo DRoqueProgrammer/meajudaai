@@ -84,7 +84,7 @@ export function ConvidarForm() {
           >
             {/* R-51: a resposta de sucesso/neutra é sempre a mesma mensagem
                 — não afirma nem nega que o e-mail tem conta na equipe. */}
-            {estado.ok ? (estado.erro ?? MENSAGEM_CONVITE_NEUTRA) : estado.erro}
+            {estado.ok ? (estado.mensagem ?? MENSAGEM_CONVITE_NEUTRA) : estado.erro}
           </p>
         ) : null}
       </form>

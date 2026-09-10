@@ -185,5 +185,5 @@ export async function convidarMembroAction(
     revalidatePath("/equipe");
   });
 
-  return { ok: true, erro: MENSAGEM_CONVITE_NEUTRA, valores: preserva };
+  return { ok: true, mensagem: MENSAGEM_CONVITE_NEUTRA };
 }

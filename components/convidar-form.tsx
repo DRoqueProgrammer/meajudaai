@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { convidarMembroAction } from "@/lib/actions/workspace";
 import { criarConviteAction } from "@/lib/actions/convite";
+import { MENSAGEM_CONVITE_NEUTRA } from "@/lib/convite-texto";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
 /** Convite de membro para a equipe: por e-mail (vínculo imediato) ou por link gerado, com papel escolhido. */
@@ -81,7 +82,9 @@ export function ConvidarForm() {
             role={estado.ok ? "status" : "alert"}
             className={`text-sm ${estado.ok ? "text-ok" : "text-danger"}`}
           >
-            {estado.ok ? "Membro adicionado à equipe." : estado.erro}
+            {/* R-51: a resposta de sucesso/neutra é sempre a mesma mensagem
+                — não afirma nem nega que o e-mail tem conta na equipe. */}
+            {estado.ok ? (estado.erro ?? MENSAGEM_CONVITE_NEUTRA) : estado.erro}
           </p>
         ) : null}
       </form>

@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import {
@@ -9,7 +10,9 @@ import {
   ACTIVE_WS_COOKIE,
 } from "@/lib/auth/workspace";
 import { tryWriter } from "@/lib/auth/guard";
+import { podeAgirSobre } from "@/lib/auth/exemplo";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { MENSAGEM_CONVITE_NEUTRA } from "@/lib/convite-texto";
 import type { ActionResult } from "./auth";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
@@ -118,6 +121,20 @@ export async function excluirEquipeAction(workspaceId: string): Promise<ActionRe
  * O dono adiciona à equipe alguém que já tem conta, pelo e-mail. Diferente do
  * convite por link (lib/actions/convite.ts): aqui o vínculo é imediato, sem
  * token nem aprovação. Notifica o novo membro.
+ *
+ * R-51 (tech-spec fatia-1-seguranca.md): a resposta é sempre a mesma
+ * `MENSAGEM_CONVITE_NEUTRA` — e-mail sem conta, com conta que acabou de
+ * entrar, com conta que já era da equipe, ou bloqueado pela regra do mundo
+ * de exemplo (R-42, abaixo) — nenhuma delas diz nada sobre se a conta
+ * existe. Por isso toda a parte que só roda quando a conta é encontrada
+ * (achar o usuário, decidir se pode entrar, inserir o vínculo, notificar)
+ * fica dentro de um `after()`: ele executa DEPOIS da resposta já ter saído,
+ * então nenhum desses passos atrasa um ramo em relação aos outros — o tempo
+ * de resposta observado por quem convida é o mesmo nos quatro casos, porque
+ * nenhum deles é decidido antes de responder. A troca é a de sempre com
+ * `after()`: a tela de equipe só reflete a entrada do novo membro no próximo
+ * carregamento, não no instante da resposta — aceitável aqui porque a
+ * resposta em si já não confirma nada.
  */
 export async function convidarMembroAction(
   _estado: EstadoForm,
@@ -128,35 +145,45 @@ export async function convidarMembroAction(
 
   const w = await tryWriter();
   if ("erro" in w) return { erro: w.erro, valores: preserva };
+  const user = w.user;
   const ws = await getActiveWorkspace();
   if (!ws) return { erro: "Você não tem uma equipe.", valores: preserva };
   await requireWorkspaceRole(ws.workspace_id, ["owner"]);
 
   const db = createAdminClient();
-  const { data: pii } = await db
-    .from("profiles_pii")
-    .select("user_id")
-    .eq("email", email)
-    .maybeSingle();
-  if (!pii) {
-    return {
-      erro: "Nenhum usuário com este e-mail. Peça para se cadastrar primeiro.",
-      valores: preserva,
-    };
-  }
+  after(async () => {
+    const { data: pii } = await db
+      .from("profiles_pii")
+      .select("user_id")
+      .eq("email", email)
+      .maybeSingle();
+    if (!pii) return;
 
-  const { error } = await db
-    .from("workspace_members")
-    .insert({ workspace_id: ws.workspace_id, user_id: pii.user_id, role: "membro" });
-  if (error) return { erro: "Este usuário já faz parte da equipe.", valores: preserva };
+    // R-42 (ADR 0012, D-015): ator de exemplo só adiciona quem também é de
+    // exemplo — regra única em `podeAgirSobre`. Alvo fora do mundo de
+    // exemplo, ou perfil que não foi encontrado: não adiciona, sem dizer
+    // por quê (a resposta já saiu e já é a mesma nos dois casos).
+    const { data: alvo } = await db
+      .from("profiles")
+      .select("exemplo")
+      .eq("user_id", pii.user_id)
+      .maybeSingle();
+    if (!alvo || !podeAgirSobre({ exemplo: Boolean(user.exemplo) }, alvo)) return;
 
-  await db.from("notificacoes").insert({
-    user_id: pii.user_id,
-    tipo: "convite_equipe",
-    titulo: "Você entrou em uma equipe",
-    mensagem: `Você agora faz parte de "${ws.nome}".`,
-    link: "/equipe",
+    const { error } = await db
+      .from("workspace_members")
+      .insert({ workspace_id: ws.workspace_id, user_id: pii.user_id, role: "membro" });
+    if (error) return; // já estava na equipe — nada a notificar
+
+    await db.from("notificacoes").insert({
+      user_id: pii.user_id,
+      tipo: "convite_equipe",
+      titulo: "Você entrou em uma equipe",
+      mensagem: `Você agora faz parte de "${ws.nome}".`,
+      link: "/equipe",
+    });
+    revalidatePath("/equipe");
   });
-  revalidatePath("/equipe");
-  return { ok: true };
+
+  return { ok: true, erro: MENSAGEM_CONVITE_NEUTRA, valores: preserva };
 }

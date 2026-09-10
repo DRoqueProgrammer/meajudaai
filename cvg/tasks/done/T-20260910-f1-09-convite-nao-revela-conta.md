@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-09-convite-nao-revela-conta
 title: "O convite para a equipe não revela quem tem conta"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: M
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:31:08Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T19:59:50Z
 signed_off_sig: hmac-sha256-v3:9648e21f:d39c1d6d4b436e0d3503a5e6eeabd222ce77b4e4fbd862618788e8288d2ca480
+accepted_tier: 1
+accepted_attempt_id: 89229b1c-e17b-4057-9413-9bac3d8977c1
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:d39c1d6d4b436e0d3503a5e6eeabd222ce77b4e4fbd862618788e8288d2ca480
+acceptance_record_digest: sha256:3a06933e408add2f2d4de93422945034965cd4733b6b37e72a357d562d162cc5
 ---
 
 # O convite para a equipe não revela quem tem conta

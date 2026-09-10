@@ -7,12 +7,22 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { podeAceitar } from "@/lib/convite-status";
 import type { ActionResult } from "./auth";
 
-/** Sócio (owner) gera um link de convite com o papel escolhido. */
+/**
+ * Sócio (owner) gera um link de convite com o papel escolhido. Convite de
+ * Administrador (papel "owner" de uma praça) passa a ser só do SysAdmin
+ * (R-47, ADR 0013, D-016, GAP-015) — checado ANTES de qualquer outra
+ * consulta, porque o SysAdmin não tem praça ativa por cookie
+ * (`getActiveWorkspace`, abaixo). Convite de "membro" (funcionário) continua
+ * do dono da praça, como sempre foi.
+ */
 export async function criarConviteAction(
   role: "owner" | "membro",
 ): Promise<{ ok: boolean; link?: string; erro?: string }> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
+  if (role === "owner" && w.user.role !== "sysadmin") {
+    return { ok: false, erro: "Apenas o sysadmin convida administradores." };
+  }
   const ws = await getActiveWorkspace();
   if (!ws) return { ok: false, erro: "Você não tem uma equipe." };
   try {

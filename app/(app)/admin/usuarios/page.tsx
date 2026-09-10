@@ -30,17 +30,21 @@ export default async function AdminUsuariosPage() {
     (a, b) => (ORDEM[a.tipo_base] ?? 9) - (ORDEM[b.tipo_base] ?? 9) || a.nome.localeCompare(b.nome),
   );
 
+  // ADR 0013, D-016: criar um admin já escolhe a praça padrão entre as
+  // existentes — a praça em si só nasce em /admin/pracas.
+  const { data: pracas } = await admin.from("workspaces").select("id, nome").order("nome");
+
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-xl font-semibold">Usuários</h1>
         <p className="text-sm text-muted">
-          Defina o papel de cada usuário. Promover a <strong>Administrador</strong> cria um workspace se ele
-          ainda não tiver.
+          Defina o papel de cada usuário. Criar um Administrador exige escolher a praça padrão dele
+          entre as já existentes (veja <strong>Praças</strong> no menu).
         </p>
       </div>
 
-      <CriarAdminForm />
+      <CriarAdminForm pracas={pracas ?? []} />
 
       <div className="flex flex-col gap-2">
         {lista.map((p) => (

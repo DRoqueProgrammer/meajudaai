@@ -185,6 +185,7 @@ export function Nav({
     role === "sysadmin"
       ? [
           { href: "/admin/usuarios", label: "Usuários", icon: "users" },
+          { href: "/admin/pracas", label: "Praças", icon: "map" },
           { href: "/admin/denuncias", label: "Denúncias", icon: "shield" },
           { href: "/admin/demanda", label: "Demanda", icon: "chart" },
           { href: "/admin/metricas", label: "Métricas", icon: "pulse" },

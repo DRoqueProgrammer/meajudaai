@@ -5,8 +5,12 @@ import { criarAdminAction } from "@/lib/actions/admin-users";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
-/** Formulário do painel (sysadmin) para criar um admin do zero: conta, perfil e empresa. */
-export function CriarAdminForm() {
+/**
+ * Formulário do painel (sysadmin) para criar um admin do zero: conta, perfil
+ * e o vínculo, como padrão, a uma praça já existente (ADR 0013, D-016) — a
+ * praça em si só nasce em /admin/pracas (criarPracaAction).
+ */
+export function CriarAdminForm({ pracas }: { pracas: { id: string; nome: string }[] }) {
   const [estado, formAction] = useActionState(criarAdminAction, null);
   const [open, setOpen] = useState(false);
   const v = estado?.valores ?? {};
@@ -31,7 +35,7 @@ export function CriarAdminForm() {
         </label>
         <input
           id="admin-nome"
-          name="admin-nome"
+          name="nome"
           className="input text-sm"
           defaultValue={v.nome ?? ""}
           required
@@ -43,7 +47,7 @@ export function CriarAdminForm() {
         </label>
         <input
           id="admin-email"
-          name="admin-email"
+          name="email"
           className="input text-sm"
           type="email"
           defaultValue={v.email ?? ""}
@@ -56,7 +60,7 @@ export function CriarAdminForm() {
         </label>
         <input
           id="admin-senha"
-          name="admin-senha"
+          name="senha"
           className="input text-sm"
           type="password"
           autoComplete="new-password"
@@ -71,7 +75,7 @@ export function CriarAdminForm() {
           </label>
           <input
             id="admin-cidade"
-            name="admin-cidade"
+            name="cidade"
             className="input text-sm"
           defaultValue={v.cidade ?? "Niterói"}
           />
@@ -82,15 +86,47 @@ export function CriarAdminForm() {
           </label>
           <input
             id="admin-uf"
-            name="admin-uf"
+            name="estado"
             className="input text-sm"
             maxLength={2}
           defaultValue={v.estado ?? "RJ"}
           />
         </div>
       </div>
+      <div>
+        <label className="label" htmlFor="admin-praca">
+          Praça padrão
+        </label>
+        {pracas.length === 0 ? (
+          <p className="text-xs text-muted">
+            Nenhuma praça ainda —{" "}
+            <a href="/admin/pracas" className="underline">
+              crie uma primeiro
+            </a>
+            .
+          </p>
+        ) : (
+          <select
+            id="admin-praca"
+            name="praca-id"
+            className="input text-sm"
+            defaultValue={v["praca-id"] ?? pracas[0]?.id ?? ""}
+            required
+          >
+            {pracas.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.nome}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
       <div className="flex items-center gap-2">
-        <BotaoEnviar className="btn-action px-4 py-2 text-sm" enviando="Criando…">
+        <BotaoEnviar
+          className="btn-action px-4 py-2 text-sm"
+          enviando="Criando…"
+          desabilitado={pracas.length === 0}
+        >
           Criar
         </BotaoEnviar>
         <button type="button" onClick={() => setOpen(false)} className="btn-ghost px-3 py-2 text-sm">

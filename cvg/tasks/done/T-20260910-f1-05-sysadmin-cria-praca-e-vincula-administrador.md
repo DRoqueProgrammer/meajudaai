@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-05-sysadmin-cria-praca-e-vincula-administrador
 title: "O SysAdmin cria praça e vincula Administrador com praça padrão"
-status: in-progress
+status: done
 format_version: 3
 profile: standard
 effort: L
@@ -28,10 +28,14 @@ execution_backend: claude
 signed_off: true
 signed_off_by: operator
 signed_off_at: 2026-09-10T17:30:16Z
-accepted: false
-accepted_by: (none)
-accepted_at: (none)
+accepted: true
+accepted_by: operator
+accepted_at: 2026-09-10T19:23:54Z
 signed_off_sig: hmac-sha256-v3:9648e21f:5abfaf38c01bcc4247eb0dbab1fa8d6e4d14c1350b93a4a5a777751d664c07a3
+accepted_tier: 1
+accepted_attempt_id: 735f0f8f-a930-4147-8219-d8d82b148a88
+accepted_authorization_ref: hmac-sha256-v3:9648e21f:5abfaf38c01bcc4247eb0dbab1fa8d6e4d14c1350b93a4a5a777751d664c07a3
+acceptance_record_digest: sha256:d679251e369e845dcf9950cc7734e5224af2be1b67fbcaa4584c1e71f7b243c9
 ---
 
 # O SysAdmin cria praça e vincula Administrador com praça padrão

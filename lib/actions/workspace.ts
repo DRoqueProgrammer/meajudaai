@@ -25,7 +25,16 @@ export async function setActiveWorkspaceAction(workspaceId: string): Promise<Act
   return { ok: true };
 }
 
-/** Admin cria uma nova empresa e passa a ser owner dela (ativa em seguida). */
+/**
+ * Cria uma nova praça e o autor passa a ser owner dela (ativa em seguida).
+ * ADR 0013, D-016: a porta 3 (o próprio Administrador cria praça pelo
+ * seletor) fecha — só o sysadmin cria praça agora, por /admin/pracas
+ * (criarPracaAction, lib/actions/pracas.ts, é o caminho novo e preferido).
+ *
+ * R-42 (ADR 0012, D-015): mesma decisão de criarPracaAction e criarAdminAction
+ * — cria dado real, então nem um sysadmin de exemplo (o que qualquer
+ * visitante abre pela landing) pode.
+ */
 export async function criarEmpresaAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const preserva = valoresPreservados(fd);
   const nome = campo(fd, "nome");
@@ -35,9 +44,10 @@ export async function criarEmpresaAction(_estado: EstadoForm, fd: FormData): Pro
   const w = await tryWriter();
   if ("erro" in w) return { erro: w.erro, valores: preserva };
   const user = w.user;
-  if (user.role !== "admin" && user.role !== "sysadmin") {
-    return { erro: "Apenas admins podem criar equipes.", valores: preserva };
+  if (user.role !== "sysadmin") {
+    return { erro: "Apenas o sysadmin cria praças — use /admin/pracas.", valores: preserva };
   }
+  if (Boolean(user.exemplo)) return { erro: "Conta de exemplo não pode criar praças.", valores: preserva };
   const db = createAdminClient();
   const { data: ws, error } = await db
     .from("workspaces")
@@ -54,15 +64,23 @@ export async function criarEmpresaAction(_estado: EstadoForm, fd: FormData): Pro
 }
 
 /**
- * O dono exclui a própria equipe. Bloqueia enquanto houver vaga aberta ou diária
+ * Exclui uma praça. Bloqueia enquanto houver vaga aberta ou diária
  * em andamento — tem candidato contando com elas; primeiro cancela ou finaliza.
  * Vagas já finalizadas/canceladas somem junto (histórico da equipe); as
  * avaliações sobrevivem (a FK de avaliacoes.vaga_id é SET NULL).
+ * ADR 0013, D-016: deixa de valer para quem não é sysadmin — checado antes
+ * de qualquer consulta, junto com a porta 3 que criarEmpresaAction também fecha.
+ *
+ * R-42 (ADR 0012, D-015): apaga dado real, então nem um sysadmin de exemplo
+ * pode — mesma decisão de criarPracaAction e criarAdminAction, só que do lado
+ * de apagar em vez de criar.
  */
 export async function excluirEquipeAction(workspaceId: string): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
   const user = w.user;
+  if (user.role !== "sysadmin") return { ok: false, erro: "Apenas o sysadmin exclui praças." };
+  if (Boolean(user.exemplo)) return { ok: false, erro: "Conta de exemplo não pode excluir praças." };
 
   const db = createAdminClient();
   const { data: ws } = await db
@@ -71,9 +89,6 @@ export async function excluirEquipeAction(workspaceId: string): Promise<ActionRe
     .eq("id", workspaceId)
     .maybeSingle();
   if (!ws) return { ok: false, erro: "Equipe não encontrada." };
-  if (ws.owner_id !== user.id && user.role !== "sysadmin") {
-    return { ok: false, erro: "Só o dono pode excluir a equipe." };
-  }
 
   const { count } = await db
     .from("vagas")

@@ -9,7 +9,12 @@ import { campo, valoresPreservados, type EstadoForm } from "./form";
 
 const PAPEIS = ["sysadmin", "admin", "funcionario", "prestador_servico", "cliente"] as const;
 
-/** Sysadmin altera o papel de um usuário. Promover a admin cria empresa se faltar. */
+/**
+ * Sysadmin altera o papel de um usuário. Promover a admin SÓ troca o papel
+ * (ADR 0013, D-016) — não fabrica praça nenhuma; o vínculo a uma ou mais
+ * praças, com a padrão, vem depois, pelo SysAdmin em /admin/pracas
+ * (vincularAdministradorAction, lib/actions/pracas.ts).
+ */
 export async function definirPapelAction(userId: string, papel: string): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
@@ -31,38 +36,16 @@ export async function definirPapelAction(userId: string, papel: string): Promise
   const { error } = await db.from("profiles").update({ tipo_base: papel }).eq("user_id", userId);
   if (error) return { ok: false, erro: "Não foi possível atualizar o papel." };
 
-  if (papel === "admin") {
-    const { data: existing } = await db
-      .from("workspace_members")
-      .select("workspace_id")
-      .eq("user_id", userId)
-      .limit(1);
-    if (!existing || existing.length === 0) {
-      const { data: prof } = await db
-        .from("profiles")
-        .select("nome, cidade, estado")
-        .eq("user_id", userId)
-        .maybeSingle();
-      const { data: ws } = await db
-        .from("workspaces")
-        .insert({
-          owner_id: userId,
-          nome: `Empresa de ${prof?.nome ?? "novo admin"}`,
-          cidade: prof?.cidade ?? null,
-          estado: prof?.estado ?? null,
-        })
-        .select("id")
-        .single();
-      if (ws) {
-        await db.from("workspace_members").insert({ workspace_id: ws.id, user_id: userId, role: "owner" });
-      }
-    }
-  }
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
 
-/** Sysadmin cria um admin do zero (conta + perfil + empresa). */
+/**
+ * Sysadmin cria um admin do zero (conta + perfil) e já o vincula, como
+ * padrão, a uma praça ENTRE AS EXISTENTES (ADR 0013, D-016) — não fabrica
+ * mais uma empresa automática de nome derivado; a praça em si só nasce por
+ * criarPracaAction (lib/actions/pracas.ts), na área do próprio SysAdmin.
+ */
 export async function criarAdminAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   const preserva = valoresPreservados(fd, ["senha"]);
   const nome = campo(fd, "nome");
@@ -70,6 +53,7 @@ export async function criarAdminAction(_estado: EstadoForm, fd: FormData): Promi
   const senha = String(fd.get("senha") ?? "");
   const cidade = campo(fd, "cidade");
   const estado = campo(fd, "estado");
+  const pracaId = campo(fd, "praca-id");
 
   const w = await tryWriter();
   if ("erro" in w) return { erro: w.erro, valores: preserva };
@@ -81,8 +65,14 @@ export async function criarAdminAction(_estado: EstadoForm, fd: FormData): Promi
   if (!nome || !email || senha.length < 6) {
     return { erro: "Preencha nome, e-mail e senha (mín. 6 caracteres).", valores: preserva };
   }
+  if (!pracaId) return { erro: "Escolha a praça padrão do administrador.", valores: preserva };
 
   const db = createAdminClient();
+  // R-46/R-47: a praça padrão precisa existir de verdade — criarPracaAction
+  // é o único jeito de criar uma.
+  const { data: praca } = await db.from("workspaces").select("id").eq("id", pracaId).maybeSingle();
+  if (!praca) return { erro: "Praça não encontrada — crie uma em /admin/pracas.", valores: preserva };
+
   const { data: created, error: cErr } = await db.auth.admin.createUser({
     email,
     password: senha,
@@ -100,12 +90,14 @@ export async function criarAdminAction(_estado: EstadoForm, fd: FormData): Promi
     await db.auth.admin.deleteUser(uid);
     return { erro: "E-mail já cadastrado.", valores: preserva };
   }
-  const { data: ws } = await db
-    .from("workspaces")
-    .insert({ owner_id: uid, nome: `Empresa de ${nome}`, cidade, estado })
-    .select("id")
-    .single();
-  if (ws) await db.from("workspace_members").insert({ workspace_id: ws.id, user_id: uid, role: "owner" });
+
+  const { error: vinculoErr } = await db
+    .from("workspace_members")
+    .insert({ workspace_id: pracaId, user_id: uid, role: "owner", padrao: true });
+  if (vinculoErr) {
+    await db.auth.admin.deleteUser(uid);
+    return { erro: "Não foi possível vincular a praça.", valores: preserva };
+  }
 
   revalidatePath("/admin/usuarios");
   return { ok: true };

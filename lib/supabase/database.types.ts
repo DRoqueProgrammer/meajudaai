@@ -856,18 +856,21 @@ export type Database = {
       workspace_members: {
         Row: {
           created_at: string
+          padrao: boolean
           role: string
           user_id: string
           workspace_id: string
         }
         Insert: {
           created_at?: string
+          padrao?: boolean
           role?: string
           user_id: string
           workspace_id: string
         }
         Update: {
           created_at?: string
+          padrao?: boolean
           role?: string
           user_id?: string
           workspace_id?: string

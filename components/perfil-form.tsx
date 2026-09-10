@@ -5,7 +5,7 @@ import Link from "next/link";
 import { salvarPerfilAction } from "@/lib/actions/perfil";
 import { CidadeSelect } from "@/components/cidade-select";
 import { CATEGORIAS } from "@/lib/categorias";
-import { Avatar, FormError } from "@/components/ui";
+import { Avatar, CampoArquivo, FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
 
 /**
@@ -44,15 +44,12 @@ export function PerfilForm({
       <div className="card flex items-center gap-4">
         <Avatar nome={nome} fotoUrl={fotoUrl} tamanho="lg" />
         <div className="min-w-0 flex-1">
-          <label className="label" htmlFor="foto">
-            Sua foto
-          </label>
-          <input
+          <p className="label">Sua foto</p>
+          <CampoArquivo
             id="foto"
             name="foto"
-            type="file"
             accept="image/jpeg,image/png,image/webp"
-            className="input py-2 text-xs"
+            label={fotoUrl ? "Trocar foto" : "Escolher foto"}
           />
           <p className="mt-1 text-xs leading-relaxed text-muted">
             JPG, PNG ou WEBP, até 2 MB. Quem contrata olha a foto antes de aceitar — um rosto vale

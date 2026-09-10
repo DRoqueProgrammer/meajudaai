@@ -53,7 +53,13 @@ export default async function AdminUsuariosPage() {
               <p className="text-sm font-medium">{p.nome || "—"}</p>
               <p className="text-xs text-muted">{papelLabel(p.tipo_base as AppRole, p.genero)}</p>
             </div>
-            <UsuarioPapel userId={p.user_id} papel={p.tipo_base} genero={p.genero} isSelf={p.user_id === user.id} />
+            <UsuarioPapel
+              userId={p.user_id}
+              papel={p.tipo_base}
+              genero={p.genero}
+              isSelf={p.user_id === user.id}
+              nome={p.nome}
+            />
           </div>
         ))}
         {lista.length === 0 && <p className="card-vazio">Nenhum usuário.</p>}

@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui";
-import { SlotReservar } from "@/components/agenda/slot-reservar";
+import { SlotPicker } from "@/components/agenda/slot-picker";
 import { nomeCategoria } from "@/lib/categorias";
 import { formatBRL } from "@/lib/format";
 
@@ -38,7 +38,8 @@ export default async function PerfilPrestadorPage({ params }: { params: Promise<
       <div className="card flex items-center gap-4">
         <Avatar nome={p.nome} fotoUrl={p.foto_url} tamanho="lg" />
         <div>
-          <p className="text-lg font-semibold">{p.nome}</p>
+          {/* H1 da página (parecer de design, item [ALTO]: a rota não tinha nenhum). */}
+          <h1 className="text-lg font-semibold">{p.nome}</h1>
           <p className="text-sm text-muted">{p.categoria ? nomeCategoria(p.categoria) : "Categoria não informada"}</p>
           {p.total_avaliacoes > 0 ? (
             <p className="text-xs text-muted">⭐ {p.nota_media} ({p.total_avaliacoes} avaliações)</p>
@@ -63,10 +64,8 @@ export default async function PerfilPrestadorPage({ params }: { params: Promise<
         <h2 className="text-sm font-semibold text-muted">Horários disponíveis</h2>
         {user.role !== "cliente" ? (
           <p className="text-sm text-muted">Só clientes podem agendar um horário.</p>
-        ) : (slotsLivres ?? []).length === 0 ? (
-          <p className="text-sm text-muted">Nenhum horário livre no momento.</p>
         ) : (
-          (slotsLivres ?? []).map((slot) => <SlotReservar key={slot.id} slot={slot} />)
+          <SlotPicker slots={slotsLivres ?? []} />
         )}
       </div>
     </div>

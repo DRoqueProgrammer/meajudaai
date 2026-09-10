@@ -150,6 +150,66 @@ export function FormError({ children, className = "" }: { children: React.ReactN
   );
 }
 
+/**
+ * Wrapper visual para input nativo de `date`/`time` (parecer de design, item
+ * [MÉDIO] "campos nativos"): acrescenta um ícone decorativo à esquerda, no
+ * estilo dos outros campos (`.input`), sem tocar no funcionamento nativo —
+ * o ícone é `aria-hidden` e fica fora da área de clique (`pointer-events-none`),
+ * então o seletor nativo do navegador (calendário/relógio) continua exatamente
+ * onde sempre esteve. O `children` é o `<input>` de verdade, com `pl-9` pra
+ * abrir espaço pro ícone.
+ */
+export function CampoComIcone({
+  icone,
+  children,
+  className = "",
+}: {
+  icone: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`relative ${className}`}>
+      <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+        {icone}
+      </span>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Wrapper visual para `<input type="file">` (mesmo item do parecer): o botão
+ * estilizado (`.input`) é o `<label>` de verdade apontando pro input nativo,
+ * que fica presente e focável (`sr-only`, nunca `hidden`/`display:none`) — o
+ * clique no rótulo abre o seletor de arquivo do sistema sem depender de
+ * JavaScript, e navegação por teclado/leitor de tela continua funcionando
+ * porque o input real nunca sai da árvore de acessibilidade.
+ */
+export function CampoArquivo({
+  id,
+  name,
+  accept,
+  label,
+  icone = "📷",
+  className = "",
+}: {
+  id: string;
+  name: string;
+  accept?: string;
+  label: string;
+  icone?: string;
+  className?: string;
+}) {
+  return (
+    <label htmlFor={id} className={`input flex cursor-pointer items-center gap-2 py-2 text-xs ${className}`}>
+      <span aria-hidden="true">{icone}</span>
+      <span>{label}</span>
+      <input id={id} name={name} type="file" accept={accept} className="sr-only" />
+    </label>
+  );
+}
+
 export function PageHeader({ titulo, voltar }: { titulo: string; voltar?: string }) {
   return (
     <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-card/90 px-4 py-3 backdrop-blur">

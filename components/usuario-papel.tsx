@@ -14,11 +14,15 @@ export function UsuarioPapel({
   papel,
   genero,
   isSelf,
+  nome,
 }: {
   userId: string;
   papel: string;
   genero?: string | null;
   isSelf: boolean;
+  /** Nome da pessoa, pro nome acessível do select — numa lista de vários usuários,
+   * "Papel do usuário" repetido em cada linha não diz QUAL usuário pro leitor de tela. */
+  nome?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -41,7 +45,7 @@ export function UsuarioPapel({
   return (
     <div className="flex flex-col items-end gap-1">
       <label className="sr-only" htmlFor={`papel-${userId}`}>
-        Papel do usuário
+        Papel de {nome || "usuário"}
       </label>
       <select
         id={`papel-${userId}`}

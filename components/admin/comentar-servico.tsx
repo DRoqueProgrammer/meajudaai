@@ -7,11 +7,15 @@ import { FormError } from "@/components/ui";
 
 export interface ComentarServicoProps {
   servicoId: string;
+  /** Prestador → cliente do serviço, pro nome acessível do campo — a lista renderiza um
+   * card por serviço, e "Comentar…" repetido em cada linha não diz sobre QUAL serviço
+   * (parecer de design, item [MÉDIO] "~30 campos sem label" em /admin/servicos). */
+  contexto: string;
   comentarios: { id: string; texto: string; publico: boolean; created_at: string }[];
 }
 
 /** SysAdmin comenta um serviço — checkbox de público desmarcada por padrão (fica privado). */
-export function ComentarServico({ servicoId, comentarios }: ComentarServicoProps) {
+export function ComentarServico({ servicoId, contexto, comentarios }: ComentarServicoProps) {
   const router = useRouter();
   const [texto, setTexto] = useState("");
   const [publico, setPublico] = useState(false);
@@ -27,7 +31,13 @@ export function ComentarServico({ servicoId, comentarios }: ComentarServicoProps
         </p>
       ))}
       <div className="flex gap-2">
-        <input className="input flex-1 text-xs" placeholder="Comentar…" value={texto} onChange={(e) => setTexto(e.target.value)} />
+        <input
+          className="input flex-1 text-xs"
+          placeholder="Comentar…"
+          aria-label={`Comentar sobre o serviço de ${contexto}`}
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+        />
         <label className="flex items-center gap-1 text-xs text-muted">
           <input type="checkbox" checked={publico} onChange={(e) => setPublico(e.target.checked)} /> Público
         </label>

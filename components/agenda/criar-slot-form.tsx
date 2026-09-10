@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { criarSlotsRecorrentesAction } from "@/lib/actions/agenda-v2";
-import { FormError } from "@/components/ui";
+import { FormError, CampoComIcone } from "@/components/ui";
 
 const DIAS = [
   { valor: 1, label: "Seg" },
@@ -71,25 +71,33 @@ export function CriarSlotForm() {
           <label className="label" htmlFor="dataInicio">
             De
           </label>
-          <input id="dataInicio" name="dataInicio" type="date" required className="input" />
+          <CampoComIcone icone="📅">
+            <input id="dataInicio" name="dataInicio" type="date" required className="input pl-9" />
+          </CampoComIcone>
         </div>
         <div>
           <label className="label" htmlFor="dataFim">
             Até
           </label>
-          <input id="dataFim" name="dataFim" type="date" required className="input" />
+          <CampoComIcone icone="📅">
+            <input id="dataFim" name="dataFim" type="date" required className="input pl-9" />
+          </CampoComIcone>
         </div>
         <div>
           <label className="label" htmlFor="horaInicio">
             Das
           </label>
-          <input id="horaInicio" name="horaInicio" type="time" required className="input" />
+          <CampoComIcone icone="🕐">
+            <input id="horaInicio" name="horaInicio" type="time" required className="input pl-9" />
+          </CampoComIcone>
         </div>
         <div>
           <label className="label" htmlFor="horaFim">
             Até
           </label>
-          <input id="horaFim" name="horaFim" type="time" required className="input" />
+          <CampoComIcone icone="🕐">
+            <input id="horaFim" name="horaFim" type="time" required className="input pl-9" />
+          </CampoComIcone>
         </div>
       </div>
 

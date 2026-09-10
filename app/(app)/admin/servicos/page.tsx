@@ -49,7 +49,11 @@ export default async function AdminServicosPage() {
           <p className="text-sm text-muted">
             {formatData(s.created_at.slice(0, 10))} · {s.descricao} · {formatBRL(s.preco_valor)}
           </p>
-          <ComentarServico servicoId={s.id} comentarios={comentDe.get(s.id) ?? []} />
+          <ComentarServico
+            servicoId={s.id}
+            contexto={`${nomeDe.get(s.prestador_id) ?? "?"} → ${nomeDe.get(s.cliente_id) ?? "?"}`}
+            comentarios={comentDe.get(s.id) ?? []}
+          />
         </div>
       ))}
       {(servicos ?? []).length === 0 ? <p className="text-sm text-muted">Nenhum serviço ainda.</p> : null}

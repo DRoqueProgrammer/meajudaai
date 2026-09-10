@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-12-prestador-marca-realizado
 title: "O prestador marca o serviço como realizado"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: S

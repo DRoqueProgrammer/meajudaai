@@ -25,12 +25,13 @@ security_class: (none)
 source_action_item: (none)
 tracker_ref: (none)
 execution_backend: claude
-signed_off: false
-signed_off_by: (none)
-signed_off_at: (none)
+signed_off: true
+signed_off_by: operator
+signed_off_at: 2026-09-10T20:59:29Z
 accepted: false
 accepted_by: (none)
 accepted_at: (none)
+signed_off_sig: hmac-sha256-v3:9648e21f:f2be42d4991e4fc9db2320c70e888ddb05490c9cb1054d1fc6b1fb44403127c8
 ---
 
 # Regressão no navegador e gabaritos de volta à suíte de integração
@@ -43,7 +44,7 @@ Os gabaritos da Fatia 1 voltam à suíte de integração (fora da exclusão do n
 
 ## Context
 
-O roteiro de regressão (scripts/regressao/) é escrito pelo controller antes do handoff desta tarefa, como gabarito do R-54 — não o edite. Esta tarefa tira a exclusão de tests/fatia1 do vitest.config.ts e do tsconfig.json (os gabaritos já compilam), leva à vitest.integration.config.ts o que os gabaritos precisam (tempo de espera de 60 s e arquivos em sequência), apaga vitest.gabarito.config.ts e o script test:gabarito, e adiciona playwright-core como devDependency (o roteiro usa o Chrome instalado).
+O controller já entregou, antes do handoff desta tarefa (commit f1cab83): o roteiro de regressão em scripts/regressao/ (gabarito do R-54, 10/10 contra o build de produção — não o edite), o gabarito tests/fatia1/vinculo.test.ts (achado da revisão da tarefa 1) e playwright-core como devDependency. Esta tarefa tira a exclusão de tests/fatia1 do vitest.config.ts e do tsconfig.json (os gabaritos já compilam), leva à vitest.integration.config.ts o que os gabaritos precisam (tempo de espera de 60 s e arquivos em sequência), e apaga vitest.gabarito.config.ts e o script test:gabarito do package.json.
 
 ## Behavior
 

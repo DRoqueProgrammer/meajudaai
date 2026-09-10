@@ -288,14 +288,17 @@ export default async function InicioPage() {
       ) : null}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">{painel}</p>
-        {user!.role === "funcionario" ? (
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            {boasVindas(perfil?.genero ?? null, primeiroNome)} {saudacao()}.
-          </h1>
-        ) : (
+        {/* O Hero é só de Cliente e Prestador de Serviço (CLAUDE.md, confirmado pelo
+            Leonardo em 09/09): Administrador, SysAdmin e Funcionário abrem direto no
+            painel, com a saudação como título. */}
+        {user!.role === "cliente" || user!.role === "prestador_servico" ? (
           <div className="mt-2">
             <HeroCard nome={primeiroNome} genero={perfil?.genero ?? null} cidade={minhaCidade} />
           </div>
+        ) : (
+          <h1 className="mt-1 text-2xl font-bold tracking-tight">
+            {boasVindas(perfil?.genero ?? null, primeiroNome)} {saudacao()}.
+          </h1>
         )}
         <p className="mt-2 text-sm text-muted">O que você precisa hoje?</p>
       </div>

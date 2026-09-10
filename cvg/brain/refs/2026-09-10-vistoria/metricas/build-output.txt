@@ -1,0 +1,85 @@
+
+> meajudaai@0.0.2 build
+> next build
+
+   ▲ Next.js 15.5.21
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 8.7s
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/35) ...
+   Generating static pages (8/35) 
+   Generating static pages (17/35) 
+   Generating static pages (26/35) 
+ ✓ Generating static pages (35/35)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ƒ /                                      772 B         107 kB
+├ ○ /_not-found                            162 B         103 kB
+├ ƒ /admin/demanda                         970 B         104 kB
+├ ƒ /admin/denuncias                     2.42 kB         109 kB
+├ ƒ /admin/logs                            169 B         107 kB
+├ ƒ /admin/metricas                        162 B         103 kB
+├ ƒ /admin/servicos                      2.38 kB         109 kB
+├ ƒ /admin/usuarios                      3.28 kB         110 kB
+├ ƒ /agenda                              6.27 kB         113 kB
+├ ƒ /agenda/[slotId]                     14.6 kB         121 kB
+├ ƒ /api/cron/lembretes-avaliacao          162 B         103 kB
+├ ƒ /api/demo/enter                        162 B         103 kB
+├ ƒ /api/exemplo/entrar                    162 B         103 kB
+├ ƒ /api/health                            162 B         103 kB
+├ ƒ /auth/confirmar                        162 B         103 kB
+├ ƒ /avaliar/[vagaId]                    2.68 kB         109 kB
+├ ƒ /buscar-prestador                    1.42 kB         108 kB
+├ ƒ /cadastro                            4.05 kB         114 kB
+├ ƒ /chat/[conversaId]                   1.85 kB         148 kB
+├ ƒ /chat/vaga/[vagaId]                    162 B         103 kB
+├ ƒ /clientes                              175 B         107 kB
+├ ƒ /clientes/[id]                       3.29 kB         110 kB
+├ ƒ /convite/[token]                       831 B         107 kB
+├ ƒ /equipe                              3.94 kB         110 kB
+├ ƒ /financeiro                            175 B         107 kB
+├ ○ /icon.svg                                0 B            0 B
+├ ƒ /inicio                              5.03 kB         112 kB
+├ ○ /login                               3.39 kB         110 kB
+├ ○ /manifest.webmanifest                  162 B         103 kB
+├ ƒ /mapa                                1.45 kB         105 kB
+├ ƒ /mensagens                             175 B         107 kB
+├ ƒ /meus-servicos                       3.17 kB         110 kB
+├ ƒ /minhas-diarias                        456 B         107 kB
+├ ƒ /minhas-vagas                          456 B         107 kB
+├ ƒ /minhas-vagas/[id]/candidatos        3.27 kB         110 kB
+├ ƒ /minhas-vagas/[id]/editar              178 B         112 kB
+├ ƒ /notificacoes                         1.7 kB         145 kB
+├ ○ /nova-senha                          3.09 kB         110 kB
+├ ƒ /perfil/[id]                         1.33 kB         111 kB
+├ ƒ /perfil/editar                       2.37 kB         112 kB
+├ ƒ /prestador/[id]                      3.53 kB         110 kB
+├ ○ /privacidade                           162 B         103 kB
+├ ƒ /publicar                              166 B         112 kB
+├ ƒ /reativar                              772 B         111 kB
+├ ƒ /recuperar-senha                     3.15 kB         110 kB
+├ ƒ /relatorios                            175 B         107 kB
+├ ○ /termos                                162 B         103 kB
+├ ƒ /vagas                               1.15 kB         108 kB
+└ ƒ /vagas/[id]                          3.07 kB         113 kB
++ First Load JS shared by all             103 kB
+  ├ chunks/1255-612df69cb02f2021.js      46.3 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js  54.2 kB
+  └ other shared chunks (total)          2.61 kB
+
+
+ƒ Middleware                             64.5 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+real	0m23.829s
+user	0m0.030s
+sys	0m0.015s

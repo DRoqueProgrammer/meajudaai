@@ -1,0 +1,159 @@
+[
+  {
+    "papel": "anon",
+    "url": "/",
+    "urlFinal": "/",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 192,
+    "fcpMs": 740,
+    "lcpMs": 740,
+    "cls": 0,
+    "tbtMs": 68,
+    "longTasks": 1,
+    "loadMs": 2115,
+    "requisicoes": 18,
+    "kbTotal": 274,
+    "kbPorTipo": {
+      "link": 11,
+      "script": 109,
+      "img": 129,
+      "other": 5,
+      "fetch": 4
+    }
+  },
+  {
+    "papel": "anon",
+    "url": "/login",
+    "urlFinal": "/login",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 6,
+    "fcpMs": 576,
+    "lcpMs": 576,
+    "cls": 0,
+    "tbtMs": 64,
+    "longTasks": 1,
+    "loadMs": 1388,
+    "requisicoes": 15,
+    "kbTotal": 141,
+    "kbPorTipo": {
+      "link": 11,
+      "script": 109,
+      "other": 5,
+      "fetch": 10
+    }
+  },
+  {
+    "papel": "cliente",
+    "url": "/inicio",
+    "urlFinal": "/inicio",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 860,
+    "fcpMs": 1236,
+    "lcpMs": 1668,
+    "cls": 0.061,
+    "tbtMs": 57,
+    "longTasks": 1,
+    "loadMs": 2171,
+    "requisicoes": 22,
+    "kbTotal": 156,
+    "kbPorTipo": {
+      "link": 11,
+      "script": 119,
+      "other": 1,
+      "fetch": 11
+    }
+  },
+  {
+    "papel": "cliente",
+    "url": "/buscar-prestador",
+    "urlFinal": "/buscar-prestador",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 821,
+    "fcpMs": 1220,
+    "lcpMs": 4172,
+    "cls": 0,
+    "tbtMs": 67,
+    "longTasks": 1,
+    "loadMs": 2083,
+    "requisicoes": 35,
+    "kbTotal": 198,
+    "kbPorTipo": {
+      "link": 14,
+      "script": 160,
+      "other": 1,
+      "fetch": 12,
+      "img": 0
+    }
+  },
+  {
+    "papel": "prestador_servico",
+    "url": "/inicio",
+    "urlFinal": "/inicio",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 849,
+    "fcpMs": 1208,
+    "lcpMs": 2460,
+    "cls": 0.203,
+    "tbtMs": 143,
+    "longTasks": 3,
+    "loadMs": 2281,
+    "requisicoes": 23,
+    "kbTotal": 156,
+    "kbPorTipo": {
+      "link": 11,
+      "script": 119,
+      "fetch": 12,
+      "other": 1
+    }
+  },
+  {
+    "papel": "prestador_servico",
+    "url": "/agenda",
+    "urlFinal": "/agenda",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 872,
+    "fcpMs": 1236,
+    "lcpMs": 1720,
+    "cls": 0.002,
+    "tbtMs": 70,
+    "longTasks": 2,
+    "loadMs": 2208,
+    "requisicoes": 16,
+    "kbTotal": 149,
+    "kbPorTipo": {
+      "link": 11,
+      "script": 120,
+      "other": 1,
+      "fetch": 1
+    }
+  },
+  {
+    "papel": "prestador_servico",
+    "url": "/mapa",
+    "urlFinal": "/mapa",
+    "condicoes": "mobile 390x844, 4G lenta (1,6 Mbps, 150 ms RTT), CPU 4x, cache frio",
+    "erro": null,
+    "ttfbMs": 1071,
+    "fcpMs": 1524,
+    "lcpMs": 4072,
+    "cls": 0,
+    "tbtMs": 69,
+    "longTasks": 1,
+    "loadMs": 2339,
+    "requisicoes": 30,
+    "kbTotal": 195,
+    "kbPorTipo": {
+      "link": 14,
+      "script": 160,
+      "other": 1,
+      "fetch": 11,
+      "img": 0
+    }
+  }
+]

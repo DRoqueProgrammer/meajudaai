@@ -21,7 +21,7 @@ const AUTORES: { nome: string; linkedin: string | null; whatsapp?: string }[] = 
     whatsapp: "https://wa.me/5521967058428",
   },
   { nome: "Matheus Monte", linkedin: "https://www.linkedin.com/in/matheus-monte-7206941b6/" },
-  { nome: "Davi Roque Luiz", linkedin: null },
+  { nome: "Davi Roque Luiz", linkedin: "https://www.linkedin.com/in/davi-r-62908b224/" },
 ];
 
 /**

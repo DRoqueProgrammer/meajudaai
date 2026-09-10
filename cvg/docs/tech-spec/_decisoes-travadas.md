@@ -43,3 +43,32 @@ meses**.
 Razão dada: *"é um evento que confirma Valor"* — o valor final, já renegociado se
 houve. Consequência aceita: serviço cancelado antes de `realizado` simplesmente
 não gera dívida, então não existe estorno nem caso de borda de cancelamento.
+
+## Rodada 3 — 09/09/2026, decididas por mim a pedido do dono
+
+Leonardo foi dormir e pediu: *"tome as melhores decisões por mim. Vá até o final."*
+As três abaixo eram perguntas abertas do PRD da raia `praca`. Resolvi com o
+melhor julgamento disponível e marquei como **minhas**, não dele — se alguma
+estiver errada, é aqui que se corrige, e o custo de reverter está anotado.
+
+**D-010 (minha) — Uma praça não tem dono pessoa física.** `workspaces.owner_id`
+codifica "empresa com proprietário" (ADR 0003). Passa a significar
+**administrador responsável** pela praça: quem responde por ela, não quem a
+possui. A coluna sobrevive, o significado muda, o glossário registra.
+*Por quê:* remover a coluna quebraria as políticas da v1 que dependem dela; e
+uma praça precisa de alguém responsável de qualquer forma — é quem define
+alíquota (R-9) e confirma pagamento (R-17). *Reverter custa:* uma migration.
+
+**D-011 (minha) — SysAdmin é supra-praça; não recebe praça.** O ROADMAP §2.1 diz
+que ele "enxerga tudo em qualquer workspace". Dar praça a ele contradiria isso.
+O backfill de `leg-01` cobre prestador e cliente; admin e funcionário já têm
+vínculo por `workspace_members`; sysadmin fica fora por definição.
+*Por quê:* é a leitura literal do papel, e evita o absurdo de um dono de
+plataforma não enxergar metade dela. *Reverter custa:* uma linha no backfill.
+
+**D-012 (minha) — A instalação declara sua praça por variável de ambiente.**
+Cada deploy carrega a identificação da praça que serve. *Por quê:* é o mecanismo
+mais simples que atende "deployar em Niterói com um nome e em Maceió com outro"
+(D-001/D-007), não exige tabela de domínios, e um deploy novo é uma variável a
+mais. *Reverter custa:* trocar a fonte da resolução em um ponto só —
+`leg-03-cadastro` isola isso de propósito.

@@ -1,7 +1,7 @@
 ---
 id: T-20260910-f1-03-mundo-de-exemplo-isolado
 title: "Contas de exemplo presas ao mundo de exemplo"
-status: ready
+status: in-progress
 format_version: 3
 profile: standard
 effort: L

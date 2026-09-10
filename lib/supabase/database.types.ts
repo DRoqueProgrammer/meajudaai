@@ -466,6 +466,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pedidos_exclusao: {
+        Row: {
+          cancelado_em: string | null
+          concluido_em: string | null
+          id: string
+          pode_processar_em: string
+          solicitado_em: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          cancelado_em?: string | null
+          concluido_em?: string | null
+          id?: string
+          pode_processar_em?: string
+          solicitado_em?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          cancelado_em?: string | null
+          concluido_em?: string | null
+          id?: string
+          pode_processar_em?: string
+          solicitado_em?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profile_local: {
         Row: {
           endereco: string | null

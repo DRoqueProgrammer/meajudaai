@@ -30,6 +30,11 @@ type LinhaServico = Pick<
 
 type LinhaUsuario = Pick<Database["public"]["Tables"]["profiles"]["Row"], "user_id" | "nome" | "tipo_base" | "genero">;
 
+type LinhaPedidoExclusao = Pick<
+  Database["public"]["Tables"]["pedidos_exclusao"]["Row"],
+  "id" | "user_id" | "status" | "solicitado_em" | "pode_processar_em" | "cancelado_em" | "concluido_em"
+>;
+
 /**
  * Ids de `profiles` no recorte do ator: se ele é de exemplo, só quem tem
  * `exemplo = true`; se é real, todo mundo (sem filtro de papel aqui — quem
@@ -91,6 +96,29 @@ export async function listarServicosDaPlataforma(db: DB, ator: MarcaDeExemplo): 
 export async function listarUsuarios(db: DB, ator: MarcaDeExemplo): Promise<LinhaUsuario[]> {
   let query = db.from("profiles").select("user_id, nome, tipo_base, genero");
   if (ator.exemplo) query = query.eq("exemplo", true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Pedidos de exclusão do titular (`/admin/pedidos-de-exclusao`, D-023). Um
+ * ator de exemplo só enxerga pedidos de gente do mundo de exemplo (R-42) —
+ * nunca o pedido de uma pessoa real, mesmo sendo só metadado (datas/status).
+ */
+export async function listarPedidosDeExclusao(db: DB, ator: MarcaDeExemplo): Promise<LinhaPedidoExclusao[]> {
+  let query = db
+    .from("pedidos_exclusao")
+    .select("id, user_id, status, solicitado_em, pode_processar_em, cancelado_em, concluido_em")
+    .order("solicitado_em", { ascending: false })
+    .limit(200);
+
+  if (ator.exemplo) {
+    const idsExemplo = await idsDoEscopo(db, ator);
+    if (idsExemplo.length === 0) return [];
+    query = query.in("user_id", idsExemplo);
+  }
+
   const { data, error } = await query;
   if (error) throw error;
   return data ?? [];

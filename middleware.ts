@@ -20,6 +20,10 @@ const PUBLIC_PREFIXES = [
   // O cron do lembrete de avaliação se autentica por bearer secret (CRON_SECRET),
   // não por sessão — o middleware não deve tentar redirecioná-lo para /login.
   "/api/cron",
+  // `GET /api/meus-dados` (D-023) decide sozinho o 401 sem sessão — como um
+  // download teria virado uma página HTML de /login (a Content-Disposition
+  // nunca chegaria), em vez do JSON que a rota promete.
+  "/api/meus-dados",
 ];
 
 /**

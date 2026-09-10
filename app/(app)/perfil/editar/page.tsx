@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { TelaComHeader } from "@/components/ui";
 import { PerfilForm } from "@/components/perfil-form";
 import { DesativarContaBotao } from "@/components/desativar-conta-botao";
+import { SeusDadosCard } from "@/components/seus-dados-card";
 
 /**
  * Fica em /perfil/editar, antes de /perfil/[id] no roteamento do App Router
@@ -24,6 +25,15 @@ export default async function EditarPerfilPage() {
 
   const { data: pii } = await sb.from("profiles_pii").select("chave_pix").eq("user_id", user.id).maybeSingle();
 
+  // Pedido de exclusão pendente (D-023), se houver — vira a data prevista e o
+  // botão "Desistir" dentro de `SeusDadosCard`.
+  const { data: pedido } = await sb
+    .from("pedidos_exclusao")
+    .select("pode_processar_em")
+    .eq("user_id", user.id)
+    .eq("status", "pendente")
+    .maybeSingle();
+
   // O `CidadeSelect` guarda "Cidade|UF" num único campo escondido.
   const cidadeUf = `${p.cidade ?? ""}|${p.estado ?? ""}`;
 
@@ -41,6 +51,7 @@ export default async function EditarPerfilPage() {
         precoValor={p.preco_valor}
         chavePix={pii?.chave_pix}
       />
+      <SeusDadosCard podeProcessarEm={pedido?.pode_processar_em ?? null} />
       {user.role !== "sysadmin" ? <DesativarContaBotao /> : null}
     </TelaComHeader>
   );

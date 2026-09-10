@@ -9,14 +9,12 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["tests/**/*.test.ts"],
-    // Os gabaritos da Fatia 1 (tests/fatia1/) e tests/rls.test.ts entram aqui como
-    // qualquer outro arquivo: o bloco de integração de cada um se pula sozinho sem
-    // `RUN_INTEGRATION=1` (ver tests/fatia1/harness.ts e tests/setup.ts), então
-    // `npm test` roda só a parte pura/de leitura de código, sem bater no Supabase.
-    // tests/fatia2/ é o gabarito do lote 2B (direitos do titular), escrito antes da
-    // implementação: fica de fora até o lote entregar lib/titular/ — quem entrega
-    // tira esta exclusão (e a do tsconfig.json).
-    exclude: [...configDefaults.exclude, "tests/fatia2/**"],
+    // Os gabaritos da Fatia 1 (tests/fatia1/) e da Fatia 2 (tests/fatia2/), e
+    // tests/rls.test.ts, entram aqui como qualquer outro arquivo: o bloco de
+    // integração de cada um se pula sozinho sem `RUN_INTEGRATION=1` (ver
+    // tests/fatia1/harness.ts e tests/setup.ts), então `npm test` roda só a
+    // parte pura/de leitura de código, sem bater no Supabase.
+    exclude: [...configDefaults.exclude],
     setupFiles: ["tests/setup.ts"],
     alias: {
       "server-only": new URL("./tests/stubs/server-only.ts", import.meta.url).pathname,

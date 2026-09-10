@@ -262,12 +262,13 @@ async function novoContexto() {
 
 /**
  * Página nova com o aviso de cookies tratado como uma pessoa trataria: quando ele
- * cobre o que o roteiro vai clicar, escolhe "Recusar não essenciais" (a opção que
- * preserva a privacidade) e segue.
+ * cobre o que o roteiro vai clicar, fecha e segue. Desde o lote 2C da Fatia 2 o
+ * aviso é só informativo ("Entendi" — o app não usa cookie não essencial); o nome
+ * antigo fica no padrão para a regressão rodar também contra um build anterior.
  */
 async function novaPagina(ctx) {
   const pagina = await ctx.newPage();
-  await pagina.addLocatorHandler(pagina.getByRole("button", { name: "Recusar não essenciais" }), async (botao) => {
+  await pagina.addLocatorHandler(pagina.getByRole("button", { name: /^(Entendi|Recusar não essenciais)$/ }), async (botao) => {
     await botao.click();
   });
   return pagina;

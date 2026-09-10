@@ -187,6 +187,7 @@ export function Nav({
           { href: "/admin/usuarios", label: "Usuários", icon: "users" },
           { href: "/admin/pracas", label: "Praças", icon: "map" },
           { href: "/admin/denuncias", label: "Denúncias", icon: "shield" },
+          { href: "/admin/pedidos-de-exclusao", label: "Exclusões", icon: "shield" },
           { href: "/admin/demanda", label: "Demanda", icon: "chart" },
           { href: "/admin/metricas", label: "Métricas", icon: "pulse" },
           { href: "/admin/logs", label: "Logs", icon: "shield" },

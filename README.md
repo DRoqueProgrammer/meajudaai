@@ -6,7 +6,7 @@
 
 | Medida | Comando | Hoje | Meta |
 |---|---|---|---|
-| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 75,47% | 100% |
+| Lógica pura de `lib/` (teste unitário) | `npm run test:coverage:puro` | 81,42% | 100% |
 | `lib/` inteiro, incluindo ações de servidor | `npm run test:coverage` | 9,84% | 100% (via teste de integração) |
 
 O que ainda falta na lógica pura são módulos que **exigem contexto de servidor**: `auth/*` (cliente de servidor e cookies), `site-url.ts` (lê cabeçalhos) e `log.ts`. Esses caem na segunda medida, por integração.

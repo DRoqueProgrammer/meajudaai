@@ -10,7 +10,12 @@ export default defineConfig({
     environment: "node",
     include: ["tests/**/*.test.ts"],
     setupFiles: ["tests/setup.ts"],
-    alias: { "server-only": new URL("./tests/stubs/server-only.ts", import.meta.url).pathname },
+    alias: {
+      "server-only": new URL("./tests/stubs/server-only.ts", import.meta.url).pathname,
+      // Espelha o `paths` do tsconfig: sem isso um módulo que importa "@/lib/..."
+      // não resolve no teste, e a lógica de autorização ficaria intestável.
+      "@": new URL(".", import.meta.url).pathname.replace(/\/$/, ""),
+    },
     // Cobertura mede só `lib/` — é onde mora a lógica que um teste unitário
     // consegue julgar. Componentes e rotas são provados pela jornada ponta a
     // ponta no browser, não por porcentagem de linha.

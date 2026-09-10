@@ -288,5 +288,11 @@ As decisões do dono em 10/09/2026 estão em `_decisoes-travadas.md` (D-015 a D-
 Este documento é um objeto de consenso: ele não autoriza a descida ao Pass 2
 enquanto o dono do produto não assinar.
 
-- Sign-off verdict: _pending_
-- Data: —
+- Sign-off verdict: **canonical**
+- Data: 2026-09-10
+
+Assinado por **Leonardo Chalhoub**, dono do produto, em 10/09/2026 ("assino"), depois
+do recap das decisões D-015 a D-021 e das três interpretações sinalizadas como risco de
+leitura errada: o isolamento das contas de exemplo no lugar da remoção, "Sócio" lido
+como Administrador e "workspace" como praça, e o fim do convite de Administrador por
+Administrador. A partir daqui o Pass 2 (`tech-req-to-adrs`) pode consumir este spec.

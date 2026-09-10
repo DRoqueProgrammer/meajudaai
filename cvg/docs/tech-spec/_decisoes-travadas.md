@@ -260,3 +260,17 @@ sozinhos; acontece com o `prompt` nativo e com ele substituído por JS (não é 
 Tirar o `router.refresh()` do botão piorou (2 de 8), então a atualização extra não é a causa. A
 Fatia 1 não mexeu nesse caminho da tela. Vai para a Fatia 4 (agenda); até lá o roteiro recarrega
 e avisa em vez de falhar, e o aviso fica visível na saída.
+
+## Rodada 6 — 10/09/2026 · Fatia 3 (redesign)
+
+**D-032 (do controller, pelo retorno do dono) — A Fatia 3 roda em lotes, sem task-spec por
+tarefa.** Leonardo escolheu o redesign como próxima fatia (*"vai de fatia 3, redesign"*) depois
+de dizer que o processo da Fatia 1 estava lento demais. A lane FULL da Fatia 3 existe pela
+extensão da mudança, não por risco de dado: redesign não toca banco nem autorização. Fica o
+que protege o resultado — a direção de design do parecer 01 como spec, tier 2 do Gemini em
+cada lote (o piso da lane), prints antes/depois das telas em 390 px e 1440 px, typecheck, lint,
+testes e a regressão no navegador verdes — e sai o que só custava tempo aqui: gabarito por
+tarefa, TaskPlan com carimbo HMAC e Pass 4 sobre planos. Quatro lotes: A fundação (escala,
+cor, contraste, quick wins), B casca desktop e Início (Hero da D-022, copy v2), C landing e
+páginas públicas, D seletor de horário e formulários. *Reverter custa:* voltar ao TaskPlan
+por tarefa — os lotes são commits separados.

@@ -67,7 +67,7 @@ type AcaoEncerrarSuspensao = (userId: string) => Promise<ActionResult>;
  * e "Encerrar suspensão". Compartilhado entre `SuspeitasDoPrestador` e
  * `ClientesComSinalizacoes`.
  */
-function SuspensaoControle({
+export function SuspensaoControle({
   userId,
   nome,
   papel,

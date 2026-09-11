@@ -349,7 +349,11 @@ export async function cancelarServicoAction(input: {
     .update({ status: "cancelado", cancelado_motivo: input.motivo.trim(), cancelado_em: new Date().toISOString() })
     .eq("id", servico.id);
   if (error) return { ok: false, erro: "Não foi possível cancelar." };
-  await sb.from("agenda_slots").update({ status: "livre" }).eq("id", servico.slot_id);
+  // O horário volta a livre pelo próprio banco (gatilho da migration 0048),
+  // seja quem for que cancelou — antes, a sessão do cliente não conseguia.
   revalidatePath("/agenda");
+  revalidatePath("/meus-servicos");
+  revalidatePath("/clientes");
+  revalidatePath("/inicio");
   return { ok: true };
 }

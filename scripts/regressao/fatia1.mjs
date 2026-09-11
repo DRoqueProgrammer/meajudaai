@@ -355,11 +355,14 @@ async function roteiro() {
   await passo(4, "a cliente cancela outro serviço, com motivo", cliente, async () => {
     await reservar(cliente, slotB, descB);
     await cliente.goto("/meus-servicos");
+    // Desde a Fatia 4 o motivo vai num formulário inline (não mais no prompt do
+    // navegador): "Cancelar serviço" abre o campo, "Confirmar cancelamento" envia.
     const linha = cliente.locator(
-      `xpath=//p[contains(normalize-space(.), "${descB}")]/ancestor::div[.//button[normalize-space(.)="Cancelar"]][1]`,
+      `xpath=//p[contains(normalize-space(.), "${descB}")]/ancestor::div[.//button[normalize-space(.)="Cancelar serviço"]][1]`,
     );
-    textoDoPrompt = motivo;
-    await linha.getByRole("button", { name: "Cancelar" }).click();
+    await linha.getByRole("button", { name: "Cancelar serviço" }).click();
+    await linha.getByLabel("Motivo do cancelamento").fill(motivo);
+    await linha.getByRole("button", { name: "Confirmar cancelamento" }).click();
     await esperar(async () => {
       const sB = await servicoDoHorario(slotB.id);
       return sB?.status === "cancelado" && sB.cancelado_motivo === motivo;

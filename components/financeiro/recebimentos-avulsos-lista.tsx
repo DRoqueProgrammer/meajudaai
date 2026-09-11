@@ -75,7 +75,8 @@ export function RecebimentosAvulsosLista({ itens }: { itens: RecebimentoAvulso[]
               href={`/recibo/recebimento/${r.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold text-brand underline"
+              aria-label={`Recibo Nº P-${numeroDaNotaAvulsa(r.numero)} de ${r.pagadorNome} (abre em nova aba)`}
+              className="inline-flex min-h-11 items-center text-sm font-semibold text-brand underline"
             >
               Recibo
             </Link>

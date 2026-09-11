@@ -516,7 +516,13 @@ function CardDoMes({
               <div className="flex shrink-0 flex-col items-end">
                 <span className="font-semibold tabular-nums">{formatBRL(i.valor)}</span>
                 {i.reciboHref ? (
-                  <Link href={i.reciboHref} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold text-brand underline">
+                  <Link
+                    href={i.reciboHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Recibo de ${i.titulo}, ${formatData(i.data)} (abre em nova aba)`}
+                    className="text-xs font-semibold text-brand underline"
+                  >
                     Recibo
                   </Link>
                 ) : null}

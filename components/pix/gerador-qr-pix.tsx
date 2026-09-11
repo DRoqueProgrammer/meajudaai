@@ -37,9 +37,12 @@ export function GeradorQrPix({ chavePix, nome, cidade }: { chavePix: string; nom
     }
   }, [chavePix, nome, cidade, valor]);
   const hoje = formatData(hojeEmSaoPaulo());
+  // No meio do QR vai sempre QUEM RECEBE (o dono da chave — prestador ou
+  // Administrador), o mesmo nome do BR Code; a descrição vai no texto do
+  // compartilhamento (Leonardo, 11/09/2026: "deve ter o nome do prestador").
   const linhas = useMemo(
-    () => ({ nome: descricao.trim() || nome, data: hoje, valor: valor ? formatBRL(valor) : "Valor em aberto" }),
-    [descricao, nome, hoje, valor],
+    () => ({ nome, data: hoje, valor: valor ? formatBRL(valor) : "Valor em aberto" }),
+    [nome, hoje, valor],
   );
 
   return (

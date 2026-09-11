@@ -41,9 +41,12 @@ export function CobrancaPix({
       return ""; // chave vazia — quem chama já checa antes.
     }
   }, [chavePix, nomePrestador, cidade, valor]);
+  // No meio do QR vai QUEM RECEBE — o prestador, o mesmo nome do BR Code
+  // (campo 59). Antes ia o nome do cliente, e o QR parecia ser da pessoa
+  // errada (Leonardo, 11/09/2026). O cliente aparece no cabeçalho do cartão.
   const linhas = useMemo(
-    () => ({ nome: nomeCliente, data: formatData(data), valor: formatBRL(valor) }),
-    [nomeCliente, data, valor],
+    () => ({ nome: nomePrestador, data: formatData(data), valor: formatBRL(valor) }),
+    [nomePrestador, data, valor],
   );
 
   if (!payload) return null;
@@ -52,7 +55,9 @@ export function CobrancaPix({
     <div className="card flex flex-col items-center gap-3 text-center">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">Cobrar via Pix</p>
       <div className="flex flex-col gap-0.5">
-        <p className="text-sm font-semibold">{nomeCliente}</p>
+        <p className="text-sm">
+          Cobrança para <span className="font-semibold">{nomeCliente}</span>
+        </p>
         <p className="text-xs text-muted">
           {formatData(data)} · {descricao}
         </p>

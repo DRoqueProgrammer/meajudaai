@@ -766,9 +766,12 @@ export type Database = {
           created_at: string
           descricao: string
           endereco: string | null
+          hora_combinada_fim: string | null
+          hora_combinada_inicio: string | null
           id: string
           lat: number | null
           lng: number | null
+          periodo_preferido: string
           preco_pendente: number | null
           preco_tipo: string
           preco_valor: number
@@ -784,9 +787,12 @@ export type Database = {
           created_at?: string
           descricao: string
           endereco?: string | null
+          hora_combinada_fim?: string | null
+          hora_combinada_inicio?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
+          periodo_preferido?: string
           preco_pendente?: number | null
           preco_tipo: string
           preco_valor: number
@@ -802,9 +808,12 @@ export type Database = {
           created_at?: string
           descricao?: string
           endereco?: string | null
+          hora_combinada_fim?: string | null
+          hora_combinada_inicio?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
+          periodo_preferido?: string
           preco_pendente?: number | null
           preco_tipo?: string
           preco_valor?: number

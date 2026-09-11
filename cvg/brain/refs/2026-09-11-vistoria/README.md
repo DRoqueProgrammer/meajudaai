@@ -47,8 +47,11 @@ visíveis" (60–74)**.
 - **Procede — ALTO design:** texto invisível no cartão selecionado do cadastro ("Quero prestar
   serviço") — `app/(auth)/cadastro/form.tsx:123,135` e captura `anon__cadastro-prestador__mobile__1de3.png`.
 - **Procede — cobertura:** `npm run test:coverage` dá **25,16%** hoje; o README publica 33,76%. A
-  queda vem do código de servidor que dobrou (testado por integração, fora da conta unitária); a
-  lógica pura segue 100%.
+  queda vem do código de servidor que dobrou (testado por integração, fora da conta unitária).
+  *Correção (mesmo dia, ao escrever o handover):* a frase original dizia que "a lógica pura segue
+  100%" — não segue. `npm run test:coverage:puro` dá **57,15%**, porque `lib/admin/**` e
+  `lib/titular/**` (falam com o banco) caíram dentro da medida e alguns arquivos puros novos
+  entraram sem teste. Detalhe em [`2026-09-11_MATHEUS_HANDOVER.md`](../../../../2026-09-11_MATHEUS_HANDOVER.md) §6.2.
 - **Procede — performance:** `lib/auth/workspace.ts` sem `cache()`; CLS do Hero do prestador 0,291
   (medido pelo kit).
 - **Procede — CI:** `.github/workflows/ci.yml` roda só a suíte unitária.

@@ -2,6 +2,8 @@
 
 Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação depois de um tempo parado) retomar sem perder contexto. Leia nesta ordem: **este arquivo** → [ROADMAP.md](./ROADMAP.md) §0 (auditoria — o que falta, sempre atualizada) → [CLAUDE.md](./CLAUDE.md) (convenções e comandos).
 
+> **11/09/2026, fim do dia — passagem para o Matheus:** [2026-09-11_MATHEUS_HANDOVER.md](./2026-09-11_MATHEUS_HANDOVER.md) reúne a 2ª vistoria do conselho (48 → **66/100**), o parecer de cada agente, o backlog priorizado e as decisões pendentes. Comece por lá; este arquivo continua sendo o diário das sessões.
+
 Última atualização: **11/09/2026, madrugada (2ª parte)** — comissão da plataforma, abas da praça, Financeiro com recibos e nota avulsa, "Limpar red flags" (seção logo abaixo). Antes: sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes; **Fatias 1, 3 e 2 entregues**; anúncios do prestador (a ação v2 do Administrador), Hero novo, cadastro, agenda e faturamento por tipo pedidos ao vivo pelo Leonardo; começo da Fatia 4. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
 
 ---

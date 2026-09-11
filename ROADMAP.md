@@ -417,7 +417,7 @@ comissão que mantém **o perfil em dia**.
 2. O **Administrador recebe uma pendência**.
 3. O Administrador **dá OK** ("recebi esse Pix, hora tal, da pessoa tal") **ou não**.
 
-### 16.4 ❓ Lacunas que travam a implementação
+### 16.4 ~~❓ Lacunas que travam a implementação~~ — respondidas pelo Leonardo em 11/09/2026 (D-044 em `cvg/docs/tech-spec/_decisoes-travadas.md`)
 1. **Qual Administrador cobra?** No modelo P2P o prestador não pertence a
    workspace nenhum — falta o vínculo. É a mesma tensão da §0/§2.2 e **bloqueia
    a feature inteira**.

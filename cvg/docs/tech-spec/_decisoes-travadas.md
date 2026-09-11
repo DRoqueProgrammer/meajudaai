@@ -372,3 +372,32 @@ Conta de exemplo não mexe em chave.
 **D-043 (do controller) — Fatia 5 sem a comissão.** Página pública do prestador (`/p/[id]`,
 0049) e painel do SysAdmin entraram; a comissão da plataforma (ROADMAP §16) continua bloqueada
 pelas 7 lacunas de regra de dinheiro — decisão do dono.
+
+## Rodada 9 — 11/09/2026 · respostas do dono pela manhã
+
+**D-044 (do dono) — Comissão da plataforma: as 7 lacunas do ROADMAP §16 fechadas.**
+1. Quem cobra: o **Administrador da praça da cidade do prestador** (mesma regra do limite de
+   anúncios — mesma cidade/UF e mesmo mundo; com mais de uma praça, a mais antiga). O Pix vai para
+   a **chave padrão do Administrador responsável pela praça** (Minhas chaves Pix), e é ele quem
+   confirma o recebimento.
+2. "Por serviço" é por **tipo de serviço** (tipos_servico, D-037).
+3. Quatro níveis, vence o mais específico: **prestador + tipo > prestador > tipo na praça >
+   geral da praça**; sem nada definido, **0%** (ninguém é cobrado de surpresa).
+4. Gera a dívida quando o serviço vira **realizado**; cancelado nunca gera.
+5. A dívida **acumula** num saldo (serviço a serviço, com o dia).
+6. Sem consequência automática: com **7 dias** em aberto, o painel do Administrador destaca o
+   prestador, e ele decide se registra suspeita ou suspende (D-041).
+7. Sobre o **valor final** do serviço (depois de renegociado). A alíquota fica congelada no
+   momento em que o serviço vira realizado; serviços realizados antes da comissão não geram
+   cobrança retroativa.
+Fluxo: o prestador vê o saldo e a alíquota vigente, abre o QR (chave do Administrador, valor do
+saldo), paga e clica "Enviei o Pix"; o Administrador confirma ("recebi") ou recusa ("não recebi"),
+e as comissões voltam a ficar em aberto.
+
+**D-045 (do dono, encarregado de dados) — Suspeitas e sinalizações são registros da
+administração.** *"Essas sinalizações ou logs são pertencentes ao Administrador, nunca são dados
+dos prestadores de serviços ou clientes."* Fecha a questão aberta na D-041: não entram no "Baixar
+meus dados".
+
+**D-046 (do dono) — QR Pix com os dados no meio validado em app de banco real** (11/09) — cumpre
+a validação obrigatória do ROADMAP §16.5.

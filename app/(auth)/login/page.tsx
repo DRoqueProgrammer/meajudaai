@@ -36,8 +36,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState(estado?.valores?.email ?? "");
   const [senha, setSenha] = useState("");
   const [lembrar, setLembrar] = useState(false);
+  // Para onde voltar depois de entrar (`?next=`): lido da URL no navegador e
+  // mandado num campo escondido; quem decide se é seguro é o servidor
+  // (lib/destino-seguro.ts, em entrarAction).
+  const [next, setNext] = useState("");
 
   useEffect(() => {
+    setNext(new URLSearchParams(window.location.search).get("next") ?? "");
     try {
       // Migração: versões antigas guardavam e-mail + senha em texto puro sob a
       // chave antiga. Aproveita o e-mail, mas a senha é apagada, nunca lida.
@@ -85,6 +90,7 @@ export default function LoginPage() {
         onSubmit={aoEnviar}
         className="flex flex-col gap-3 rounded-2xl border border-line bg-card p-6 shadow-[0_1px_3px_rgba(15,23,42,0.07)]"
       >
+        <input type="hidden" name="next" value={next} />
         <div>
           <label className="label" htmlFor="email">
             E-mail

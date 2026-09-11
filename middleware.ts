@@ -61,6 +61,10 @@ export async function middleware(request: NextRequest) {
   if (!user && !isPublic && path !== "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    // Volta para onde a pessoa ia depois de entrar (entrarAction confere com
+    // lib/destino-seguro.ts). Rotas de API não voltam para lugar nenhum.
+    url.search = "";
+    if (!path.startsWith("/api/")) url.searchParams.set("next", path + request.nextUrl.search);
     return NextResponse.redirect(url);
   }
   if (user && (path === "/login" || path === "/cadastro" || path === "/recuperar-senha")) {

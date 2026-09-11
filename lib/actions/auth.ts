@@ -11,6 +11,7 @@ import { podeAceitar } from "@/lib/convite-status";
 import { soDigitos } from "@/lib/format";
 import { getSiteUrl } from "@/lib/site-url";
 import { fotoAleatoria } from "@/lib/foto-aleatoria";
+import { destinoSeguro } from "@/lib/destino-seguro";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
@@ -272,7 +273,9 @@ export async function entrarAction(_estado: EstadoForm, fd: FormData): Promise<E
   const { data: perfil } = await sb.from("profiles").select("status").eq("user_id", data.user.id).maybeSingle();
   if (perfil?.status === "inativo") redirect("/reativar");
 
-  redirect("/inicio");
+  // `next` (ex.: "Já tenho conta" na vitrine da landing, ou o middleware ao
+  // barrar uma rota privada) — só caminho interno, ver lib/destino-seguro.ts.
+  redirect(destinoSeguro(campo(fd, "next")));
 }
 
 /**

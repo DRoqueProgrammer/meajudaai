@@ -20,6 +20,18 @@
       "port": 3000
     },
     {
+      "name": "meajudaai-vistoria",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "C:\\Users\\leoch\\AppData\\Local\\Temp\\mab-v2\\node_modules\\next\\dist\\bin\\next",
+        "start",
+        "C:\\Users\\leoch\\AppData\\Local\\Temp\\mab-v2",
+        "-p",
+        "3100"
+      ],
+      "port": 3100
+    },
+    {
       "name": "icon-gallery",
       "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
       "runtimeArgs": [

@@ -1,0 +1,70 @@
+├ ƒ /agenda/[slotId]                      7.37 kB         128 kB
+├ ƒ /anuncios                             4.38 kB         111 kB
+├ ƒ /api/clima                              185 B         103 kB
+├ ƒ /api/cron/lembretes-avaliacao           185 B         103 kB
+├ ƒ /api/cron/titular                       185 B         103 kB
+├ ƒ /api/demo/enter                         185 B         103 kB
+├ ƒ /api/exemplo/entrar                     185 B         103 kB
+├ ƒ /api/health                             185 B         103 kB
+├ ƒ /api/meus-dados                         185 B         103 kB
+├ ƒ /auth/confirmar                         185 B         103 kB
+├ ƒ /avaliar/[vagaId]                     2.99 kB         109 kB
+├ ƒ /buscar-prestador                     1.42 kB         108 kB
+├ ƒ /cadastro                                6 kB         115 kB
+├ ƒ /chat/[conversaId]                    4.75 kB         148 kB
+├ ƒ /chat/vaga/[vagaId]                     185 B         103 kB
+├ ƒ /clientes                               181 B         106 kB
+├ ƒ /clientes/[id]                        6.36 kB         113 kB
+├ ƒ /comissao                             2.56 kB         121 kB
+├ ƒ /convite/[token]                        829 B         107 kB
+├ ƒ /equipe                               4.34 kB         111 kB
+├ ƒ /financeiro                             181 B         106 kB
+├ ○ /icon.svg                                 0 B            0 B
+├ ƒ /inicio                               11.9 kB         124 kB
+├ ƒ /login                                4.46 kB         111 kB
+├ ○ /manifest.webmanifest                   185 B         103 kB
+├ ƒ /mapa                                 1.45 kB         104 kB
+├ ƒ /mensagens                              181 B         106 kB
+├ ƒ /meu-financeiro                       2.33 kB         116 kB
+├ ƒ /meus-servicos                        3.94 kB         113 kB
+├ ƒ /minhas-diarias                         454 B         107 kB
+├ ƒ /minhas-vagas                           454 B         107 kB
+├ ƒ /minhas-vagas/[id]/candidatos         3.62 kB         110 kB
+├ ƒ /minhas-vagas/[id]/editar               180 B         112 kB
+├ ƒ /notificacoes                         1.76 kB         145 kB
+├ ƒ /nova-senha                           4.27 kB         110 kB
+├ ○ /opengraph-image                        185 B         103 kB
+├ ƒ /p/[id]                                 769 B         107 kB
+├ ƒ /perfil/[id]                          7.09 kB         128 kB
+├ ƒ /perfil/editar                        6.68 kB         116 kB
+├ ƒ /praca/clientes                       1.09 kB         113 kB
+├ ƒ /praca/financeiro                     4.68 kB         119 kB
+├ ƒ /praca/prestadores                    1.09 kB         113 kB
+├ ƒ /praca/servicos                         181 B         106 kB
+├ ƒ /praca/servicos/[id]                    181 B         106 kB
+├ ƒ /prestador/[id]                       5.51 kB         112 kB
+├ ƒ /privacidade                            185 B         103 kB
+├ ƒ /publicar                               169 B         112 kB
+├ ƒ /reativar                             4.38 kB         111 kB
+├ ƒ /recibo/comissao/[prestadorId]/[mes]    642 B         103 kB
+├ ƒ /recibo/nota/[id]                       642 B         103 kB
+├ ƒ /recibo/recebimento/[id]              5.83 kB         112 kB
+├ ƒ /recuperar-senha                      3.47 kB         110 kB
+├ ƒ /relatorios                             181 B         106 kB
+├ ƒ /robots.txt                             185 B         103 kB
+├ ƒ /servicos                             2.92 kB         112 kB
+├ ƒ /sitemap.xml                            185 B         103 kB
+├ ƒ /termos                                 185 B         103 kB
+├ ƒ /vagas                                1.16 kB         107 kB
+└ ƒ /vagas/[id]                              6 kB         112 kB
++ First Load JS shared by all              103 kB
+  ├ chunks/3839-25af8b5a5a4d7641.js       45.9 kB
+  ├ chunks/63544138-799f9347e4aeda44.js   54.2 kB
+  └ other shared chunks (total)           2.65 kB
+
+
+ƒ Middleware                              64.5 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

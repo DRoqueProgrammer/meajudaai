@@ -214,7 +214,7 @@ export async function sinalizarClienteAction(input: {
   // O cliente vem do próprio serviço (o prestador lê os serviços dele pela RLS).
   const { data: servico } = await sb
     .from("servicos")
-    .select("id, cliente_id, prestador_id")
+    .select("id, cliente_id, prestador_id, slot_id")
     .eq("id", input.servicoId)
     .maybeSingle();
   if (!servico || servico.prestador_id !== user.id) return { ok: false, erro: "Serviço não encontrado." };
@@ -234,7 +234,7 @@ export async function sinalizarClienteAction(input: {
   logAction("sinalizar_cliente", { userId: user.id, servicoId: servico.id, motivo: input.motivo, result: "ok" });
   revalidatePath("/clientes");
   revalidatePath("/servicos");
-  revalidatePath(`/agenda/${servico.id}`);
+  revalidatePath(`/agenda/${servico.slot_id}`);
   revalidatePath("/inicio");
   return { ok: true };
 }

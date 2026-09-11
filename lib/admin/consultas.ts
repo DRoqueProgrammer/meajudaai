@@ -42,7 +42,7 @@ type LinhaPrestadorDaPraca = Pick<
 
 type LinhaAnuncioDaPraca = Pick<
   Database["public"]["Tables"]["anuncios"]["Row"],
-  "id" | "prestador_id" | "tipo" | "titulo" | "status" | "created_at"
+  "id" | "prestador_id" | "tipo" | "titulo" | "status" | "created_at" | "descricao" | "categoria" | "whatsapp" | "cidade" | "estado"
 >;
 
 type LinhaLimiteAjustado = Pick<Database["public"]["Tables"]["anuncio_limites"]["Row"], "prestador_id" | "limite">;
@@ -168,7 +168,7 @@ export async function listarAnunciosDosPrestadores(db: DB, prestadorIds: string[
   if (prestadorIds.length === 0) return [];
   const { data, error } = await db
     .from("anuncios")
-    .select("id, prestador_id, tipo, titulo, status, created_at")
+    .select("id, prestador_id, tipo, titulo, status, created_at, descricao, categoria, whatsapp, cidade, estado")
     .in("prestador_id", prestadorIds)
     .order("created_at", { ascending: false });
   if (error) throw error;

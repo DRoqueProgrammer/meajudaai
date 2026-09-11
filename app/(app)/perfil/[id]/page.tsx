@@ -204,7 +204,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
         </div>
 
         {ehPrestadorV2 ? (
-          <div>
+          <div id="anuncios" className="scroll-mt-20">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold text-muted">Anúncios</h2>
               {ehEu ? (

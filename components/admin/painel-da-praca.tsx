@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ActionResult } from "@/lib/actions/auth";
 import { LIMITE_MAXIMO, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
 import { Avatar, FormError } from "@/components/ui";
 import { nomeCategoria } from "@/lib/categorias";
+import { formatData, formatTelefone } from "@/lib/format";
+import { dataEmSaoPaulo } from "@/lib/datas";
 
 /**
  * "Painel da praça": conteúdo do Início do Administrador (troca o mural de
@@ -75,6 +78,13 @@ export interface AnuncioDaPracaInfo {
   status: string;
   prestadorId: string;
   prestadorNome: string;
+  descricao: string;
+  categoria: string | null;
+  /** Só na vaga para ajudante — o número que o prestador escolheu mostrar no mural. */
+  whatsapp: string | null;
+  cidade: string | null;
+  estado: string | null;
+  criadoEm: string;
 }
 
 type AcaoLimite = (id: string, limite: number | null) => Promise<ActionResult>;
@@ -336,6 +346,9 @@ function LinhaAnuncio({ anuncio, moderarAnuncio }: { anuncio: AnuncioDaPracaInfo
   const [pending, start] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
   const moderado = anuncio.status === "moderado";
+  const [aberto, setAberto] = useState(false);
+  // Estável entre renderizações: o efeito do resumo depende dela (foco e ouvintes).
+  const fecharResumo = useCallback(() => setAberto(false), []);
 
   function alternar() {
     setErro(null);
@@ -347,13 +360,22 @@ function LinhaAnuncio({ anuncio, moderarAnuncio }: { anuncio: AnuncioDaPracaInfo
   }
 
   return (
-    <div className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold">{anuncio.titulo}</p>
-        <p className="truncate text-xs text-muted">
+    <div className="card relative flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      {/* O título abre um resumo do anúncio ali mesmo (pedido do Leonardo: sem
+          sair do painel), com link para o anúncio no perfil do prestador. */}
+      <button
+        type="button"
+        onClick={() => setAberto((v) => !v)}
+        aria-expanded={aberto}
+        aria-controls={`resumo-${anuncio.id}`}
+        className="min-w-0 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      >
+        <span className="block truncate text-sm font-semibold underline-offset-2 hover:underline">{anuncio.titulo}</span>
+        <span className="block truncate text-xs text-muted">
           {TIPO_LABEL[anuncio.tipo] ?? anuncio.tipo} · {anuncio.prestadorNome}
-        </p>
-      </div>
+        </span>
+      </button>
+      {aberto ? <ResumoAnuncio anuncio={anuncio} fechar={fecharResumo} /> : null}
       <div className="flex shrink-0 items-center gap-2">
         <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_ESTILO[anuncio.status] ?? "bg-tint-neutral text-muted"}`}>
           {STATUS_LABEL[anuncio.status] ?? anuncio.status}
@@ -370,6 +392,96 @@ function LinhaAnuncio({ anuncio, moderarAnuncio }: { anuncio: AnuncioDaPracaInfo
         )}
       </div>
       {erro ? <FormError className="text-xs">{erro}</FormError> : null}
+    </div>
+  );
+}
+
+/**
+ * Resumo de um anúncio num cartão sobre a lista: tipo, título, descrição
+ * inteira, categoria, cidade, data e — na vaga — o WhatsApp exposto no mural.
+ * Fecha no X, com Esc ou clicando fora. O link leva ao anúncio no perfil do
+ * prestador (seção "Anúncios").
+ */
+function ResumoAnuncio({ anuncio, fechar }: { anuncio: AnuncioDaPracaInfo; fechar: () => void }) {
+  const caixa = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    caixa.current?.focus();
+    const aoTeclar = (e: KeyboardEvent) => {
+      if (e.key === "Escape") fechar();
+    };
+    const aoClicar = (e: PointerEvent) => {
+      if (caixa.current && !caixa.current.contains(e.target as Node)) fechar();
+    };
+    document.addEventListener("keydown", aoTeclar);
+    // No próximo tique: o clique que abriu o cartão não pode fechá-lo.
+    const t = setTimeout(() => document.addEventListener("pointerdown", aoClicar), 0);
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener("keydown", aoTeclar);
+      document.removeEventListener("pointerdown", aoClicar);
+    };
+  }, [fechar]);
+
+  const local = [anuncio.cidade, anuncio.estado].filter(Boolean).join(" / ");
+  return (
+    <div
+      ref={caixa}
+      id={`resumo-${anuncio.id}`}
+      role="dialog"
+      aria-label={`Resumo do anúncio ${anuncio.titulo}`}
+      tabIndex={-1}
+      className="absolute left-2 right-2 top-full z-30 mt-2 flex flex-col gap-3 rounded-2xl border border-line bg-card p-4 text-left shadow-[0_18px_40px_-16px_rgba(15,23,42,0.35)] outline-none sm:left-4 sm:right-auto sm:w-[26rem]"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+            {anuncio.tipo === "vaga_ajudante" ? "Necessita-se ajudante!" : "Anúncio de serviço"}
+          </p>
+          <p className="mt-1 text-base font-semibold leading-snug">{anuncio.titulo}</p>
+        </div>
+        <button
+          type="button"
+          onClick={fechar}
+          aria-label="Fechar resumo"
+          className="-mr-2 -mt-2 grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-brand"
+        >
+          ×
+        </button>
+      </div>
+      <p className="whitespace-pre-line text-sm leading-relaxed">{anuncio.descricao}</p>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+        <dt className="text-muted">Prestador</dt>
+        <dd className="font-medium">{anuncio.prestadorNome}</dd>
+        {anuncio.categoria ? (
+          <>
+            <dt className="text-muted">Categoria</dt>
+            <dd>{nomeCategoria(anuncio.categoria)}</dd>
+          </>
+        ) : null}
+        {local ? (
+          <>
+            <dt className="text-muted">Cidade</dt>
+            <dd>{local}</dd>
+          </>
+        ) : null}
+        {anuncio.whatsapp ? (
+          <>
+            <dt className="text-muted">WhatsApp</dt>
+            <dd className="tabular-nums">{formatTelefone(anuncio.whatsapp)}</dd>
+          </>
+        ) : null}
+        <dt className="text-muted">Publicado em</dt>
+        <dd>{formatData(dataEmSaoPaulo(new Date(anuncio.criadoEm)))}</dd>
+        <dt className="text-muted">Situação</dt>
+        <dd>{STATUS_LABEL[anuncio.status] ?? anuncio.status}</dd>
+      </dl>
+      <Link
+        href={`/perfil/${anuncio.prestadorId}#anuncios`}
+        className="inline-flex min-h-11 items-center self-start text-sm font-semibold text-brand hover:underline"
+      >
+        Ver o anúncio no perfil do prestador →
+      </Link>
     </div>
   );
 }

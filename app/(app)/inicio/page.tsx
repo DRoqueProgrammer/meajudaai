@@ -345,6 +345,12 @@ export default async function InicioPage() {
           status: a.status,
           prestadorId: a.prestador_id,
           prestadorNome: nomePorPrestador.get(a.prestador_id) ?? "—",
+          descricao: a.descricao,
+          categoria: a.categoria,
+          whatsapp: a.whatsapp,
+          cidade: a.cidade,
+          estado: a.estado,
+          criadoEm: a.created_at,
         }));
       }
     }

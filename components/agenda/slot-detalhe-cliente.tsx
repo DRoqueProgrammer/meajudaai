@@ -4,6 +4,7 @@ import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao
 import { ResponderRenegociacao } from "@/components/agenda/responder-renegociacao";
 import { PerfilPopover, type PerfilResumo } from "@/components/perfil-popover";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
+import { quandoDoServico } from "@/lib/periodo-da-visita";
 import type { DiaTimelineEvento } from "@/components/agenda/dia-timeline";
 
 const STATUS_ESTILO: Record<string, string> = {
@@ -24,7 +25,7 @@ export function SlotDetalheCliente({ evento, prestador }: { evento: DiaTimelineE
         <div>
           <PerfilPopover perfil={prestador} />
           <p className="text-xs text-muted">
-            {formatData(slot.data)} · {formatHora(slot.hora_inicio)}–{formatHora(slot.hora_fim)}
+            {formatData(slot.data)} · {quandoDoServico(slot, servico)}
           </p>
         </div>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${STATUS_ESTILO[servico.status] ?? "bg-surface text-muted"}`}>

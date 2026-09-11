@@ -12,6 +12,8 @@ import { recategorizarServicoAction } from "@/lib/actions/servico-tipo";
 import { FormError } from "@/components/ui";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import type { TipoServico } from "@/lib/tipos-servico";
+import { HoraCombinada } from "@/components/agenda/hora-combinada";
+import { rotuloPeriodo } from "@/lib/periodo-da-visita";
 
 export interface SlotDetalheProps {
   slot: {
@@ -30,6 +32,11 @@ export interface SlotDetalheProps {
     cancelado_motivo: string | null;
     /** `tipos_servico.slug` (migration 0047) — o prestador pode recategorizar em qualquer estado. */
     tipo?: string;
+    /** Quando o cliente prefere a visita (migration 0050): manha · tarde · noite · qualquer. */
+    periodo_preferido?: string | null;
+    /** Hora combinada da visita (migration 0051) — início e, opcional, fim ("HH:MM:SS"). */
+    hora_combinada_inicio?: string | null;
+    hora_combinada_fim?: string | null;
   } | null;
   logs: { id: string; texto: string; created_at: string }[];
   /** Catálogo pro select "Tipo" — só é preciso quando `paginaCompleta` (o único lugar com o select por ora). */
@@ -87,6 +94,24 @@ export function SlotDetalhe({ slot, servico, logs, tipos, paginaCompleta = false
           {servico ? (
             <>
               <p className="text-sm">{servico.descricao}</p>
+              {rotuloPeriodo(servico.periodo_preferido) ? (
+                <p className="text-xs text-muted">
+                  O cliente prefere a visita de <strong className="font-semibold text-ink">{rotuloPeriodo(servico.periodo_preferido)}</strong>.
+                </p>
+              ) : null}
+              {servico.status === "pendente" || servico.status === "confirmado" ? (
+                <HoraCombinada
+                  servicoId={servico.id}
+                  janela={{ inicio: slot.hora_inicio.slice(0, 5), fim: slot.hora_fim.slice(0, 5) }}
+                  inicio={servico.hora_combinada_inicio?.slice(0, 5) ?? ""}
+                  fim={servico.hora_combinada_fim?.slice(0, 5) ?? ""}
+                />
+              ) : servico.hora_combinada_inicio ? (
+                <p className="text-sm">
+                  Visita combinada: <strong>{servico.hora_combinada_inicio.slice(0, 5)}</strong>
+                  {servico.hora_combinada_fim ? `–${servico.hora_combinada_fim.slice(0, 5)}` : ""}
+                </p>
+              ) : null}
               <p className="text-sm font-semibold text-brand">
                 {formatBRL(servico.preco_valor)} {servico.preco_tipo === "hora" ? "/ hora" : "(fechado)"}
               </p>

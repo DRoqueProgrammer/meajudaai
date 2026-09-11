@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatData } from "@/lib/format";
+import { formatData } from "@/lib/format";
+import { periodoValido } from "@/lib/periodo-da-visita";
 import { hojeEmSaoPaulo, somarDias, diaDaSemana } from "@/lib/datas";
 import type { ActionResult } from "./auth";
 
@@ -147,6 +148,8 @@ export async function reservarSlotAction(input: {
   lng: number;
   /** `tipos_servico.slug` (migration 0047) — cliente escolhe ao agendar. 'outros' se omitido. */
   tipo?: string;
+  /** Quando o cliente prefere a visita dentro da janela (migration 0050) — 'qualquer' se omitido. */
+  periodoPreferido?: string;
 }): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
@@ -189,6 +192,7 @@ export async function reservarSlotAction(input: {
     lat: input.lat,
     lng: input.lng,
     tipo,
+    periodo_preferido: periodoValido(input.periodoPreferido),
   });
   if (insServico) return { ok: false, erro: "Não foi possível registrar o serviço." };
   revalidatePath("/agenda");
@@ -358,6 +362,48 @@ export async function cancelarServicoAction(input: {
   revalidatePath("/agenda");
   revalidatePath("/meus-servicos");
   revalidatePath("/clientes");
+  revalidatePath("/inicio");
+  return { ok: true };
+}
+
+/**
+ * Prestador marca a hora combinada da visita (migration 0051): depois de
+ * combinar com o cliente dentro da janela da agenda aberta (ex.: 09h–18h),
+ * grava o início (ex.: 10:00) e, se quiser, o fim — que é opcional. Sessão do
+ * prestador; o gatilho do banco confere quem mexe, o estado e a janela.
+ * `inicio` vazio desmarca.
+ */
+export async function combinarHoraAction(input: {
+  servicoId: string;
+  inicio: string;
+  fim?: string;
+}): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  if (w.user.role !== "prestador_servico") return { ok: false, erro: "Só o prestador marca a hora combinada." };
+  const hora = /^([01]\d|2[0-3]):[0-5]\d$/;
+  const inicio = input.inicio.trim();
+  const fim = (input.fim ?? "").trim();
+  if (inicio && !hora.test(inicio)) return { ok: false, erro: "Hora de início inválida." };
+  if (fim && !hora.test(fim)) return { ok: false, erro: "Hora de fim inválida." };
+  if (fim && !inicio) return { ok: false, erro: "Marque o início antes do fim." };
+  if (fim && fim <= inicio) return { ok: false, erro: "O fim precisa ser depois do início." };
+
+  const sb = await createServerClient();
+  const { data, error } = await sb
+    .from("servicos")
+    .update({ hora_combinada_inicio: inicio || null, hora_combinada_fim: fim || null })
+    .eq("id", input.servicoId)
+    .eq("prestador_id", w.user.id)
+    .select("id")
+    .maybeSingle();
+  if (error) {
+    // Mensagem do gatilho (janela) é clara o bastante para mostrar como está.
+    return { ok: false, erro: error.message?.includes("agenda aberta") ? error.message : "Não foi possível salvar a hora combinada." };
+  }
+  if (!data) return { ok: false, erro: "Serviço não encontrado." };
+  revalidatePath("/agenda");
+  revalidatePath("/meus-servicos");
   revalidatePath("/inicio");
   return { ok: true };
 }

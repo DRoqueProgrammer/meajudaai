@@ -24,7 +24,7 @@ export default async function AgendaPage() {
   if (user.role === "cliente") {
     const { data: servicos } = await sb
       .from("servicos")
-      .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, prestador_id")
+      .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, prestador_id, created_at, periodo_preferido, hora_combinada_inicio, hora_combinada_fim")
       .eq("cliente_id", user.id);
 
     const slotIds = (servicos ?? []).map((s) => s.slot_id);
@@ -58,6 +58,9 @@ export default async function AgendaPage() {
           preco_valor: s.preco_valor,
           status: s.status,
           cancelado_motivo: s.cancelado_motivo,
+          periodo_preferido: s.periodo_preferido,
+          hora_combinada_inicio: s.hora_combinada_inicio,
+          hora_combinada_fim: s.hora_combinada_fim,
         },
         logs: [],
       });
@@ -95,7 +98,7 @@ export default async function AgendaPage() {
   const { data: servicos } = slotIds.length
     ? await sb
         .from("servicos")
-        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, created_at")
+        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, created_at, periodo_preferido, hora_combinada_inicio, hora_combinada_fim")
         .in("slot_id", slotIds)
     : { data: [] };
 

@@ -33,7 +33,7 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
   // mostra o que ocupa o horário — ver lib/servico-do-horario.ts.
   const { data: servicosDoHorario } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng, tipo, created_at")
+    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng, tipo, created_at, periodo_preferido, hora_combinada_inicio, hora_combinada_fim")
     .eq("slot_id", slotId);
   const servico = servicoDoHorario(servicosDoHorario ?? []);
   const tipos = await listarTiposServico(sb);

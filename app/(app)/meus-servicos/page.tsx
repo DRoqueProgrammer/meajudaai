@@ -5,6 +5,7 @@ import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao
 import { ResponderRenegociacao } from "@/components/agenda/responder-renegociacao";
 import { PerfilPopover } from "@/components/perfil-popover";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
+import { quandoDoServico } from "@/lib/periodo-da-visita";
 import { nomeCategoria } from "@/lib/categorias";
 
 const STATUS_ESTILO: Record<string, string> = {
@@ -36,7 +37,7 @@ export default async function MeusServicosPage({
   const sb = await createServerClient();
   const { data: servicosBrutos } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, prestador_id, slot_id")
+    .select("id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, prestador_id, slot_id, periodo_preferido, hora_combinada_inicio, hora_combinada_fim")
     .eq("cliente_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -115,7 +116,7 @@ export default async function MeusServicosPage({
                       <span className="text-sm font-semibold">Prestador</span>
                     )}
                     <p className="truncate text-xs text-muted">
-                      {slot ? `${formatData(slot.data)} · ${formatHora(slot.hora_inicio)}–${formatHora(slot.hora_fim)} · ` : ""}
+                      {slot ? `${formatData(slot.data)} · ${quandoDoServico(slot, s)} · ` : ""}
                       {s.descricao}
                     </p>
                   </div>

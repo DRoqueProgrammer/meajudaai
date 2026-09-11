@@ -35,3 +35,22 @@ export function periodosDaJanela(inicio: string, fim: string): Exclude<PeriodoPr
 export function periodoValido(v: unknown): PeriodoPreferido {
   return v === "manha" || v === "tarde" || v === "noite" ? v : "qualquer";
 }
+
+/**
+ * "Quando" de um serviço em texto curto, para as listas dos dois lados: com
+ * hora combinada (0051), "às 10:00" ou "10:00–12:00"; sem, a janela da agenda
+ * e, se houver, a preferência do cliente ("09:00–18:00 · prefere tarde").
+ */
+export function quandoDoServico(
+  janela: { hora_inicio: string; hora_fim: string },
+  servico: { hora_combinada_inicio?: string | null; hora_combinada_fim?: string | null; periodo_preferido?: string | null },
+): string {
+  const ini = servico.hora_combinada_inicio?.slice(0, 5);
+  if (ini) {
+    const fim = servico.hora_combinada_fim?.slice(0, 5);
+    return fim ? `visita ${ini}–${fim}` : `visita às ${ini}`;
+  }
+  const faixa = `${janela.hora_inicio.slice(0, 5)}–${janela.hora_fim.slice(0, 5)}`;
+  const pref = rotuloPeriodo(servico.periodo_preferido);
+  return pref ? `${faixa} · prefere ${pref}` : faixa;
+}

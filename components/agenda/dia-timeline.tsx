@@ -140,8 +140,20 @@ export function DiaTimeline({
           ))}
 
           {comServico.map((e) => {
-            const inicio = paraHoras(e.slot.hora_inicio);
-            const fim = paraHoras(e.slot.hora_fim);
+            // Hora combinada (migration 0051) manda na posição: sem fim, uma
+            // hora de bloco (sem passar do fim da janela). Sem hora combinada,
+            // o serviço ocupa a janela inteira, como antes.
+            const combinado = e.servico!.hora_combinada_inicio ?? null;
+            const janelaFim = paraHoras(e.slot.hora_fim);
+            const inicio = combinado ? paraHoras(combinado) : paraHoras(e.slot.hora_inicio);
+            const fim = combinado
+              ? e.servico!.hora_combinada_fim
+                ? paraHoras(e.servico!.hora_combinada_fim)
+                : Math.min(janelaFim, inicio + 1)
+              : janelaFim;
+            const rotuloHora = combinado
+              ? `${combinado.slice(0, 5)}${e.servico!.hora_combinada_fim ? `–${e.servico!.hora_combinada_fim.slice(0, 5)}` : ""}`
+              : `${e.slot.hora_inicio.slice(0, 5)}–${e.slot.hora_fim.slice(0, 5)}`;
             const top = inicio * HOUR_PX;
             const altura = Math.max(20, (fim - inicio) * HOUR_PX);
             const status = e.servico!.status;
@@ -156,9 +168,7 @@ export function DiaTimeline({
                 className={`${classes} ${selecionadoId === e.slot.id ? "ring-2 ring-brand" : ""}`}
                 style={{ top, height: altura }}
               >
-                <span className="shrink-0 text-rotulo text-muted">
-                  {e.slot.hora_inicio.slice(0, 5)}–{e.slot.hora_fim.slice(0, 5)}
-                </span>
+                <span className="shrink-0 text-rotulo text-muted">{rotuloHora}</span>
                 <span className="shrink-0 text-rotulo text-muted">—</span>
                 <span className="truncate font-medium text-ink">{e.servico!.descricao}</span>
               </button>

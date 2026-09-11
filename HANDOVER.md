@@ -2,7 +2,7 @@
 
 Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação depois de um tempo parado) retomar sem perder contexto. Leia nesta ordem: **este arquivo** → [ROADMAP.md](./ROADMAP.md) §0 (auditoria — o que falta, sempre atualizada) → [CLAUDE.md](./CLAUDE.md) (convenções e comandos).
 
-Última atualização: **10/09/2026, noite** — sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes e **Fatia 1 (segurança) entregue**. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
+Última atualização: **11/09/2026, madrugada** — sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes; **Fatias 1, 3 e 2 entregues**; anúncios do prestador (a ação v2 do Administrador), Hero novo, cadastro, agenda e faturamento por tipo pedidos ao vivo pelo Leonardo; começo da Fatia 4. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
 
 ---
 
@@ -29,18 +29,37 @@ export GEMINI_MODEL=gemini-3.6-flash   # o modelo padrão do CLI vive sobrecarre
 
 **Consertos de ferramenta no Windows** (reaplicar se reinstalar): `verify-work.py` do Converge nos dois tool homes (D-029); `src/dispatch/handoff.py` do Task-Spec **fora do repositório** (`~/.local/share/task-spec/3.8.0`, usa `shutil.which("bash")` — o `bash` puro achava o do WSL). O Pass 7 (`cvg bind`) ficou de fora (D-029).
 
-**Testes agora:** `npm test` (unidade, sem banco); `npm run test:integration` (banco real — inclui os 13 gabaritos da Fatia 1; o único vermelho é o banner do SysAdmin, ADR 0009); `bash scripts/regressao/rodar-fatia1.sh` (build de produção + 10 passos no Chrome, 10/10).
+**Testes agora (11/09, madrugada):** `npm test` (unidade, sem banco — 344 verdes); `RUN_INTEGRATION=1 npx vitest run --config vitest.integration.config.ts tests/fatia1 tests/fatia2 tests/anuncios tests/agenda tests/faturamento` (banco real — 174 verdes em 25 arquivos; `npm run test:integration` inteiro ainda tem o vermelho antigo do banner do SysAdmin, ADR 0009); `bash scripts/regressao/rodar-fatia1.sh` (build de produção + 10 passos no Chrome, **10/10**, o cancelamento sem o aviso do D-031). **Não rode o build com o `next dev` no ar no mesmo checkout** — os dois escrevem em `.next`.
 
 **Achados que ficaram para depois** (também no ROADMAP §0):
-- **D-031** — cancelar serviço às vezes deixa o botão em "Cancelando…" (o cancelamento salva; a resposta da action é cancelada no navegador). Intermitente, medido via CDP. → Fatia 4.
-- **"Localizar" no cadastro** exige login (a busca de endereço tem `requireUser`) e o cadastro é antes do login. → Fatia 2.
+- **D-031** — cancelar serviço às vezes deixava o botão em "Cancelando…". Mitigado na Fatia 4: o motivo vai num formulário inline (sem `prompt`), a tela mostra "Serviço cancelado." assim que a action responde e, se a resposta se perder, recarrega sozinha em 10 s. A causa de fundo (a resposta da server action cancelada no navegador) não foi isolada.
+- ~~**"Localizar" no cadastro** exige login~~ — resolvido na Fatia 2 (lote 2C): a busca de endereço aceita visitante, com limite de 10 por minuto por IP.
 - **D-030** — não registrar o auth hook antes de escopar as cláusulas de SysAdmin pela marca de exemplo; senão a conta de exemplo, aberta por qualquer visitante, ganha o banco inteiro (liga com o ADR 0009 e a D-014).
 
 **Fatia 3 (redesign) — entregue no mesmo dia, em lotes (D-032).** Leonardo achou a Fatia 1 lenta e escolheu o redesign em seguida; por ser só UI, rodou sem task-spec por tarefa: 4 lotes de executor Sonnet (A fundação → B casca e Início, C landing, D seletor de horário e formulários, os três em paralelo), cada um com tier 2 do Gemini (`revisar-lote.sh` no scratchpad reproduz o prompt do `verify-work.py`), build, testes e a regressão 10/10. Antes e depois: https://claude.ai/code/artifact/659e94e2-1d1f-4cc7-8502-38dbb2f94906. **Armadilha:** o `isolation: "worktree"` do Agent tool cria a worktree a partir de `main` (a v1) — para lotes em paralelo, crie a worktree você mesmo a partir do branch atual e ligue o `node_modules` por junção (`New-Item -ItemType Junction`).
 
-Pendência de produto que o redesign deixou à vista: o Início do **Administrador** ainda oferece "PRECISO DE AJUDANTE / Publique uma vaga" e "Minhas vagas" — o mural de vagas da v1 continua sendo a ação principal desse papel. Qual é a ação v2 do Administrador é pergunta para o Leonardo (casa com o dashboard operacional que o CLAUDE.md diz faltar).
+~~Pendência de produto: qual é a ação v2 do Administrador~~ — respondida pelo Leonardo em 10/09 (D-034): os anúncios da praça (ver abaixo).
 
-**Próximo passo:** Fatia 2 (vitrine v2 e LGPD: privacidade e termos, excluir/baixar meus dados, Open Graph/sitemap, "Localizar" do cadastro sem login) — é o que falta antes de publicar no vercel.app. Depois a 4 (agenda e desempenho, com o D-031) e a 5.
+Leonardo aprovou o redesign pedindo só o rodapé colado no fim da tela (coluna `min-h-dvh` + `<main>` com `flex-1` nos três layouts; no celular, uma faixa da cor do rodapé reserva a nav fixa).
+
+**Fatia 2 (vitrine v2 e LGPD) — mesmo formato de lotes (D-032/D-033).**
+- **2A:** privacidade e termos reescritos para a v2; encarregado e canal: `leochalhoub@hotmail.com` (`lib/contato.ts`).
+- **2C:** Poppins por `next/font` (sai o Google Fonts do navegador), clima do Hero no servidor (`/api/clima`, cache de 30 min), aviso de cookies informativo ("Entendi" — o app só usa cookie essencial), Open Graph, `robots` e `sitemap`, "Localizar" sem login e seed sem fotos de banco de imagens.
+- **2B:** direitos do titular (D-023). Tem "Baixar meus dados" (`/api/meus-dados`, JSON de quem está logado) e "Excluir meus dados": o pedido tem 7 dias para desistir, e um cron diário (`/api/cron/titular`) anonimiza os vencidos e expurga `login_logs` com mais de 180 dias. A anonimização nunca apaga a pessoa do Auth (a cascata levaria o histórico da outra parte): troca o e-mail e a senha, bane a conta, limpa os dados, apaga a foto e cancela os agendamentos futuros avisando a outra parte. A tela `/admin/pedidos-de-exclusao` é do SysAdmin.
+- **Revisão do controller → migration 0043:** a carência de 7 dias ficou travada por gatilho (antes, uma chamada direta à API pulava). O perfil ganhou o estado `removido`. A busca e a reserva passaram a exigir prestador com a conta ativa (antes, inativo e bloqueado apareciam e podiam ser reservados).
+- **Gabaritos:** `tests/fatia2` tem 14 casos, todos verdes. O Gemini julgou 2B e 2C UPHELD.
+- **Cota do Gemini:** o nível gratuito dá 20 pedidos por dia por modelo. Na noite de 10/09 esgotaram `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-flash-latest` (que aponta para o 3.8) e `gemini-3-flash-preview`; o `gemini-2.5-flash` ainda respondia. O `revisar-lote-debug.sh` mostra o erro (o `revisar-lote.sh` o engole e devolve vazio). O script também aceita `JUIZ=grok`, mas só depois que o Leonardo puser `XAI_API_KEY` no `.env.local`.
+
+**Pedidos do Leonardo ao vivo (10/09, noite) — decisões D-034 a D-039.** Tudo em lotes paralelos com worktree própria e gabarito escrito antes pelo controller (commitado no branch do lote; o `main` do trabalho nunca fica com teste vermelho), Gemini em cada lote (todos UPHELD) e prints:
+- **Anúncios do prestador (D-034, migrations 0044/0045):** serviço ou "Necessita-se ajudante!" (vaga para ajudante sem conta, com WhatsApp). Até X ativos: ajuste do prestador → padrão da praça da cidade dele (mesmo mundo exemplo/real) → 3. Telas: `/anuncios` do prestador (lote A2), mural público em carrossel e vitrine na página inicial (A3; `scripts/seed-anuncios.mjs` semeia 4 prestadores de exemplo e 11 anúncios), Início do Administrador virou **Painel da praça** com limite padrão, ajuste por prestador e tirar do ar (A4 — Mapa/Financeiro/Relatórios eram só v1 e saíram do menu dele; as páginas existem). Conta de exemplo não publica nem tira do ar (o mural é público).
+- **Hero novo (D-035):** saudação grande, frases de volta (`lib/citacoes.ts`, "Outra frase"), relógio grande, tempo agora e 4 dias. Feito pelo controller.
+- **Fotos (D-036):** nenhuma conta sem foto — retrato público do randomuser.me pelo gênero (`lib/foto-aleatoria.ts`, `scripts/fotos-publicas.mjs`); cadastro com foto opcional.
+- **Cadastro (D-039, lote C1):** duas colunas no notebook, mapa sempre visível e obrigatório, confirmação de senha com olhinho (também no login e na nova senha), máscara do telefone à mostra, campo "Gênero". Endereço e mapa no perfil também para o Administrador (lote 2D). Login respeita `?next=` (só caminho interno, `lib/destino-seguro.ts`).
+- **Agenda (D-038, lote G1 + migrations 0046/0048):** o dia mostra a faixa aberta em azul com a legenda "Agenda aberta das X às Y" (sem o "Livre" que mentia); "Agendas abertas" em cartões com X vermelho para fechar (não fecha com serviço agendado). Serviço cancelado libera o horário (supera o ADR 0017) e a corrida da reserva segue travada pelo índice.
+- **Tipos de serviço e faturamento (D-037, migration 0047, lote F1):** seis tipos, o cliente escolhe ao agendar e o prestador recategoriza; gráfico empilhado por tipo com filtro (15 dias padrão, 30, 60, 90, este ano, último ano), agrupado por semana, card no hover com tipos em ordem alfabética e por dia.
+- **Fatia 4 adiantada:** sessão memoizada (`cache` em `getCurrentUser`), fuso de São Paulo no servidor (`lib/datas.ts`), D-031 mitigado, horário cancelado liberado, classes de componente do CSS na camada certa do Tailwind (utilitários voltam a valer).
+
+**Próximo passo:** o que sobra da Fatia 4 (zod + `useActionState` nos formulários da agenda, testes de integração das actions, a causa de fundo do D-031) e a Fatia 5 (página pública do prestador, dashboard do SysAdmin, praça e comissão — esta última pede decisões do Leonardo).
 
 ---
 

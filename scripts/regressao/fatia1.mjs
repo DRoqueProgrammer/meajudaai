@@ -286,8 +286,11 @@ async function reservar(pagina, slot, descricao) {
   // escolher um chip revela, abaixo dos horários, o formulário daquele horário.
   await pagina.getByRole("button", { name: `${dataBr(slot.data)} · ${slot.inicio}–${slot.fim}` }).click();
   await pagina.getByPlaceholder("O que você precisa?").fill(descricao);
+  // Desde 10/09 o tipo de serviço é obrigatório na reserva (migration 0047) e o
+  // botão do GPS se chama "Marcar minha localização atual".
+  await pagina.getByLabel("Tipo de serviço").selectOption({ label: "Instalação elétrica" });
   await pagina.getByPlaceholder("Rua, número, bairro").fill("Rua Moreira César, 54 — Icaraí, Niterói");
-  await pagina.getByRole("button", { name: /Usar minha localização/ }).click();
+  await pagina.getByRole("button", { name: /Marcar minha localização atual|Usar minha localização/ }).click();
   await pagina.getByRole("button", { name: "Reservar horário" }).click();
   await pagina.getByText("Pedido enviado!").waitFor();
 }

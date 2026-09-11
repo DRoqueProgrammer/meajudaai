@@ -3,6 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import type { AppRole } from "@/lib/auth/roles";
 import type { MarcaDeExemplo } from "@/lib/auth/exemplo";
+import { pracasDoMundoDeExemplo } from "@/lib/admin/alcance";
+import { hojeEmSaoPaulo, somarDias } from "@/lib/datas";
 
 /**
  * Leituras das telas administrativas (`/admin/logs`, `/admin/servicos`,
@@ -181,4 +183,215 @@ export async function listarLimitesDosPrestadores(db: DB, prestadorIds: string[]
   const { data, error } = await db.from("anuncio_limites").select("prestador_id, limite").in("prestador_id", prestadorIds);
   if (error) throw error;
   return data ?? [];
+}
+
+/** Um cadastro recente, sem contato — nome, papel e data, para a lista curta do painel do SysAdmin. */
+export interface LinhaUltimoCadastro {
+  nome: string;
+  papel: string;
+  genero: string | null;
+  criadoEm: string;
+}
+
+/** Um serviço recente, sem as partes — descrição, status e data, para a lista curta do painel do SysAdmin. */
+export interface LinhaUltimoServicoPlataforma {
+  descricao: string;
+  status: string;
+  criadoEm: string;
+}
+
+/** Números e listas curtas do "Painel da plataforma" (SysAdmin). */
+export interface ResumoDaPlataforma {
+  /** `profiles.tipo_base` → contagem. A soma bate com o total de `profiles` do recorte do ator. */
+  usuariosPorPapel: Record<string, number>;
+  /** `servicos.status` → contagem, no recorte do ator. */
+  servicosPorStatus: Record<string, number>;
+  /** Soma de `preco_valor` dos serviços realizados cujo horário (`agenda_slots.data`) caiu nos últimos 30 dias, hoje em São Paulo. */
+  faturamento30d: number;
+  anunciosAtivos: { servico: number; vaga_ajudante: number };
+  pedidosDeExclusaoPendentes: number;
+  denunciasAbertas: number;
+  pracas: number;
+  ultimosCadastros: LinhaUltimoCadastro[];
+  ultimosServicos: LinhaUltimoServicoPlataforma[];
+}
+
+/** `profiles.tipo_base` → contagem, no recorte do ator — a base de `usuariosPorPapel`. */
+async function contarUsuariosPorPapel(db: DB, ator: MarcaDeExemplo): Promise<Record<string, number>> {
+  let query = db.from("profiles").select("tipo_base");
+  if (ator.exemplo) query = query.eq("exemplo", true);
+  const { data, error } = await query;
+  if (error) throw error;
+  const out: Record<string, number> = {};
+  for (const p of data ?? []) out[p.tipo_base] = (out[p.tipo_base] ?? 0) + 1;
+  return out;
+}
+
+/** Últimos `limite` cadastros (`profiles`), no recorte do ator — sem telefone/e-mail, só o que a lista curta mostra. */
+async function ultimosCadastrosDaPlataforma(db: DB, ator: MarcaDeExemplo, limite = 5): Promise<LinhaUltimoCadastro[]> {
+  let query = db
+    .from("profiles")
+    .select("nome, tipo_base, genero, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limite);
+  if (ator.exemplo) query = query.eq("exemplo", true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((p) => ({ nome: p.nome, papel: p.tipo_base, genero: p.genero, criadoEm: p.created_at }));
+}
+
+/**
+ * `servicos.status` → contagem, no recorte do ator. `idsExemplo` já vem
+ * calculado por quem chama (`resumoDaPlataforma`) — `null` para um ator real
+ * (sem recorte), a lista de ids do mundo de exemplo para um ator de exemplo.
+ * Um serviço só conta se cliente E prestador são os dois do mundo de
+ * exemplo, como `listarServicosDaPlataforma` já decide.
+ */
+async function contarServicosPorStatus(db: DB, idsExemplo: string[] | null): Promise<Record<string, number>> {
+  let query = db.from("servicos").select("status");
+  if (idsExemplo) query = query.in("cliente_id", idsExemplo).in("prestador_id", idsExemplo);
+  const { data, error } = await query;
+  if (error) throw error;
+  const out: Record<string, number> = {};
+  for (const s of data ?? []) out[s.status] = (out[s.status] ?? 0) + 1;
+  return out;
+}
+
+/**
+ * Faturamento (soma de `preco_valor`) dos serviços realizados cujo horário
+ * caiu nos últimos `dias` dias, hoje em São Paulo (lib/datas.ts — o servidor
+ * roda em UTC). Acha primeiro os horários da janela (poucas linhas, índice em
+ * `agenda_slots.data`) e só depois os serviços realizados desses horários —
+ * mesmo padrão do "Faturado no mês" em `app/(app)/inicio/page.tsx`.
+ */
+async function faturamentoUltimosDias(db: DB, idsExemplo: string[] | null, dias: number): Promise<number> {
+  const hoje = hojeEmSaoPaulo();
+  const inicio = somarDias(hoje, -(dias - 1));
+  const { data: slots, error: slotsErr } = await db.from("agenda_slots").select("id").gte("data", inicio).lte("data", hoje);
+  if (slotsErr) throw slotsErr;
+  const idsSlots = (slots ?? []).map((s) => s.id);
+  if (idsSlots.length === 0) return 0;
+
+  let query = db.from("servicos").select("preco_valor").in("slot_id", idsSlots).eq("status", "realizado");
+  if (idsExemplo) query = query.in("cliente_id", idsExemplo).in("prestador_id", idsExemplo);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).reduce((acc, s) => acc + s.preco_valor, 0);
+}
+
+/** Anúncios ATIVOS, por tipo, no recorte do ator (via `prestador_id`). */
+async function contarAnunciosAtivos(db: DB, idsExemplo: string[] | null): Promise<{ servico: number; vaga_ajudante: number }> {
+  let query = db.from("anuncios").select("tipo").eq("status", "ativo");
+  if (idsExemplo) query = query.in("prestador_id", idsExemplo);
+  const { data, error } = await query;
+  if (error) throw error;
+  let servico = 0;
+  let vagaAjudante = 0;
+  for (const a of data ?? []) {
+    if (a.tipo === "servico") servico++;
+    else if (a.tipo === "vaga_ajudante") vagaAjudante++;
+  }
+  return { servico, vaga_ajudante: vagaAjudante };
+}
+
+/** Pedidos de exclusão com status `pendente`, no recorte do ator (via `user_id` do titular). */
+async function contarPedidosPendentes(db: DB, idsExemplo: string[] | null): Promise<number> {
+  let query = db.from("pedidos_exclusao").select("id", { count: "exact", head: true }).eq("status", "pendente");
+  if (idsExemplo) query = query.in("user_id", idsExemplo);
+  const { count, error } = await query;
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Denúncias abertas ou em análise, no recorte do ator (via `denunciante_id`). */
+async function contarDenunciasAbertas(db: DB, idsExemplo: string[] | null): Promise<number> {
+  let query = db.from("denuncias").select("id", { count: "exact", head: true }).in("status", ["aberta", "em_analise"]);
+  if (idsExemplo) query = query.in("denunciante_id", idsExemplo);
+  const { count, error } = await query;
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Praças (`workspaces`), no recorte do ator — reaproveita `pracasDoMundoDeExemplo` (lib/admin/alcance.ts). */
+async function contarPracas(db: DB, ator: MarcaDeExemplo): Promise<number> {
+  if (ator.exemplo) {
+    const pracasExemplo = await pracasDoMundoDeExemplo(db);
+    return pracasExemplo.size;
+  }
+  const { count, error } = await db.from("workspaces").select("id", { count: "exact", head: true });
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Últimos `limite` serviços da plataforma, sem as partes — só descrição/status/data —, no recorte do ator. */
+async function ultimosServicosDaPlataforma(
+  db: DB,
+  idsExemplo: string[] | null,
+  limite = 5,
+): Promise<LinhaUltimoServicoPlataforma[]> {
+  let query = db.from("servicos").select("descricao, status, created_at").order("created_at", { ascending: false }).limit(limite);
+  if (idsExemplo) query = query.in("cliente_id", idsExemplo).in("prestador_id", idsExemplo);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((s) => ({ descricao: s.descricao, status: s.status, criadoEm: s.created_at }));
+}
+
+/**
+ * Resumo da plataforma inteira — os números do "Painel da plataforma"
+ * (SysAdmin, Fatia 5). O SysAdmin não participa de diária nem de praça
+ * específica: ele modera a plataforma toda, então este resumo nunca recorta
+ * por praça — só pelo mundo de exemplo (R-42, ADR 0012, D-015), como as
+ * outras consultas deste arquivo. `pracas` e `usuariosPorPapel` têm o próprio
+ * critério de recorte (respectivamente `pracasDoMundoDeExemplo` e
+ * `profiles.exemplo`); as demais contagens passam pelos ids de gente do
+ * mundo de exemplo, calculados uma vez só aqui e reaproveitados — evita
+ * repetir a mesma consulta a `profiles` a cada número.
+ */
+export async function resumoDaPlataforma(db: DB, ator: MarcaDeExemplo): Promise<ResumoDaPlataforma> {
+  const idsExemplo = ator.exemplo ? await idsDoEscopo(db, ator) : null;
+
+  const [usuariosPorPapel, ultimosCadastros] = await Promise.all([
+    contarUsuariosPorPapel(db, ator),
+    ultimosCadastrosDaPlataforma(db, ator),
+  ]);
+
+  // Mundo de exemplo ainda sem ninguém: toda contagem que depende de ids fica
+  // zerada sem consultar mais nada — um `.in(coluna, [])` do supabase-js não
+  // devolve "nenhuma linha", devolve erro.
+  if (ator.exemplo && idsExemplo!.length === 0) {
+    return {
+      usuariosPorPapel,
+      servicosPorStatus: {},
+      faturamento30d: 0,
+      anunciosAtivos: { servico: 0, vaga_ajudante: 0 },
+      pedidosDeExclusaoPendentes: 0,
+      denunciasAbertas: 0,
+      pracas: 0,
+      ultimosCadastros,
+      ultimosServicos: [],
+    };
+  }
+
+  const [servicosPorStatus, faturamento30d, anunciosAtivos, pedidosDeExclusaoPendentes, denunciasAbertas, pracas, ultimosServicos] =
+    await Promise.all([
+      contarServicosPorStatus(db, idsExemplo),
+      faturamentoUltimosDias(db, idsExemplo, 30),
+      contarAnunciosAtivos(db, idsExemplo),
+      contarPedidosPendentes(db, idsExemplo),
+      contarDenunciasAbertas(db, idsExemplo),
+      contarPracas(db, ator),
+      ultimosServicosDaPlataforma(db, idsExemplo),
+    ]);
+
+  return {
+    usuariosPorPapel,
+    servicosPorStatus,
+    faturamento30d,
+    anunciosAtivos,
+    pedidosDeExclusaoPendentes,
+    denunciasAbertas,
+    pracas,
+    ultimosCadastros,
+    ultimosServicos,
+  };
 }

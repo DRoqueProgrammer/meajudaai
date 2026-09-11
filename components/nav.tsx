@@ -231,9 +231,10 @@ export function Nav({
                   { href: "/agenda", label: "Agenda", icon: "calendar" },
                 ];
 
-  // Início do Administrador virou o "Painel da praça" (lote A4) — o rótulo do
-  // item de nav acompanha, pra não dizer uma coisa no menu e mostrar outra na tela.
-  const inicioLabel = role === "admin" ? "Painel da praça" : "Início";
+  // Início do Administrador virou o "Painel da praça" (lote A4), e o do
+  // SysAdmin virou o "Painel da plataforma" (lote S5) — o rótulo do item de
+  // nav acompanha, pra não dizer uma coisa no menu e mostrar outra na tela.
+  const inicioLabel = role === "admin" ? "Painel da praça" : role === "sysadmin" ? "Painel da plataforma" : "Início";
 
   // Sysadmin modera; não participa de diária, então não tem caixa de mensagens.
   const mensagens: Item[] =

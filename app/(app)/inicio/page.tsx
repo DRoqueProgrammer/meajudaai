@@ -15,11 +15,18 @@ import {
   type PrestadorDaPracaInfo,
   type AnuncioDaPracaInfo,
 } from "@/components/admin/painel-da-praca";
+import { PainelDaPlataforma } from "@/components/admin/painel-da-plataforma";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { hojeEmSaoPaulo } from "@/lib/datas";
 import { servicosPorHorario } from "@/lib/servico-do-horario";
 import { pracasDoMundoDeExemplo } from "@/lib/admin/alcance";
-import { listarPrestadoresDaPraca, listarAnunciosDosPrestadores, listarLimitesDosPrestadores } from "@/lib/admin/consultas";
+import {
+  listarPrestadoresDaPraca,
+  listarAnunciosDosPrestadores,
+  listarLimitesDosPrestadores,
+  resumoDaPlataforma,
+  type ResumoDaPlataforma,
+} from "@/lib/admin/consultas";
 import { limiteEfetivo, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
 import { definirLimitePadraoAction, definirLimitePrestadorAction, moderarAnuncioAction } from "@/lib/actions/anuncios-admin";
 
@@ -356,6 +363,16 @@ export default async function InicioPage() {
     }
   }
 
+  // "Painel da plataforma" do SysAdmin (Fatia 5, lote S5): troca o Início
+  // genérico — os números vêm prontos de resumoDaPlataforma (leitura pela
+  // chave de serviço, recortada pelo mundo de exemplo quando o ator é de
+  // exemplo, R-42/D-015), no mesmo padrão do "Painel da praça" do Administrador.
+  let resumoPlataforma: ResumoDaPlataforma | null = null;
+  if (user!.role === "sysadmin") {
+    const db = createAdminClient();
+    resumoPlataforma = await resumoDaPlataforma(db, { exemplo: user!.exemplo });
+  }
+
   const painel =
     user!.role === "prestador_servico"
       ? "Painel do prestador"
@@ -365,7 +382,9 @@ export default async function InicioPage() {
           ? "Painel do funcionário"
           : user!.role === "admin"
             ? "Painel da praça"
-            : "Painel do profissional";
+            : user!.role === "sysadmin"
+              ? "Painel da plataforma"
+              : "Painel do profissional";
 
   return (
     // Início é painel, não formulário (direção e): usa o teto de 1100px da
@@ -418,7 +437,7 @@ export default async function InicioPage() {
               tone="brand"
             />
           </>
-        ) : user!.role === "admin" ? null : user!.role === "cliente" ? (
+        ) : user!.role === "admin" ? null : user!.role === "sysadmin" ? null : user!.role === "cliente" ? (
           <>
             <CtaGrande
               href="/buscar-prestador"
@@ -498,6 +517,10 @@ export default async function InicioPage() {
             /admin/pracas.
           </p>
         )
+      ) : null}
+
+      {user!.role === "sysadmin" && resumoPlataforma ? (
+        <PainelDaPlataforma resumo={resumoPlataforma} exemplo={user!.exemplo} />
       ) : null}
 
       {user!.role === "prestador_servico" ? (

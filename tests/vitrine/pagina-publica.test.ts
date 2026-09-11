@@ -29,6 +29,15 @@ describe("Página pública do prestador", () => {
     expect(ler("middleware.ts")).toContain('"/p/"');
   });
 
+  it("robots, sitemap, imagem de prévia, ícone e manifesto abrem sem login", () => {
+    // No deploy de 11/09 os cinco caíam em /login para visitante: o Google não
+    // lia o sitemap e o link colado no WhatsApp ficava sem imagem.
+    const middleware = ler("middleware.ts");
+    for (const rota of ["/robots.txt", "/sitemap.xml", "/opengraph-image", "/icon.svg", "/manifest.webmanifest"]) {
+      expect(middleware).toContain(`"${rota}"`);
+    }
+  });
+
   it("a vitrine da página inicial leva para a página pública", () => {
     expect(ler("components/landing/vitrine-servicos.tsx")).toContain("/p/");
   });

@@ -18,6 +18,15 @@ const PUBLIC_PREFIXES = [
   "/p/",
   "/_next",
   "/favicon",
+  // Arquivos de metadados que o App Router gera (app/robots.ts, sitemap.ts,
+  // opengraph-image.tsx, icon.svg, manifest.ts). São para visitante e robô —
+  // sem isto o Google recebia /login no lugar do robots e do sitemap, e o link
+  // colado no WhatsApp ficava sem a imagem de prévia (achado no deploy de 11/09).
+  "/robots.txt",
+  "/sitemap.xml",
+  "/opengraph-image",
+  "/icon.svg",
+  "/manifest.webmanifest",
   "/api/health",
   "/api/demo",
   "/api/exemplo",

@@ -50,8 +50,12 @@ export function AgendaCalendarV2({
   const dataRef = params.get("data") ? new Date(`${params.get("data")}T00:00:00`) : hoje;
   const [diaSelecionado, setDiaSelecionado] = useState<string>(iso(hoje));
 
+  // Defensivo: 'fechado' (migration 0046) não é aberto nem aparece na agenda —
+  // filtrado aqui de novo mesmo que quem chamou já tenha filtrado.
+  const eventosAbertos = eventos.filter((e) => e.slot.status !== "fechado");
+
   const porDia = new Map<string, AgendaEvento[]>();
-  for (const e of eventos) {
+  for (const e of eventosAbertos) {
     const arr = porDia.get(e.slot.data) ?? [];
     arr.push(e);
     porDia.set(e.slot.data, arr);
@@ -71,8 +75,13 @@ export function AgendaCalendarV2({
     const isHoje = dataIso === iso(hoje);
     const isSelecionado = dataIso === diaSelecionado;
     const temEvento = eventosDoDia.length > 0;
-    const visiveis = eventosDoDia.slice(0, MAX_LINHAS_CELULA);
-    const resto = eventosDoDia.length - visiveis.length;
+    // Horário livre sem serviço não tem o que contar — "09:00 Aberta" ao lado
+    // de um serviço de verdade lia como se fossem dois compromissos. Só entra
+    // na lista quando o dia inteiro está livre (aí "Aberta" é a única linha).
+    const temServico = eventosDoDia.some((e) => e.servico);
+    const linhas = temServico ? eventosDoDia.filter((e) => e.servico) : eventosDoDia;
+    const visiveis = linhas.slice(0, MAX_LINHAS_CELULA);
+    const resto = linhas.length - visiveis.length;
     return (
       <button
         key={dataIso}
@@ -94,7 +103,7 @@ export function AgendaCalendarV2({
             <div key={e.slot.id} className="flex items-baseline gap-1 overflow-hidden">
               <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${corPorStatus[e.servico?.status ?? e.slot.status] ?? "bg-line"}`} />
               <span className="shrink-0 text-rotulo tabular-nums text-muted">{e.slot.hora_inicio.slice(0, 5)}</span>
-              <span className="truncate text-rotulo leading-tight text-ink">{e.servico?.descricao ?? "Livre"}</span>
+              <span className="truncate text-rotulo leading-tight text-ink">{e.servico?.descricao ?? "Aberta"}</span>
             </div>
           ))}
           {resto > 0 ? <span className="text-rotulo text-muted">+{resto}</span> : null}

@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { formatData } from "@/lib/format";
 import type { ActionResult } from "./auth";
+
+/** Data de hoje no fuso do produto (YYYY-MM-DD) — separa horário futuro de passado ao fechar uma agenda aberta. */
+function hojeEmSaoPaulo(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+}
 
 /**
  * Prestador oferece um horário na própria agenda (nasce como slot "livre").
@@ -71,6 +77,55 @@ export async function criarSlotsRecorrentesAction(input: {
     })),
   );
   if (error) return { ok: false, erro: "Não foi possível criar os horários." };
+  revalidatePath("/agenda");
+  return { ok: true };
+}
+
+/**
+ * Prestador fecha uma agenda aberta — uma faixa hora_inicio/hora_fim inteira
+ * (o agrupamento que a tela mostra em "Agendas abertas", `resumoHorariosAbertos`).
+ * Pedido do Leonardo em 10/09/2026: um X vermelho fecha a agenda, mas não se
+ * ela tiver serviço agendado.
+ *
+ * Confere antes se algum horário FUTURO dessa faixa está pendente ou
+ * confirmado — se sim, recusa e lista as datas em conflito. Só então marca
+ * como 'fechado' os horários livres futuros dessa faixa; o gatilho do banco
+ * (migration 0046) é a trava de verdade — esta checagem só existe para dar um
+ * erro claro em vez do genérico que o gatilho devolveria.
+ */
+export async function fecharAgendaAbertaAction(input: {
+  horaInicio: string;
+  horaFim: string;
+}): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  if (w.user.role !== "prestador_servico") return { ok: false, erro: "Só prestadores de serviço têm agenda." };
+
+  const sb = await createServerClient();
+  const hoje = hojeEmSaoPaulo();
+  const { data: slots, error: erroSlots } = await sb
+    .from("agenda_slots")
+    .select("id, data, status")
+    .eq("prestador_id", w.user.id)
+    .eq("hora_inicio", input.horaInicio)
+    .eq("hora_fim", input.horaFim)
+    .gte("data", hoje);
+  if (erroSlots) return { ok: false, erro: "Não foi possível conferir essa agenda." };
+
+  const ocupados = (slots ?? []).filter((s) => s.status === "pendente" || s.status === "confirmado");
+  if (ocupados.length > 0) {
+    const datas = ocupados.map((s) => formatData(s.data)).join(", ");
+    return {
+      ok: false,
+      erro: `Esta agenda tem serviços agendados (${datas}). Cancele ou conclua esses serviços antes de fechar.`,
+    };
+  }
+
+  const livres = (slots ?? []).filter((s) => s.status === "livre").map((s) => s.id);
+  if (livres.length === 0) return { ok: false, erro: "Não há horários livres nessa faixa para fechar." };
+
+  const { error } = await sb.from("agenda_slots").update({ status: "fechado" }).in("id", livres);
+  if (error) return { ok: false, erro: "Não foi possível fechar a agenda." };
   revalidatePath("/agenda");
   return { ok: true };
 }

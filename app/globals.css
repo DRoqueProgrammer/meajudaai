@@ -145,6 +145,11 @@ body {
 .btn-ghost {
   @apply btn border border-brand bg-card text-brand hover:bg-surface;
 }
+/* Ação destrutiva (fechar agenda, e outras que vierem) — mesmo preenchimento
+   fixo dos outros `.btn-*`, na tinta de erro. */
+.btn-danger {
+  @apply btn bg-danger-fill text-white hover:brightness-90;
+}
 /* 16px no card, 12px em controle: a diferença precisa ser visível para a escala
    significar alguma coisa. Antes o `.card` usava o mesmo raio dos botões. */
 .card {

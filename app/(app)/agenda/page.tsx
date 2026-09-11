@@ -3,9 +3,9 @@ import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { CriarSlotForm } from "@/components/agenda/criar-slot-form";
 import { AgendaCalendarV2, type AgendaEvento } from "@/components/agenda/agenda-calendar-v2";
+import { AgendasAbertas } from "@/components/agenda/agendas-abertas";
 import type { PerfilResumo } from "@/components/perfil-popover";
 import { resumoHorariosAbertos } from "@/lib/agenda-resumo";
-import { formatData, formatHora } from "@/lib/format";
 
 /**
  * Rota `/agenda`: prestador vê/oferece os próprios horários (agenda v2:
@@ -125,36 +125,24 @@ export default async function AgendaPage() {
 
   const periodosAbertos = resumoHorariosAbertos(slots ?? []);
 
+  // Horário 'fechado' (migration 0046) não é aberto e não aparece na agenda —
+  // some da grade e do calendário, não só do resumo.
+  const eventosAbertos: AgendaEvento[] = (slots ?? [])
+    .filter((slot) => slot.status !== "fechado")
+    .map((slot): AgendaEvento => {
+      const servico = servicoDeSlot.get(slot.id) ?? null;
+      return { slot, servico, logs: servico ? (logsDeServico.get(servico.id) ?? []) : [] };
+    });
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Minha agenda</h1>
       <p className="text-sm text-muted">Ofereça horários e acompanhe os serviços agendados.</p>
 
-      <div className="card flex flex-col gap-1.5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted">Você está aberto para</p>
-        {periodosAbertos.length === 0 ? (
-          <p className="card-vazio">Nenhum horário aberto no momento — crie um abaixo.</p>
-        ) : (
-          periodosAbertos.map((p) => (
-            <p key={`${p.horaInicio}-${p.horaFim}`} className="text-sm">
-              <span className="font-semibold">{formatHora(p.horaInicio)}–{formatHora(p.horaFim)}</span>{" "}
-              <span className="text-muted">
-                · {p.diasSemana} · até {formatData(p.dataMax)}
-              </span>
-            </p>
-          ))
-        )}
-      </div>
+      <AgendasAbertas periodos={periodosAbertos} />
 
       <CriarSlotForm />
-      <AgendaCalendarV2
-        eventos={(slots ?? []).map(
-          (slot): AgendaEvento => {
-            const servico = servicoDeSlot.get(slot.id) ?? null;
-            return { slot, servico, logs: servico ? (logsDeServico.get(servico.id) ?? []) : [] };
-          },
-        )}
-      />
+      <AgendaCalendarV2 eventos={eventosAbertos} />
     </div>
   );
 }

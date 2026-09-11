@@ -187,6 +187,10 @@ export default async function InicioPage() {
   // anúncios ATIVOS o prestador tem, e o limite dele agora.
   let meusAnunciosAtivos = 0;
   let meuLimiteAnuncios = LIMITE_PADRAO_PLATAFORMA;
+  // Cartão "Comissão da plataforma" (D-044, lote C): só aparece com saldo em
+  // aberto ou pagamento informado — sem os dois, não há nada pra decidir aqui.
+  let saldoComissaoAberto = 0;
+  let pagamentoComissaoInformado = false;
   if (user!.role === "prestador_servico") {
     const { data: slotsHoje } = await sb
       .from("agenda_slots")
@@ -277,6 +281,23 @@ export default async function InicioPage() {
     // chamar pra saber o próprio número, sem precisar da chave de serviço.
     const { data: meuLimiteRaw } = await sb.rpc("limite_de_anuncios", { p_prestador: user!.id });
     meuLimiteAnuncios = meuLimiteRaw ?? LIMITE_PADRAO_PLATAFORMA;
+
+    // Comissão da plataforma (D-044, lote C): saldo em aberto (soma em
+    // centavos) e se já há um pagamento "informado" aguardando a
+    // administração — os mesmos dados da tela /comissao, resumidos aqui.
+    const { data: comissoesAbertasRaw } = await sb
+      .from("comissoes")
+      .select("valor")
+      .eq("prestador_id", user!.id)
+      .eq("status", "em_aberto");
+    saldoComissaoAberto = (comissoesAbertasRaw ?? []).reduce((acc, c) => acc + Math.round(Number(c.valor) * 100), 0) / 100;
+    const { data: pagamentoInformadoRaw } = await sb
+      .from("pagamentos_comissao")
+      .select("id")
+      .eq("prestador_id", user!.id)
+      .eq("status", "informado")
+      .maybeSingle();
+    pagamentoComissaoInformado = !!pagamentoInformadoRaw;
   }
 
   let ultimosServicos: {
@@ -679,6 +700,23 @@ export default async function InicioPage() {
                 <span className="text-muted">— falta {perfilIncompleto.join(", ")}. Perfil completo aparece mais nas buscas.</span>
               </span>
               <span className="shrink-0 font-semibold text-brand">Editar →</span>
+            </Link>
+          ) : null}
+
+          {/* Comissão da plataforma (D-044, lote C) — só aparece com algo pra
+              decidir: saldo em aberto ou um pagamento já informado. */}
+          {saldoComissaoAberto > 0 || pagamentoComissaoInformado ? (
+            <Link
+              href="/comissao"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-card px-4 py-3 text-sm transition hover:border-brand"
+            >
+              <span>
+                <span className="font-semibold text-brand">{formatBRL(saldoComissaoAberto)} em aberto</span>{" "}
+                <span className="text-muted">
+                  {pagamentoComissaoInformado ? "— pagamento informado, aguardando confirmação." : "— comissão da plataforma."}
+                </span>
+              </span>
+              <span className="shrink-0 font-semibold text-brand">Pagar comissão →</span>
             </Link>
           ) : null}
 

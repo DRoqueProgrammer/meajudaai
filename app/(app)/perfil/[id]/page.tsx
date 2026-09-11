@@ -83,10 +83,13 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
     ? await sb.rpc("anuncios_publicos", { p_prestador: id })
     : { data: null };
 
-  // Minhas chaves Pix (migration 0056) — só no PRÓPRIO perfil de prestador; a
-  // RLS também só entrega as do dono.
+  // Minhas chaves Pix (migration 0056) — no PRÓPRIO perfil, do prestador (cobra
+  // o cliente), do Administrador e do SysAdmin (a chave PADRÃO do Administrador
+  // é pra onde vai a comissão da praça — D-044/lote C). A RLS só entrega as do
+  // dono, mas a lista só faz sentido nesses três papéis.
+  const podeTerChavesPix = ehPrestadorV2 || p.tipo_base === "admin" || p.tipo_base === "sysadmin";
   const { data: minhasChaves } =
-    ehEu && ehPrestadorV2
+    ehEu && podeTerChavesPix
       ? await sb.from("chaves_pix").select("id, apelido, chave, padrao").eq("user_id", id).order("created_at", { ascending: true })
       : { data: null };
 
@@ -160,7 +163,16 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
           </div>
         ) : null}
 
-        {minhasChaves ? <ChavesPix chaves={minhasChaves} nome={p.nome} cidade={p.cidade} /> : null}
+        {minhasChaves ? (
+          <div className="flex flex-col gap-2">
+            {p.tipo_base === "admin" ? (
+              <p className="text-sm text-muted">
+                Chave padrão: é nela que os prestadores da sua praça pagam a comissão.
+              </p>
+            ) : null}
+            <ChavesPix chaves={minhasChaves} nome={p.nome} cidade={p.cidade} />
+          </div>
+        ) : null}
 
         {/* Histórico de trabalho — o que responde "posso confiar?" para quem
             ainda não tem avaliação nenhuma. */}

@@ -27,11 +27,13 @@ export interface SinalizacaoExistente {
 }
 
 /**
- * "Flag Pilantra" (migration 0055, pedido do Leonardo): uma das partes de um
- * serviço sinaliza a outra, com justificativa obrigatória — vai para a
- * administração decidir (`sinalizarAction`). Já sinalizado este serviço (a
- * RLS deixa o autor ler a própria sinalização), o botão dá lugar ao status
- * dela, em vez de deixar a pessoa sinalizar de novo.
+ * Sinalizar a outra parte de um serviço (migration 0055, pedido do Leonardo):
+ * justificativa obrigatória, vai para a administração decidir
+ * (`sinalizarAction`). Só um ícone de bandeira em contorno, cinza, com rótulo
+ * acessível — em 11/09/2026 o botão vermelho com texto em cada card parecia
+ * bandeira RECEBIDA; vermelho cheio fica só para as aprovadas
+ * (`components/flags-pessoa.tsx`). Já sinalizado este serviço (a RLS deixa o
+ * autor ler a própria sinalização), o ícone dá lugar ao status dela.
  */
 export function SinalizarServico({
   servicoId,
@@ -51,11 +53,14 @@ export function SinalizarServico({
 
   if (jaSinalizado) {
     const quando = new Date(jaSinalizado.criadoEm);
+    const status = STATUS_LABEL[jaSinalizado.status] ?? jaSinalizado.status;
     return (
-      <p className="text-xs text-muted">
-        Sinalização enviada em {formatData(dataEmSaoPaulo(quando))} às {horaEmSaoPaulo(quando)} —{" "}
-        {STATUS_LABEL[jaSinalizado.status] ?? jaSinalizado.status}.
-      </p>
+      <span
+        title={`Sinalização enviada em ${formatData(dataEmSaoPaulo(quando))} às ${horaEmSaoPaulo(quando)} — ${status}`}
+        className="inline-flex min-h-11 items-center gap-1 text-xs text-muted"
+      >
+        <BandeiraIcon cheia /> Sinalizado · {status}
+      </span>
     );
   }
 
@@ -92,9 +97,11 @@ export function SinalizarServico({
       <button
         type="button"
         onClick={abrir}
-        className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-danger hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+        aria-label={`Sinalizar ${alvoNome}`}
+        title="Sinalizar"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-tint-danger hover:text-danger focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
-        <BandeiraIcon /> Flag Pilantra
+        <BandeiraIcon />
       </button>
 
       <dialog
@@ -188,10 +195,21 @@ export function SinalizarServico({
   );
 }
 
-function BandeiraIcon() {
+/** Bandeira minimalista (mastro + flâmula) — em contorno para a ação; cheia para "já sinalizado". Mesmo desenho de `flags-pessoa.tsx`. */
+function BandeiraIcon({ cheia = false }: { cheia?: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0" fill="currentColor" aria-hidden="true">
-      <path d="M6 2.75a.75.75 0 0 0-.75.75v17.5a.75.75 0 0 0 1.5 0v-5.79l1.06-.27a7.75 7.75 0 0 1 5.02.32 7.75 7.75 0 0 0 5.92-.12.9.9 0 0 0 .5-.81V5.1a.9.9 0 0 0-1.28-.82 6.25 6.25 0 0 1-4.77.12 7.75 7.75 0 0 0-5.35-.22l-1.35.42v-.95a.75.75 0 0 0-.75-.75z" />
+    <svg
+      viewBox="0 0 24 24"
+      className={cheia ? "h-3.5 w-3.5 shrink-0" : "h-[18px] w-[18px] shrink-0"}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 21V4" />
+      <path d="M5 4h12l-3 4.5 3 4.5H5" fill={cheia ? "currentColor" : "none"} />
     </svg>
   );
 }

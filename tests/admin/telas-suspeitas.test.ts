@@ -42,15 +42,43 @@ describe("Telas das suspeitas", () => {
   it("a bandeira é dada no serviço, pela action da sessão, nos dois lados", () => {
     const botao = ler("components/sinalizar-servico.tsx");
     expect(botao).toContain("sinalizarAction");
-    expect(botao).toContain("Flag Pilantra");
     expect(ler("app/(app)/servicos/page.tsx")).toContain("SinalizarServico");
     expect(ler("app/(app)/meus-servicos/page.tsx")).toContain("SinalizarServico");
   });
 
-  it("o componente da bandeirinha mostra a lista no hover", () => {
+  // Leonardo, 11/09/2026: o botão vermelho "Flag Pilantra" em cada card parecia
+  // bandeira RECEBIDA. Vira um ícone discreto (contorno, cinza) com rótulo
+  // acessível "Sinalizar…"; bandeira vermelha cheia só para as aprovadas.
+  it("sinalizar é um ícone discreto com rótulo acessível, sem texto no card", () => {
+    const botao = ler("components/sinalizar-servico.tsx");
+    expect(botao).toMatch(/aria-label=\{`Sinalizar /);
+    expect(botao).toContain("text-muted");
+  });
+
+  it("nenhuma tela de cliente ou prestador fala em pilantragem", () => {
+    for (const f of [
+      "components/sinalizar-servico.tsx",
+      "components/flags-pessoa.tsx",
+      "components/perfil-popover.tsx",
+      "components/agenda/slot-detalhe.tsx",
+      "components/agenda/cliente-do-servico.tsx",
+      "app/(app)/servicos/page.tsx",
+      "app/(app)/meus-servicos/page.tsx",
+      "app/(app)/perfil/[id]/page.tsx",
+    ]) {
+      expect(ler(f), f).not.toMatch(/pilantr/i);
+    }
+  });
+
+  it("o componente da bandeirinha mostra a lista no hover, como red flags", () => {
     const flags = ler("components/flags-pessoa.tsx");
-    expect(flags).toContain("Suspeita de Pilantragem");
+    expect(flags).toContain("red flag");
     expect(flags).toContain("bandeirinhas");
+  });
+
+  it("o cartão de hover do perfil também mostra as bandeiras", () => {
+    expect(ler("components/perfil-popover.tsx")).toContain("FlagsPessoa");
+    expect(ler("app/(app)/servicos/page.tsx")).toMatch(/flags=\{flagsPorCliente/);
   });
 
   it("o perfil lê as bandeiras pela função que só o outro lado e a administração veem", () => {

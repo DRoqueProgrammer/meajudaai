@@ -13,9 +13,9 @@ export interface FlagPessoa {
 }
 
 /**
- * Bandeirinhas vermelhas de "Suspeita de Pilantragem" (migrations 0054/0055,
- * pedido do Leonardo em 10/09/2026): uma por sinalização aprovada, até 5; de 6
- * em diante, uma bandeira só com o número (`lib/flags.ts`). A lista SEMPRE
+ * Red flags da pessoa (migrations 0054/0055, pedido do Leonardo em
+ * 10/09/2026): uma bandeirinha vermelha por sinalização aprovada, até 5; de 6
+ * em diante, "N×" com uma bandeira só (`lib/flags.ts`). A lista SEMPRE
  * vem de `sb.rpc("flags_da_pessoa", { p_alvo })` com o client da sessão — a
  * função só devolve linha pra quem é do outro lado (cliente↔prestador) ou da
  * administração; pro próprio alvo, vem vazia, e este componente não desenha
@@ -48,7 +48,7 @@ export function FlagsPessoa({ flags }: { flags: FlagPessoa[] }) {
   if (flags.length === 0) return null;
 
   const { icones, contador } = bandeirinhas(flags.length);
-  const rotulo = `${flags.length} ${flags.length === 1 ? "suspeita" : "suspeitas"} de pilantragem aprovada${flags.length === 1 ? "" : "s"}`;
+  const rotulo = `${flags.length} ${flags.length === 1 ? "red flag" : "red flags"}`;
 
   return (
     <div
@@ -66,17 +66,17 @@ export function FlagsPessoa({ flags }: { flags: FlagPessoa[] }) {
         onClick={() => setAberto((a) => !a)}
         className="inline-flex min-h-6 items-center gap-0.5 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
       >
+        {contador ? <span className="mr-0.5 text-xs font-semibold tabular-nums text-danger">{contador}</span> : null}
         {Array.from({ length: icones }).map((_, i) => (
           <BandeiraIcon key={i} />
         ))}
-        {contador ? <span className="ml-0.5 text-xs font-semibold text-danger">{contador}</span> : null}
       </button>
       {aberto ? (
         <div
           role="tooltip"
           className="absolute left-0 top-full z-[1002] mt-2 w-64 max-w-[80vw] rounded-2xl border border-line bg-card p-3 text-left shadow-[0_8px_24px_rgba(15,23,42,0.18)]"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-danger">Suspeita de Pilantragem</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-danger">{rotulo}</p>
           <ul className="mt-1.5 flex flex-col gap-1">
             {flags.map((f, i) => {
               const d = new Date(f.quando);
@@ -94,11 +94,21 @@ export function FlagsPessoa({ flags }: { flags: FlagPessoa[] }) {
   );
 }
 
-/** Bandeira vermelha, em SVG (não emoji — pedido explícito do Leonardo). */
+/** Red flag minimalista (mastro + flâmula cheia), em SVG — não emoji, pedido explícito do Leonardo. Mesmo desenho do ícone de sinalizar. */
 function BandeiraIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-danger" fill="currentColor" aria-hidden="true">
-      <path d="M6 2.75a.75.75 0 0 0-.75.75v17.5a.75.75 0 0 0 1.5 0v-5.79l1.06-.27a7.75 7.75 0 0 1 5.02.32 7.75 7.75 0 0 0 5.92-.12.9.9 0 0 0 .5-.81V5.1a.9.9 0 0 0-1.28-.82 6.25 6.25 0 0 1-4.77.12 7.75 7.75 0 0 0-5.35-.22l-1.35.42v-.95a.75.75 0 0 0-.75-.75z" />
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4 shrink-0 text-danger"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 21V4" />
+      <path d="M5 4h12l-3 4.5 3 4.5H5" fill="currentColor" />
     </svg>
   );
 }

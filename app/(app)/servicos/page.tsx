@@ -26,15 +26,15 @@ const STATUS_ESTILO: Record<string, string> = {
   realizado: "bg-tint-neutral text-ink",
 };
 
-/** Status em que já houve engajamento de verdade — só nesses o "Flag Pilantra" aparece (pendente ainda não virou nada). */
+/** Status em que já houve engajamento de verdade — só nesses dá para sinalizar (pendente ainda não virou nada). */
 const STATUS_COM_FLAG = new Set(["confirmado", "realizado", "cancelado"]);
 
 /**
  * Rota `/servicos` (prestador): todos os serviços dele, mais recentes
  * primeiro, com filtro por status (chips via `?status=`, funciona sem JS) e
- * o cliente de cada um — com as bandeirinhas de "Suspeita de Pilantragem"
- * (`flags_da_pessoa`) e o botão "Flag Pilantra" (`sinalizarAction`, migration
- * 0055, pedido do Leonardo em 10/09/2026).
+ * o cliente de cada um — com as red flags aprovadas (`flags_da_pessoa`, ao
+ * lado do nome e no cartão de hover) e o ícone de sinalizar
+ * (`sinalizarAction`, migration 0055, pedido do Leonardo em 10/09/2026).
  */
 export default async function ServicosPage({
   searchParams,
@@ -87,7 +87,7 @@ export default async function ServicosPage({
   );
 
   // As próprias sinalizações (a RLS deixa o autor ler as dele) — pra trocar o
-  // botão "Flag Pilantra" pelo status, se este serviço já foi sinalizado.
+  // ícone de sinalizar pelo status, se este serviço já foi sinalizado.
   const servicoIds = lista.map((s) => s.id);
   const { data: minhasSinalizacoes } = servicoIds.length
     ? await sb.from("sinalizacoes").select("servico_id, status, created_at").eq("autor_id", user.id).in("servico_id", servicoIds)
@@ -131,6 +131,7 @@ export default async function ServicosPage({
                               totalAvaliacoes: cliente.total_avaliacoes,
                               verificado: cliente.verificado,
                             }}
+                            flags={flagsPorCliente.get(s.cliente_id) ?? []}
                           />
                         ) : (
                           <span className="text-sm font-semibold">Cliente</span>

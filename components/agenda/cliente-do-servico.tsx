@@ -6,8 +6,8 @@ import { waShareLink } from "@/lib/whatsapp";
 
 /**
  * Dados do cliente na página de detalhe de um serviço — nome (popover de
- * perfil), bandeirinhas de "Suspeita de Pilantragem" (`flags_da_pessoa`,
- * migration 0055), telefone/WhatsApp, e o endereço/PIN EXATO daquele serviço
+ * perfil), red flags aprovadas (`flags_da_pessoa`, migration 0055),
+ * telefone/WhatsApp, e o endereço/PIN EXATO daquele serviço
  * específico (`servicos.endereco/lat/lng`, migration 0037 — não o endereço
  * do perfil, porque o mesmo cliente pode pedir serviço em lugares
  * diferentes). Telefone vem de profiles_pii, liberado só porque há um
@@ -38,7 +38,7 @@ export function ClienteDoServico({
     <div className="card flex flex-col gap-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">Cliente</p>
       <div className="flex items-center gap-1.5">
-        <PerfilPopover perfil={perfil} className="text-base font-semibold hover:text-brand hover:underline" />
+        <PerfilPopover perfil={perfil} flags={flags} className="text-base font-semibold hover:text-brand hover:underline" />
         <FlagsPessoa flags={flags} />
       </div>
       {telefone ? <TelefoneWhatsApp telefone={telefone} isWhatsapp={isWhatsapp} /> : null}

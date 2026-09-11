@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Avatar, StarRating, Verificado } from "@/components/ui";
+import { FlagsPessoa, type FlagPessoa } from "@/components/flags-pessoa";
 import { papelLabel } from "@/lib/papel-label";
 import type { AppRole } from "@/lib/auth/roles";
 
@@ -17,8 +18,20 @@ export interface PerfilResumo {
   verificado?: boolean;
 }
 
-/** Nome clicável que abre um card efêmero com o resumo do perfil — fecha ao clicar fora. */
-export function PerfilPopover({ perfil, className }: { perfil: PerfilResumo; className?: string }) {
+/**
+ * Nome clicável que abre um card efêmero com o resumo do perfil — fecha ao
+ * clicar fora. `flags` são as red flags aprovadas (`flags_da_pessoa`, só o
+ * outro lado e a administração recebem); sem nenhuma, a linha não aparece.
+ */
+export function PerfilPopover({
+  perfil,
+  className,
+  flags = [],
+}: {
+  perfil: PerfilResumo;
+  className?: string;
+  flags?: FlagPessoa[];
+}) {
   const [aberto, setAberto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -49,8 +62,9 @@ export function PerfilPopover({ perfil, className }: { perfil: PerfilResumo; cla
               <p className="text-xs text-muted">{papelLabel(perfil.papel, perfil.genero)}</p>
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
             <StarRating nota={perfil.notaMedia} total={perfil.totalAvaliacoes} />
+            <FlagsPessoa flags={flags} />
           </div>
           {perfil.verificado ? (
             <div className="mt-2">

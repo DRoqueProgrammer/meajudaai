@@ -17,7 +17,7 @@ const STATUS_ESTILO: Record<string, string> = {
   realizado: "bg-tint-neutral text-ink",
 };
 
-/** Status em que já houve engajamento de verdade — só nesses o "Flag Pilantra" aparece (pendente ainda não virou nada). */
+/** Status em que já houve engajamento de verdade — só nesses dá para sinalizar (pendente ainda não virou nada). */
 const STATUS_COM_FLAG = new Set(["confirmado", "realizado", "cancelado"]);
 
 function StatusPill({ status }: { status: string }) {
@@ -73,7 +73,7 @@ export default async function MeusServicosPage({
   );
 
   // As próprias sinalizações (a RLS deixa o autor ler as dele) — pra trocar o
-  // botão "Flag Pilantra" pelo status, se este serviço já foi sinalizado.
+  // ícone de sinalizar pelo status, se este serviço já foi sinalizado.
   const servicoIds = (servicosBrutos ?? []).map((s) => s.id);
   const { data: minhasSinalizacoes } = servicoIds.length
     ? await sb.from("sinalizacoes").select("servico_id, status, created_at").eq("autor_id", user.id).in("servico_id", servicoIds)
@@ -137,6 +137,7 @@ export default async function MeusServicosPage({
                             totalAvaliacoes: p.total_avaliacoes,
                             verificado: p.verificado,
                           }}
+                          flags={flagsPorPrestador.get(s.prestador_id) ?? []}
                         />
                       ) : (
                         <span className="text-sm font-semibold">Prestador</span>

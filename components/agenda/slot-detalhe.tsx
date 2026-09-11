@@ -42,7 +42,7 @@ export interface SlotDetalheProps {
   logs: { id: string; texto: string; created_at: string }[];
   /** Catálogo pro select "Tipo" — só é preciso quando `paginaCompleta` (o único lugar com o select por ora). */
   tipos?: TipoServico[];
-  /** Nome do cliente — só pro texto do "Flag Pilantra" (migration 0055). */
+  /** Nome do cliente — só pro rótulo do ícone de sinalizar (migration 0055). */
   clienteNome?: string | null;
   /** A própria sinalização deste serviço, se já enviada (a RLS deixa o autor ler a dele). */
   minhaSinalizacao?: SinalizacaoExistente | null;
@@ -132,15 +132,17 @@ export function SlotDetalhe({
                 <p className="text-xs text-danger">Cancelado: {servico.cancelado_motivo}</p>
               ) : null}
 
-              {/* "Flag Pilantra" (migration 0055) — só depois que houve engajamento
-                  de verdade (confirmado, realizado ou cancelado); num pendente
-                  ainda não aconteceu nada pra sinalizar. */}
+              {/* Sinalizar o cliente (migration 0055) — só depois que houve
+                  engajamento de verdade (confirmado, realizado ou cancelado);
+                  num pendente ainda não aconteceu nada pra sinalizar. */}
               {servico.status === "confirmado" || servico.status === "realizado" || servico.status === "cancelado" ? (
-                <SinalizarServico
-                  servicoId={servico.id}
-                  alvoNome={clienteNome ?? "o cliente"}
-                  jaSinalizado={minhaSinalizacao ?? null}
-                />
+                <div className="self-start">
+                  <SinalizarServico
+                    servicoId={servico.id}
+                    alvoNome={clienteNome ?? "o cliente"}
+                    jaSinalizado={minhaSinalizacao ?? null}
+                  />
+                </div>
               ) : null}
 
               {tipos ? (

@@ -102,7 +102,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
     : { data: [] };
   const nomeAutor = new Map((autores ?? []).map((a) => [a.user_id, a.nome]));
 
-  // Bandeirinhas de "Suspeita de Pilantragem" (migration 0055) — a função só
+  // Red flags aprovadas (migration 0055) — a função só
   // devolve linha pra quem é do outro lado (cliente↔prestador) ou da
   // administração; pra própria pessoa (ehEu), vem vazia.
   const { data: flags } = await sb.rpc("flags_da_pessoa", { p_alvo: id });

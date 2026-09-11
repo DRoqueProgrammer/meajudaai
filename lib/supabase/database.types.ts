@@ -839,46 +839,49 @@ export type Database = {
           },
         ]
       }
-      sinalizacoes_cliente: {
+      sinalizacoes: {
         Row: {
-          cliente_id: string
+          alvo_id: string
+          autor_id: string
           created_at: string
           decidido_em: string | null
           decidido_por: string | null
-          descricao: string | null
+          direcao: string
           id: string
+          justificativa: string
           motivo: string
-          prestador_id: string
-          servico_id: string | null
+          servico_id: string
           status: string
         }
         Insert: {
-          cliente_id: string
+          alvo_id: string
+          autor_id: string
           created_at?: string
           decidido_em?: string | null
           decidido_por?: string | null
-          descricao?: string | null
+          direcao: string
           id?: string
+          justificativa: string
           motivo: string
-          prestador_id: string
-          servico_id?: string | null
+          servico_id: string
           status?: string
         }
         Update: {
-          cliente_id?: string
+          alvo_id?: string
+          autor_id?: string
           created_at?: string
           decidido_em?: string | null
           decidido_por?: string | null
-          descricao?: string | null
+          direcao?: string
           id?: string
+          justificativa?: string
           motivo?: string
-          prestador_id?: string
-          servico_id?: string | null
+          servico_id?: string
           status?: string
         }
         Relationships: [
           {
-            foreignKeyName: "sinalizacoes_cliente_servico_id_fkey"
+            foreignKeyName: "sinalizacoes_servico_id_fkey"
             columns: ["servico_id"]
             isOneToOne: false
             referencedRelation: "servicos"
@@ -1202,12 +1205,8 @@ export type Database = {
       current_app_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       enfileirar_lembretes_avaliacao: { Args: never; Returns: number }
-      flags_aprovadas_do_cliente: {
-        Args: { p_cliente: string }
-        Returns: number
-      }
-      flags_do_cliente: {
-        Args: { p_cliente: string }
+      flags_da_pessoa: {
+        Args: { p_alvo: string }
         Returns: {
           quando: string
           sinalizado_por: string

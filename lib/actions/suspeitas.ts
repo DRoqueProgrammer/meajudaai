@@ -6,7 +6,6 @@ import type { CurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createServerClient } from "@/lib/supabase/server";
 import { logAction } from "@/lib/log";
-import { adminAlcancaPrestador } from "@/lib/anuncios/regras";
 import { atorAlcanca, pracasDoAtor } from "@/lib/admin/alcance";
 import type { ActionResult } from "./auth";
 
@@ -17,12 +16,12 @@ import type { ActionResult } from "./auth";
  * - Sobre PRESTADOR: o Administrador da praça (ou o SysAdmin) registra
  *   suspeitas que só a administração vê (`adicionarSuspeitaAction`) e pode
  *   suspender a conta (`suspenderPrestadorAction`).
- * - Sobre CLIENTE: o prestador que teve serviço com ele sinaliza
- *   (`sinalizarClienteAction`, pela SESSÃO — a policy confere o vínculo); o
+ * - Entre as partes de um serviço, nas duas direções (0055): quem teve o
+ *   serviço sinaliza a outra parte no próprio serviço, com justificativa
+ *   (`sinalizarAction`, pela SESSÃO — a policy confere o vínculo); o
  *   Administrador aprova ou recusa (`decidirSinalizacaoAction`); aprovada, vira
- *   uma bandeirinha no perfil do cliente, que só prestador e administração
- *   veem. O Administrador também pode suspender o cliente
- *   (`suspenderClienteAction`).
+ *   bandeira no perfil do alvo, que só o outro lado e a administração veem. O
+ *   Administrador também pode suspender o cliente (`suspenderClienteAction`).
  * - `encerrarSuspensaoAction` reabre a conta.
  *
  * Toda escrita administrativa confere papel, praça e alcance ANTES
@@ -36,7 +35,7 @@ import type { ActionResult } from "./auth";
 type DB = ReturnType<typeof createAdminClient>;
 
 const MOTIVOS_SUSPEITA = ["comissao_nao_paga", "contato_por_fora", "outro"] as const;
-const MOTIVOS_SINALIZACAO = ["nao_pagou", "problema_no_servico", "outro"] as const;
+const MOTIVOS_SINALIZACAO = ["nao_pagou", "contato_por_fora", "nao_compareceu", "problema_no_servico", "outro"] as const;
 
 function ehAdministracao(ator: CurrentUser): boolean {
   return ator.role === "admin" || ator.role === "sysadmin";
@@ -194,52 +193,67 @@ export async function encerrarSuspensaoAction(userId: string): Promise<ActionRes
 }
 
 /**
- * Prestador sinaliza ("Flag Pilantra") o cliente DE UM SERVIÇO — a bandeira é
- * dada no serviço em si (pedido do Leonardo), uma por serviço. Pela SESSÃO: a
- * policy de insert (migration 0053) confere que o serviço é dele com esse
- * cliente e que nasce pendente. Vai para o Administrador aprovar.
+ * Uma das partes de um serviço sinaliza a OUTRA ("Flag Pilantra", migration
+ * 0055) — a bandeira é dada no serviço em si, com justificativa obrigatória, e
+ * vai para o Administrador aprovar. A direção sai do papel de quem sinaliza
+ * naquele serviço: o prestador sinaliza o cliente; o cliente, o prestador.
+ * Pela SESSÃO: a policy de insert confere que a pessoa é parte do serviço, o
+ * alvo é a outra parte e que nasce pendente. Uma por pessoa por serviço.
  */
-export async function sinalizarClienteAction(input: {
+export async function sinalizarAction(input: {
   servicoId: string;
   motivo: string;
-  descricao?: string;
+  justificativa: string;
 }): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
   const user = w.user;
-  if (user.role !== "prestador_servico") return { ok: false, erro: "Só o prestador sinaliza um cliente." };
+  if (user.role !== "prestador_servico" && user.role !== "cliente") {
+    return { ok: false, erro: "Só as partes de um serviço sinalizam." };
+  }
   if (!(MOTIVOS_SINALIZACAO as readonly string[]).includes(input.motivo)) return { ok: false, erro: "Escolha o motivo." };
+  const justificativa = input.justificativa.trim();
+  if (justificativa.length < 10) return { ok: false, erro: "Conte o que aconteceu (pelo menos 10 caracteres)." };
+  if (justificativa.length > 600) return { ok: false, erro: "A justificativa passa de 600 caracteres." };
 
   const sb = await createServerClient();
-  // O cliente vem do próprio serviço (o prestador lê os serviços dele pela RLS).
+  // As partes leem o próprio serviço pela RLS; o alvo sai dele, nunca do formulário.
   const { data: servico } = await sb
     .from("servicos")
     .select("id, cliente_id, prestador_id, slot_id")
     .eq("id", input.servicoId)
     .maybeSingle();
-  if (!servico || servico.prestador_id !== user.id) return { ok: false, erro: "Serviço não encontrado." };
+  if (!servico) return { ok: false, erro: "Serviço não encontrado." };
+  const souPrestador = servico.prestador_id === user.id;
+  const souCliente = servico.cliente_id === user.id;
+  if (!souPrestador && !souCliente) return { ok: false, erro: "Serviço não encontrado." };
 
-  const { error } = await sb.from("sinalizacoes_cliente").insert({
-    cliente_id: servico.cliente_id,
-    prestador_id: user.id,
+  const { error } = await sb.from("sinalizacoes").insert({
+    autor_id: user.id,
+    alvo_id: souPrestador ? servico.cliente_id : servico.prestador_id,
     servico_id: servico.id,
+    direcao: souPrestador ? "prestador_para_cliente" : "cliente_para_prestador",
     motivo: input.motivo,
-    descricao: textoOpcional(input.descricao),
+    justificativa,
   });
   if (error) {
     if (error.code === "23505") return { ok: false, erro: "Você já sinalizou este serviço." };
-    logAction("sinalizar_cliente", { userId: user.id, servicoId: servico.id, result: "erro", code: error.code });
+    logAction("sinalizar", { userId: user.id, servicoId: servico.id, result: "erro", code: error.code });
     return { ok: false, erro: "Não foi possível enviar a sinalização. Tente de novo." };
   }
-  logAction("sinalizar_cliente", { userId: user.id, servicoId: servico.id, motivo: input.motivo, result: "ok" });
-  revalidatePath("/clientes");
+  logAction("sinalizar", { userId: user.id, servicoId: servico.id, motivo: input.motivo, result: "ok" });
   revalidatePath("/servicos");
+  revalidatePath("/meus-servicos");
   revalidatePath(`/agenda/${servico.slot_id}`);
   revalidatePath("/inicio");
   return { ok: true };
 }
 
-/** Administrador aprova ou recusa uma sinalização de cliente — do cliente ou do prestador que ele alcança. */
+/**
+ * Administrador aprova ou recusa uma sinalização — de quem ele alcança (o alvo
+ * ou quem sinalizou, na cidade de uma praça dele, do mesmo mundo; o SysAdmin,
+ * qualquer um do mundo dele). Aprovada, vira bandeira no perfil do alvo.
+ */
 export async function decidirSinalizacaoAction(sinalizacaoId: string, aprovar: boolean): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
@@ -248,31 +262,29 @@ export async function decidirSinalizacaoAction(sinalizacaoId: string, aprovar: b
 
   const db = createAdminClient();
   const { data: sin } = await db
-    .from("sinalizacoes_cliente")
-    .select("id, cliente_id, prestador_id, status")
+    .from("sinalizacoes")
+    .select("id, autor_id, alvo_id, direcao, status")
     .eq("id", sinalizacaoId)
     .maybeSingle();
   if (!sin) return { ok: false, erro: "Sinalização não encontrada." };
   if (sin.status !== "pendente") return { ok: false, erro: "Esta sinalização já foi decidida." };
 
-  const [cliente, prestador] = await Promise.all([perfilAlvo(db, sin.cliente_id), perfilAlvo(db, sin.prestador_id)]);
+  const [alvo, autor] = await Promise.all([perfilAlvo(db, sin.alvo_id), perfilAlvo(db, sin.autor_id)]);
   const pracas = await pracasDoAtor(db, user);
-  const alcancaCliente = cliente ? atorAlcanca(user, pracas, cliente, "cliente") : false;
-  const alcancaPrestador = prestador
-    ? user.role === "sysadmin"
-      ? atorAlcanca(user, pracas, prestador, "prestador_servico")
-      : adminAlcancaPrestador({ exemplo: Boolean(user.exemplo) }, pracas, prestador)
-    : false;
-  if (!alcancaCliente && !alcancaPrestador) return { ok: false, erro: "Você não administra a praça desta sinalização." };
+  const papelAlvo = sin.direcao === "prestador_para_cliente" ? "cliente" : "prestador_servico";
+  const papelAutor = sin.direcao === "prestador_para_cliente" ? "prestador_servico" : "cliente";
+  const alcanca =
+    (alvo ? atorAlcanca(user, pracas, alvo, papelAlvo) : false) || (autor ? atorAlcanca(user, pracas, autor, papelAutor) : false);
+  if (!alcanca) return { ok: false, erro: "Você não administra a praça desta sinalização." };
 
   const { error } = await db
-    .from("sinalizacoes_cliente")
+    .from("sinalizacoes")
     .update({ status: aprovar ? "aprovada" : "recusada", decidido_por: user.id, decidido_em: new Date().toISOString() })
     .eq("id", sinalizacaoId)
     .eq("status", "pendente");
   if (error) return { ok: false, erro: "Não foi possível registrar a decisão." };
   logAction("decidir_sinalizacao", { userId: user.id, sinalizacaoId, aprovar, result: "ok" });
   revalidatePath("/inicio");
-  revalidatePath(`/perfil/${sin.cliente_id}`);
+  revalidatePath(`/perfil/${sin.alvo_id}`);
   return { ok: true };
 }

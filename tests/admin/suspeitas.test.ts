@@ -85,7 +85,7 @@ describe.skipIf(!podeRodar)("Suspeitas · banco", () => {
   });
 });
 
-describe.skipIf(!podeRodar)("Sinalizações de cliente · banco (migration 0053)", () => {
+describe.skipIf(!podeRodar)("Sinalizações nas duas direções · banco (migration 0055)", () => {
   const reg = novoRegistro();
   const s = sufixo();
   const emailP = `f1-flag-p-${s}@teste.dev`;
@@ -97,9 +97,9 @@ describe.skipIf(!podeRodar)("Sinalizações de cliente · banco (migration 0053)
   let servicoPC = "";
 
   beforeAll(async () => {
-    P = await criarPessoa(reg, emailP, "prestador_servico", { preco_tipo: "hora", preco_valor: 60, categoria: "ajudante_eletricista" });
+    P = await criarPessoa(reg, emailP, "prestador_servico", { nome: `Prestador Flag ${s}`, preco_tipo: "hora", preco_valor: 60, categoria: "ajudante_eletricista" });
     O = await criarPessoa(reg, emailOutro, "prestador_servico", { preco_tipo: "hora", preco_valor: 60, categoria: "ajudante_eletricista" });
-    C = await criarPessoa(reg, emailC, "cliente");
+    C = await criarPessoa(reg, emailC, "cliente", { nome: `Cliente Flag ${s}` });
     const h = await criarHorario(P);
     const sv = await servico!
       .from("servicos")
@@ -111,74 +111,57 @@ describe.skipIf(!podeRodar)("Sinalizações de cliente · banco (migration 0053)
   });
 
   afterAll(async () => {
-    if (servico) await servico.from("sinalizacoes_cliente").delete().eq("cliente_id", C);
-    await limpar(reg);
-  });
-
-  it("o prestador sinaliza o cliente de um serviço dele, e nasce pendente", async () => {
-    const prest = await entrar(emailP);
-    const r = await prest
-      .from("sinalizacoes_cliente")
-      .insert({ cliente_id: C, prestador_id: P, servico_id: servicoPC, motivo: "nao_pagou", descricao: `Não pagou ${s}` })
-      .select("status")
-      .single();
-    expect(r.error).toBeNull();
-    expect(r.data!.status).toBe("pendente");
-  });
-
-  it("não sinaliza quem nunca foi cliente dele, nem já aprovado", async () => {
-    const outro = await entrar(emailOutro);
-    expect((await outro.from("sinalizacoes_cliente").insert({ cliente_id: C, prestador_id: O, motivo: "outro" })).error).not.toBeNull();
-    const prest = await entrar(emailP);
-    expect((await prest.from("sinalizacoes_cliente").insert({ cliente_id: C, prestador_id: P, motivo: "outro", status: "aprovada" })).error).not.toBeNull();
-  });
-
-  it("só as aprovadas contam, e só prestador e administração veem o número", async () => {
-    const prest = await entrar(emailP);
-    expect((await prest.rpc("flags_aprovadas_do_cliente", { p_cliente: C })).data).toBe(0);
-    await servico!.from("sinalizacoes_cliente").update({ status: "aprovada", decidido_em: new Date().toISOString() }).eq("cliente_id", C);
-    expect((await prest.rpc("flags_aprovadas_do_cliente", { p_cliente: C })).data).toBe(1);
-    const cli = await entrar(emailC);
-    expect((await cli.rpc("flags_aprovadas_do_cliente", { p_cliente: C })).data ?? null).toBeNull();
-    expect((await cli.from("sinalizacoes_cliente").select("id")).data ?? []).toHaveLength(0);
-  });
-});
-
-describe.skipIf(!podeRodar)("Flags do cliente e cliente suspenso · banco (migration 0054)", () => {
-  const reg = novoRegistro();
-  const s = sufixo();
-  const emailP = `f1-flag2-p-${s}@teste.dev`;
-  const emailC = `f1-flag2-c-${s}@teste.dev`;
-  let P = "";
-  let C = "";
-
-  beforeAll(async () => {
-    P = await criarPessoa(reg, emailP, "prestador_servico", { nome: `Prestador Flag ${s}`, preco_tipo: "hora", preco_valor: 60, categoria: "ajudante_eletricista" });
-    C = await criarPessoa(reg, emailC, "cliente");
-    const ins = await servico!.from("sinalizacoes_cliente").insert([
-      { cliente_id: C, prestador_id: P, motivo: "nao_pagou", status: "aprovada", created_at: "2026-09-01T12:00:00Z" },
-      { cliente_id: C, prestador_id: P, motivo: "outro", status: "aprovada", created_at: "2026-09-05T12:00:00Z" },
-      { cliente_id: C, prestador_id: P, motivo: "outro", status: "recusada", created_at: "2026-09-06T12:00:00Z" },
-    ]);
-    if (ins.error) throw ins.error;
-  });
-
-  afterAll(async () => {
     if (servico) {
-      await servico.from("sinalizacoes_cliente").delete().eq("cliente_id", C);
+      await servico.from("sinalizacoes").delete().eq("servico_id", servicoPC);
       await servico.from("suspensoes").delete().eq("user_id", C);
     }
     await limpar(reg);
   });
 
-  it("a lista traz só as aprovadas, da mais recente para a mais antiga, com quem sinalizou", async () => {
+  it("o prestador sinaliza o cliente no serviço, com justificativa, e nasce pendente", async () => {
     const prest = await entrar(emailP);
-    const { data, error } = await prest.rpc("flags_do_cliente", { p_cliente: C });
-    expect(error).toBeNull();
-    expect((data ?? []).map((f: { quando: string }) => f.quando.slice(0, 10))).toEqual(["2026-09-05", "2026-09-01"]);
-    expect(data?.[0]?.sinalizado_por).toBe(`Prestador Flag ${s}`);
+    const sem = await prest.from("sinalizacoes").insert({ autor_id: P, alvo_id: C, servico_id: servicoPC, direcao: "prestador_para_cliente", motivo: "nao_pagou", justificativa: "curta" });
+    expect(sem.error).not.toBeNull();
+    const r = await prest
+      .from("sinalizacoes")
+      .insert({ autor_id: P, alvo_id: C, servico_id: servicoPC, direcao: "prestador_para_cliente", motivo: "nao_pagou", justificativa: `Não pagou o serviço ${s}` })
+      .select("status, created_at")
+      .single();
+    expect(r.error).toBeNull();
+    expect(r.data!.status).toBe("pendente");
+    expect(r.data!.created_at).toBeTruthy();
+  });
+
+  it("o cliente sinaliza o prestador no mesmo serviço", async () => {
     const cli = await entrar(emailC);
-    expect((await cli.rpc("flags_do_cliente", { p_cliente: C })).data ?? []).toHaveLength(0);
+    const r = await cli
+      .from("sinalizacoes")
+      .insert({ autor_id: C, alvo_id: P, servico_id: servicoPC, direcao: "cliente_para_prestador", motivo: "contato_por_fora", justificativa: `Pediu para pagar por fora ${s}` });
+    expect(r.error).toBeNull();
+  });
+
+  it("quem não é parte do serviço não sinaliza, nem a direção pode ser trocada, nem nasce aprovada", async () => {
+    const outro = await entrar(emailOutro);
+    expect((await outro.from("sinalizacoes").insert({ autor_id: O, alvo_id: C, servico_id: servicoPC, direcao: "prestador_para_cliente", motivo: "outro", justificativa: "Tentativa de quem não é parte" })).error).not.toBeNull();
+    const cli = await entrar(emailC);
+    expect((await cli.from("sinalizacoes").insert({ autor_id: C, alvo_id: P, servico_id: servicoPC, direcao: "prestador_para_cliente", motivo: "outro", justificativa: "Direção trocada de propósito" })).error).not.toBeNull();
+    const prest = await entrar(emailP);
+    expect((await prest.from("sinalizacoes").insert({ autor_id: P, alvo_id: C, servico_id: servicoPC, direcao: "prestador_para_cliente", motivo: "outro", justificativa: "Já nasce aprovada?", status: "aprovada" })).error).not.toBeNull();
+  });
+
+  it("aprovadas viram bandeira para o outro lado, nunca para o próprio alvo", async () => {
+    await servico!.from("sinalizacoes").update({ status: "aprovada", decidido_em: new Date().toISOString() }).eq("servico_id", servicoPC);
+    const prest = await entrar(emailP);
+    const cli = await entrar(emailC);
+    const doCliente = await prest.rpc("flags_da_pessoa", { p_alvo: C });
+    expect(doCliente.data ?? []).toHaveLength(1);
+    expect(doCliente.data?.[0]?.sinalizado_por).toBe(`Prestador Flag ${s}`);
+    const doPrestador = await cli.rpc("flags_da_pessoa", { p_alvo: P });
+    expect(doPrestador.data ?? []).toHaveLength(1);
+    expect((await cli.rpc("flags_da_pessoa", { p_alvo: C })).data ?? []).toHaveLength(0);
+    expect((await prest.rpc("flags_da_pessoa", { p_alvo: P })).data ?? []).toHaveLength(0);
+    const outro = await entrar(emailOutro);
+    expect((await outro.rpc("flags_da_pessoa", { p_alvo: P })).data ?? []).toHaveLength(0);
   });
 
   it("cliente suspenso não faz pedido novo", async () => {

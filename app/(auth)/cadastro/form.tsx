@@ -141,7 +141,7 @@ export function CadastroForm({
                 <p aria-live="polite" className="text-xs text-muted">
                   {papel
                     ? PAPEIS.find((p) => p.valor === papel)!.confirmacao
-                    : "Dá para trocar depois, enquanto você não tiver vaga nem candidatura."}
+                    : "Dá para trocar depois, enquanto você não tiver serviço agendado."}
                 </p>
               </fieldset>
             )}
@@ -187,8 +187,8 @@ export function CadastroForm({
             </div>
             <p id="pii-motivo" className="-mt-1 text-xs leading-relaxed text-muted">
               Seu telefone fica guardado e <strong className="font-medium">nunca aparece</strong> no seu
-              perfil. Ele serve para confirmar que você é uma pessoa real e para o contato depois que a
-              diária é aceita.
+              perfil. Ele serve para confirmar que você é uma pessoa real e para o contato depois que um
+              serviço é agendado.
             </p>
             <div>
               <label className="label" htmlFor="genero">

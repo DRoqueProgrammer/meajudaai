@@ -49,18 +49,16 @@ export default async function ReciboComissaoPage({
   const db = createAdminClient();
 
   let workspaceId: string | null = pracaQuery || null;
-  if (!workspaceId) {
-    if (user.role === "admin") {
-      const ativa = await pracaAtivaDoAdmin(db);
-      workspaceId = ativa?.id ?? null;
-    } else {
-      workspaceId = await pracaDaComissaoDoMes(db, prestadorId, mes);
-    }
+  if (!workspaceId && user.role === "admin") workspaceId = (await pracaAtivaDoAdmin(db))?.id ?? null;
+  const daAdministracao = workspaceId != null && pracaAlcancada(user, await pracasDoAtor(db, user), workspaceId) != null;
+  if (!daAdministracao) {
+    // Sem alcance administrativo, só o PRÓPRIO prestador — e só na praça que o
+    // cobrou nesse mês: uma `?praca=` qualquer mostraria o cabeçalho e a
+    // assinatura de outra praça (revisão do controller).
+    if (user.id !== prestadorId) notFound();
+    workspaceId = await pracaDaComissaoDoMes(db, prestadorId, mes);
   }
   if (!workspaceId) notFound();
-
-  const podeVer = user.id === prestadorId || pracaAlcancada(user, await pracasDoAtor(db, user), workspaceId) != null;
-  if (!podeVer) notFound();
 
   const recibo = await reciboMensal(db, workspaceId, prestadorId, mes);
   if (!recibo) notFound();

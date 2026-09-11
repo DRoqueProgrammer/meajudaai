@@ -44,6 +44,72 @@ export type Database = {
         }
         Relationships: []
       }
+      anuncio_limites: {
+        Row: {
+          atualizado_em: string
+          definido_por: string | null
+          limite: number
+          prestador_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          definido_por?: string | null
+          limite: number
+          prestador_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          definido_por?: string | null
+          limite?: number
+          prestador_id?: string
+        }
+        Relationships: []
+      }
+      anuncios: {
+        Row: {
+          categoria: string | null
+          cidade: string | null
+          created_at: string
+          descricao: string
+          estado: string | null
+          id: string
+          prestador_id: string
+          status: string
+          tipo: string
+          titulo: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          categoria?: string | null
+          cidade?: string | null
+          created_at?: string
+          descricao: string
+          estado?: string | null
+          id?: string
+          prestador_id: string
+          status?: string
+          tipo: string
+          titulo: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          categoria?: string | null
+          cidade?: string | null
+          created_at?: string
+          descricao?: string
+          estado?: string | null
+          id?: string
+          prestador_id?: string
+          status?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       avaliacoes: {
         Row: {
           avaliado_id: string
@@ -921,6 +987,7 @@ export type Database = {
           created_at: string
           estado: string | null
           id: string
+          limite_anuncios_padrao: number | null
           nome: string
           owner_id: string
         }
@@ -929,6 +996,7 @@ export type Database = {
           created_at?: string
           estado?: string | null
           id?: string
+          limite_anuncios_padrao?: number | null
           nome: string
           owner_id: string
         }
@@ -937,6 +1005,7 @@ export type Database = {
           created_at?: string
           estado?: string | null
           id?: string
+          limite_anuncios_padrao?: number | null
           nome?: string
           owner_id?: string
         }
@@ -947,6 +1016,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      anuncios_publicos: {
+        Args: { p_limite?: number; p_prestador?: string; p_tipo?: string }
+        Returns: {
+          categoria: string
+          cidade: string
+          created_at: string
+          descricao: string
+          estado: string
+          exemplo: boolean
+          id: string
+          prestador_categoria: string
+          prestador_id: string
+          prestador_nome: string
+          tipo: string
+          titulo: string
+          whatsapp: string
+        }[]
+      }
       buscar_prestadores_proximos: {
         Args: { p_categoria?: string }
         Returns: {
@@ -980,6 +1067,7 @@ export type Database = {
         Returns: boolean
       }
       is_workspace_member: { Args: { ws: string }; Returns: boolean }
+      limite_de_anuncios: { Args: { p_prestador: string }; Returns: number }
       meus_clientes_no_mapa: {
         Args: never
         Returns: {

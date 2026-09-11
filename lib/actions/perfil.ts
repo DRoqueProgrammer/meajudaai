@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
+import { fotoAleatoria } from "@/lib/foto-aleatoria";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
 const PerfilSchema = z.object({
@@ -151,7 +152,7 @@ export async function salvarLocalizacaoAction(_estado: EstadoForm, fd: FormData)
   return { ok: true, mensagem: "Localização salva." };
 }
 
-/** Remove a foto e volta para as iniciais. */
+/** Remove a foto enviada e volta para a foto pública do cadastro (lib/foto-aleatoria.ts) — nenhuma conta fica sem foto. */
 export async function removerFotoAction(): Promise<void> {
   const w = await tryWriter();
   if ("erro" in w) return;
@@ -163,7 +164,11 @@ export async function removerFotoAction(): Promise<void> {
   // existe mais — e aí todo mundo que abre aquele perfil vê caixa de imagem
   // quebrada. Nesta ordem, a falha deixa um arquivo órfão no bucket: invisível
   // e sem custo para quem usa.
-  const { error } = await sb.from("profiles").update({ foto_url: null }).eq("user_id", user.id);
+  const { data: perfil } = await sb.from("profiles").select("genero").eq("user_id", user.id).maybeSingle();
+  const { error } = await sb
+    .from("profiles")
+    .update({ foto_url: fotoAleatoria(user.id, perfil?.genero) })
+    .eq("user_id", user.id);
   if (error) return;
 
   await sb.storage

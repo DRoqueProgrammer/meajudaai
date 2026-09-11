@@ -4,15 +4,14 @@
 // cliente), todos os campos preenchidos, e ~3 anos de histórico de serviços
 // entre o prestador e o cliente.
 //
-// Sem foto: doutrina de docs/FOTOS_DEMO.md é fotos GERADAS POR IA (nunca de
-// pessoa real) atadas a um perfil fictício. Estas contas usavam fotos de
-// pessoas reais do Unsplash — retirado (parecer de proteção de dados,
-// vistoria 10/09/2026); sem `foto_url`, o Avatar cai nas iniciais. Fotos de
-// IA entram depois com `node scripts/semear-fotos.mjs`.
+// Fotos: nenhuma conta sem foto (decisão do Leonardo, 10/09/2026). As contas
+// nascem sem `foto_url` e, no fim, scripts/fotos-publicas.mjs dá a cada uma um
+// retrato público do randomuser.me pelo gênero cadastrado.
 //
 // Uso: node scripts/seed-fake-data.mjs
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
+import { preencherFotos } from "./fotos-publicas.mjs";
 
 const env = Object.fromEntries(
   readFileSync(new URL("../.env.local", import.meta.url), "utf8")
@@ -27,9 +26,7 @@ const env = Object.fromEntries(
 const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 const SENHA = "MeAjudaAi2026!";
 
-// Sem foto de propósito (ver comentário no topo do arquivo) — null aqui, o
-// Avatar cai nas iniciais. O controller substitui por fotos geradas por IA
-// depois, via scripts/semear-fotos.mjs.
+// Sem foto aqui: preencherFotos (scripts/fotos-publicas.mjs) completa no fim.
 const FOTO = {
   sysadmin: null,
   admin: null,
@@ -232,6 +229,8 @@ for (let dias = 3; dias <= 21; dias += 3) {
   if (!error) futuros += 1;
 }
 console.log(`${futuros} horários livres criados para os próximos dias.`);
+
+console.log(`Fotos públicas: ${await preencherFotos(admin)} perfil(is).`);
 
 console.log("\n=== Pronto ===");
 console.log("Contas criadas (senha para todas: " + SENHA + "):");

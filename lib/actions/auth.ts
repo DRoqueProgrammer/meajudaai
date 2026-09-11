@@ -10,6 +10,7 @@ import { CadastroSchema } from "@/lib/validation";
 import { podeAceitar } from "@/lib/convite-status";
 import { soDigitos } from "@/lib/format";
 import { getSiteUrl } from "@/lib/site-url";
+import { fotoAleatoria } from "@/lib/foto-aleatoria";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
@@ -117,6 +118,9 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     estado: d.estado,
     tipo_base: d.tipo_base,
     genero: d.genero,
+    // Nenhuma conta sem foto (lib/foto-aleatoria.ts): nasce com um retrato
+    // público pelo gênero; a pessoa troca pela dela em Editar perfil.
+    foto_url: fotoAleatoria(userId, d.genero),
   });
   if (precisaLocalizacao) {
     // Endereço escrito e ponto exato moram juntos em profile_local, sob a mesma

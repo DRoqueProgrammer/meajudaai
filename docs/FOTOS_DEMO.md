@@ -1,5 +1,12 @@
 # Fotos dos perfis de demonstração
 
+> **Mudou em 10/09/2026 (decisão do Leonardo):** nenhuma conta fica sem foto. Quem não
+> enviou a própria recebe um retrato público do randomuser.me pelo gênero cadastrado —
+> no cadastro (`lib/foto-aleatoria.ts`), ao remover a foto, e para as contas antigas com
+> `node scripts/fotos-publicas.mjs` (o seed chama no fim). O texto abaixo descreve a
+> doutrina anterior (fotos geradas por IA) e o script `semear-fotos.mjs`, que continua
+> servindo para subir fotos próprias por cima.
+
 As imagens são **geradas por IA** — não retratam pessoas reais. Isso importa:
 os perfis de demonstração têm nota, selo "Perfil verificado" e histórico
 inventados, e anexar o rosto de alguém de verdade a uma identidade fabricada

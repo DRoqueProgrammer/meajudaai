@@ -173,6 +173,24 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
             <span className="text-lg font-semibold tabular-nums">
               {hh}:{mm}
             </span>
+            {/* Recolhido, a faixa ainda informa: os próximos dias, pequenos, à
+                direita do relógio (pedido do Leonardo). Some no celular estreito. */}
+            {previsao && previsao.length > 1 ? (
+              <ul className="hidden items-center gap-4 border-l border-white/20 pl-4 md:flex" aria-label="Previsão dos próximos dias">
+                {previsao.slice(1, 4).map((d, i) => (
+                  <li key={d.data} className="flex items-center gap-1.5 text-xs text-white/85">
+                    <span className="font-semibold uppercase tracking-wide text-white/60">{rotuloDia(d.data, i + 1)}</span>
+                    <span aria-hidden="true" className="text-base leading-none">
+                      {d.emoji}
+                    </span>
+                    <span className="tabular-nums">
+                      {d.max}°<span className="text-white/55">/{d.min}°</span>
+                    </span>
+                    <span className="sr-only">{d.descricao}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {botaoMinimizar}
           </div>
         </div>
@@ -218,25 +236,25 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
           <div className="relative flex min-w-0 flex-col gap-4 rounded-2xl bg-white/[0.08] p-4 ring-1 ring-inset ring-white/15 backdrop-blur-sm sm:gap-5 sm:p-6">
             <div className="absolute right-2 top-2 hidden lg:block">{botaoMinimizar}</div>
 
-            <div className="flex items-end justify-between gap-4">
+            <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3 lg:pr-10">
               <p className="leading-none" aria-label={agora ? `Agora são ${hh} horas e ${mm} minutos` : undefined}>
                 <time dateTime={agora?.toISOString()} className="font-bold tabular-nums tracking-tight">
-                  <span className="text-[46px] sm:text-[68px]">
+                  <span className="text-[46px] sm:text-[64px] lg:text-[54px] xl:text-[64px]">
                     {hh}
                     <span className="text-white/60">:</span>
                     {mm}
                   </span>
-                  <span className="ml-1 align-top text-sm font-semibold text-white/55 sm:ml-1.5 sm:text-xl">{ss}</span>
+                  <span className="ml-1 align-top text-sm font-semibold text-white/55 sm:ml-1.5 sm:text-lg">{ss}</span>
                 </time>
               </p>
               {climaAgora ? (
-                <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:pr-10">
-                  <span aria-hidden="true" className="text-[34px] leading-none sm:text-5xl">
+                <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                  <span aria-hidden="true" className="text-[34px] leading-none sm:text-5xl lg:text-[42px] xl:text-5xl">
                     {climaAgora.emoji}
                   </span>
                   <div>
-                    <p className="text-2xl font-bold leading-none tabular-nums sm:text-4xl">{climaAgora.temperatura}°</p>
-                    <p className="mt-1 text-xs text-white/70">sensação {climaAgora.sensacao}°</p>
+                    <p className="text-2xl font-bold leading-none tabular-nums sm:text-4xl lg:text-3xl xl:text-4xl">{climaAgora.temperatura}°</p>
+                    <p className="mt-1 whitespace-nowrap text-xs text-white/70">sensação {climaAgora.sensacao}°</p>
                   </div>
                 </div>
               ) : null}

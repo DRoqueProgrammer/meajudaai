@@ -389,8 +389,15 @@ Schema provável (a confirmar em sessão de design): campo em `workspaces` tipo 
 ## 16. Comissão da plataforma (Pix)
 
 > Ditado por Leonardo em 09/09/2026. Captura fiel + lacunas em
-> `cvg/brain/notes/2026-09-09-comissao-da-plataforma.md`. Ainda **não é spec**:
-> entra como insumo do Pass 1 (Intent) do Converge.
+> `cvg/brain/notes/2026-09-09-comissao-da-plataforma.md`.
+>
+> **✅ Implementado em 11/09/2026** (D-044 e D-047): migrations 0057/0058; o
+> prestador vê saldo, alíquota vigente e o QR na chave padrão do Administrador
+> em `/comissao` e clica "Enviei o Pix"; o Administrador confirma/recusa,
+> registra recebimento, define as alíquotas nos 4 níveis e emite o **recibo
+> mensal** e a **nota avulsa** na aba Financeiro (`/praca/financeiro`). A chave
+> da plataforma é a **chave padrão do Administrador** (Minhas chaves Pix no
+> perfil dele), não um campo à parte como o esboço abaixo previa.
 
 **Ideia central:** o Prestador de Serviço paga comissão à plataforma sobre cada
 serviço. O racional é explícito — vale a pena estar na plataforma, e é a

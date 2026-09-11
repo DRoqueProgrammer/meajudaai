@@ -44,6 +44,51 @@ export type Database = {
         }
         Relationships: []
       }
+      aliquotas_comissao: {
+        Row: {
+          atualizado_em: string
+          definido_por: string | null
+          id: string
+          percentual: number
+          prestador_id: string | null
+          tipo_servico: string | null
+          workspace_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          definido_por?: string | null
+          id?: string
+          percentual: number
+          prestador_id?: string | null
+          tipo_servico?: string | null
+          workspace_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          definido_por?: string | null
+          id?: string
+          percentual?: number
+          prestador_id?: string | null
+          tipo_servico?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aliquotas_comissao_tipo_servico_fkey"
+            columns: ["tipo_servico"]
+            isOneToOne: false
+            referencedRelation: "tipos_servico"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "aliquotas_comissao_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anuncio_limites: {
         Row: {
           atualizado_em: string
@@ -242,6 +287,70 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      comissoes: {
+        Row: {
+          base: number
+          created_at: string
+          id: string
+          pagamento_id: string | null
+          percentual: number
+          prestador_id: string
+          servico_id: string
+          status: string
+          tipo_servico: string | null
+          valor: number
+          workspace_id: string
+        }
+        Insert: {
+          base: number
+          created_at?: string
+          id?: string
+          pagamento_id?: string | null
+          percentual: number
+          prestador_id: string
+          servico_id: string
+          status?: string
+          tipo_servico?: string | null
+          valor: number
+          workspace_id: string
+        }
+        Update: {
+          base?: number
+          created_at?: string
+          id?: string
+          pagamento_id?: string | null
+          percentual?: number
+          prestador_id?: string
+          servico_id?: string
+          status?: string
+          tipo_servico?: string | null
+          valor?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comissoes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "pagamentos_comissao"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: true
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comissoes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversa_membros: {
         Row: {
@@ -558,6 +667,50 @@ export type Database = {
           visualizada?: boolean
         }
         Relationships: []
+      }
+      pagamentos_comissao: {
+        Row: {
+          decidido_em: string | null
+          decidido_por: string | null
+          id: string
+          informado_em: string
+          observacao: string | null
+          prestador_id: string
+          status: string
+          valor: number
+          workspace_id: string
+        }
+        Insert: {
+          decidido_em?: string | null
+          decidido_por?: string | null
+          id?: string
+          informado_em?: string
+          observacao?: string | null
+          prestador_id: string
+          status?: string
+          valor: number
+          workspace_id: string
+        }
+        Update: {
+          decidido_em?: string | null
+          decidido_por?: string | null
+          id?: string
+          informado_em?: string
+          observacao?: string | null
+          prestador_id?: string
+          status?: string
+          valor?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_comissao_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pedidos_exclusao: {
         Row: {
@@ -1187,6 +1340,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aliquota_de: {
+        Args: { p_prestador: string; p_tipo: string }
+        Returns: number
+      }
       anuncios_publicos: {
         Args: { p_limite?: number; p_prestador?: string; p_tipo?: string }
         Returns: {
@@ -1231,6 +1388,16 @@ export type Database = {
       can_manage_vaga: { Args: { v_vaga: string }; Returns: boolean }
       current_app_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
+      destino_da_comissao: {
+        Args: never
+        Returns: {
+          chave: string
+          cidade: string
+          praca: string
+          recebedor: string
+          workspace_id: string
+        }[]
+      }
       enfileirar_lembretes_avaliacao: { Args: never; Returns: number }
       flags_da_pessoa: {
         Args: { p_alvo: string }
@@ -1296,6 +1463,7 @@ export type Database = {
           verificado: boolean
         }[]
       }
+      praca_do_prestador: { Args: { p_prestador: string }; Returns: string }
       tem_servico_com: { Args: { v_outro: string }; Returns: boolean }
       vaga_aberta: { Args: { v_vaga: string }; Returns: boolean }
     }

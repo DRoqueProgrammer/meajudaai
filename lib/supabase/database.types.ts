@@ -775,6 +775,7 @@ export type Database = {
           prestador_id: string
           slot_id: string
           status: string
+          tipo: string
         }
         Insert: {
           cancelado_em?: string | null
@@ -792,6 +793,7 @@ export type Database = {
           prestador_id: string
           slot_id: string
           status?: string
+          tipo?: string
         }
         Update: {
           cancelado_em?: string | null
@@ -809,6 +811,7 @@ export type Database = {
           prestador_id?: string
           slot_id?: string
           status?: string
+          tipo?: string
         }
         Relationships: [
           {
@@ -818,7 +821,32 @@ export type Database = {
             referencedRelation: "agenda_slots"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "servicos_tipo_fkey"
+            columns: ["tipo"]
+            isOneToOne: false
+            referencedRelation: "tipos_servico"
+            referencedColumns: ["slug"]
+          },
         ]
+      }
+      tipos_servico: {
+        Row: {
+          nome: string
+          ordem: number
+          slug: string
+        }
+        Insert: {
+          nome: string
+          ordem: number
+          slug: string
+        }
+        Update: {
+          nome?: string
+          ordem?: number
+          slug?: string
+        }
+        Relationships: []
       }
       user_modules: {
         Row: {

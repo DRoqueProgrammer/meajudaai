@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { formatBRL, formatData } from "@/lib/format";
-import { hojeEmSaoPaulo, horaEmSaoPaulo } from "@/lib/datas";
+import { dataEmSaoPaulo, hojeEmSaoPaulo, horaEmSaoPaulo } from "@/lib/datas";
 import { listarTiposServico } from "@/lib/tipos-servico";
 import { mesPorExtenso, resumoDoRecibo, numeroDaNotaAvulsa } from "@/lib/comissao/regras";
 import { montarPixEstatico } from "@/lib/pix/static-qr";
@@ -153,12 +153,12 @@ export default async function ComissaoPage() {
         <div>
           <p className="text-3xl font-bold tabular-nums text-brand">{formatBRL(saldoAberto)}</p>
           <p className="text-sm text-muted">
-            em aberto{maisAntigaAberta ? ` · desde ${formatData(maisAntigaAberta.slice(0, 10))}` : ""}
+            em aberto{maisAntigaAberta ? ` · desde ${formatData(dataEmSaoPaulo(new Date(maisAntigaAberta)))}` : ""}
           </p>
         </div>
         {pendente ? (
           <div className="rounded-xl bg-tint-warn px-4 py-3 text-sm text-tint-warn-ink">
-            Pagamento de {formatBRL(pendente.valor)} informado em {formatData(pendente.informado_em.slice(0, 10))} às{" "}
+            Pagamento de {formatBRL(pendente.valor)} informado em {formatData(dataEmSaoPaulo(new Date(pendente.informado_em)))} às{" "}
             {horaEmSaoPaulo(new Date(pendente.informado_em))} — aguardando a administração confirmar.
           </div>
         ) : ultimoPagamento?.status === "recusado" ? (
@@ -205,7 +205,7 @@ export default async function ComissaoPage() {
           {aliquotas.map(({ tipo, percentual }) => (
             <div key={tipo.slug} className="flex items-center justify-between gap-2 py-2 text-sm">
               <span>{tipo.nome}</span>
-              <span className="font-semibold tabular-nums">{percentual > 0 ? `${percentual}%` : "0%"}</span>
+              <span className="font-semibold tabular-nums">{`${Number(percentual).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`}</span>
             </div>
           ))}
         </div>
@@ -263,8 +263,8 @@ export default async function ComissaoPage() {
                 <div className="min-w-0">
                   <p className="text-sm font-semibold tabular-nums">{formatBRL(p.valor)}</p>
                   <p className="text-xs text-muted">
-                    Informado em {formatData(p.informado_em.slice(0, 10))}
-                    {p.decidido_em ? ` · decidido em ${formatData(p.decidido_em.slice(0, 10))}` : ""}
+                    Informado em {formatData(dataEmSaoPaulo(new Date(p.informado_em)))}
+                    {p.decidido_em ? ` · decidido em ${formatData(dataEmSaoPaulo(new Date(p.decidido_em)))}` : ""}
                   </p>
                   {p.observacao ? <p className="mt-0.5 truncate text-xs text-muted">&quot;{p.observacao}&quot;</p> : null}
                 </div>

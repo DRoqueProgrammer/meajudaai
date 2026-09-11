@@ -6,6 +6,29 @@ Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação
 
 ---
 
+## 11/09 (tarde) — Financeiro em grade para o Administrador e para o prestador (D-048)
+
+Leonardo achou o primeiro Financeiro "bem diferente do amazing-school/careconnect". Referências
+clonadas em `refs/amazing-school-app` (fora do git, como os outros refs). Agora:
+- **Grade** pessoa × mês (`components/financeiro/matriz-financeira.tsx` + `lib/financeiro/matriz.ts`):
+  célula com a cor da situação (pago, a receber, parte paga, informado, em atraso 7+ dias); hover
+  (ou toque) abre o card do mês com uma linha por serviço, ✓/✗ clicável, recibo, e o serviço abre em
+  nova aba. Tabela fixa a partir de 1280px; abaixo, cartões com os 12 meses em quadradinhos.
+  Filtros na URL (`components/financeiro/filtros-financeiro.tsx`).
+- **Administrador** (`/praca/financeiro`): prestadores × meses de comissão, OK por serviço
+  (`alternarComissaoPagaAction`), "Marcar mês como pago" (`marcarMesPagoAction`, reconcilia o
+  "Enviei o Pix"), sub-abas Entradas/Pendências/Recibos/Ajustes; `/praca/servicos/[id]` mostra o serviço.
+- **Prestador** (`/meu-financeiro`, menu "Financeiro"): clientes × meses dos serviços realizados,
+  ✓ recebido cria `recebimentos` (migration 0059), recibo `/recibo/recebimento/[id]` sem valor fiscal
+  e com aviso de marketplace (`lib/financeiro/avisos.ts`), "Compartilhar no WhatsApp" gera PNG no canvas;
+  o cliente não vê recibo no app; perfil com "Emite nota fiscal: sim/não".
+- **Dados de demonstração:** `node scripts/financeiro-exemplo.mjs` (3 clientes de exemplo, 23 serviços
+  de 2026, comissões e recebimentos; agosto do Carlos fica em aberto de propósito). Rodar de novo
+  devolve o mundo de exemplo a esse estado depois de testes manuais.
+- **Layout:** a coluna principal do app ganhou `min-w-0` — nenhuma tabela larga empurra mais a página.
+
+---
+
 ## 11/09 — comissão, abas da praça, Financeiro com recibos (D-044 a D-047)
 
 **Banco (migrations 0057 e 0058, trancadas na cerca):** comissão da plataforma (alíquota em 4 níveis por praça, gerada pelo gatilho quando o serviço vira realizado, com a taxa congelada; "Enviei o Pix" → o Administrador confirma ou recusa); `sinalizacoes.status = 'limpa'` ("Limpar red flags" — o registro fica, sai do perfil); `notas_avulsas` numeradas; `assinaturas` do Administrador (PNG; a conta de exemplo não grava). Gabaritos em `tests/comissao/` (banco 8/8, financeiro 8/8, regras 8/8).

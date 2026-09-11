@@ -134,15 +134,18 @@ export function CadastroForm({
         </div>
         <div>
           <label className="label" htmlFor="genero">
-            Como prefere ser chamado(a)
+            Gênero
           </label>
+          {/* Os valores continuam os mesmos: o app deriva deles a saudação
+              (Bem-vindo/Bem-vinda/Bem-vinde, lib/saudacao.ts) e a foto pública
+              (lib/foto-aleatoria.ts) — a pessoa só escolhe o gênero. */}
           <select id="genero" name="genero" className="input" defaultValue={v.genero ?? ""} required>
             <option value="" disabled>
               — selecione —
             </option>
-            <option value="masculino">Bem-vindo</option>
-            <option value="feminino">Bem-vinda</option>
-            <option value="prefiro_nao_responder">Bem-vinde (prefiro não informar gênero)</option>
+            <option value="masculino">Masculino</option>
+            <option value="feminino">Feminino</option>
+            <option value="prefiro_nao_responder">Prefiro não informar</option>
           </select>
         </div>
         <div>

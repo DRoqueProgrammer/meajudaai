@@ -6,7 +6,7 @@ import type { CurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAction } from "@/lib/log";
 import { atorAlcanca, pracaAlcancada, pracasDoAtor } from "@/lib/admin/alcance";
-import { lerPercentual } from "@/lib/comissao/regras";
+import { intervaloDoMes, lerPercentual, mesValido } from "@/lib/comissao/regras";
 import type { ActionResult } from "./auth";
 
 /**
@@ -207,7 +207,11 @@ export async function decidirPagamentoAction(pagamentoId: string, confirmar: boo
 
   const { error: erroComissoes } = await db
     .from("comissoes")
-    .update(confirmar ? { status: "paga" } : { status: "em_aberto", pagamento_id: null })
+    .update(
+      confirmar
+        ? { status: "paga", paga_em: new Date().toISOString(), confirmada_por: user.id }
+        : { status: "em_aberto", pagamento_id: null, paga_em: null, confirmada_por: null },
+    )
     .eq("pagamento_id", pagamentoId);
   if (erroComissoes) {
     await db.from("pagamentos_comissao").update({ status: "informado", decidido_por: null, decidido_em: null, observacao: null }).eq("id", pagamentoId);
@@ -272,13 +276,127 @@ export async function registrarRecebimentoAction(input: {
   if (error || !pagamento) return { ok: false, erro: "Não foi possível registrar o recebimento." };
   const { error: erroMarca } = await db
     .from("comissoes")
-    .update({ status: "paga", pagamento_id: pagamento.id })
+    .update({ status: "paga", pagamento_id: pagamento.id, paga_em: agora, confirmada_por: user.id })
     .in("id", abertas.map((c) => c.id));
   if (erroMarca) {
     await db.from("pagamentos_comissao").delete().eq("id", pagamento.id);
     return { ok: false, erro: "Não foi possível registrar o recebimento." };
   }
   logAction("registrar_recebimento_comissao", { userId: user.id, prestadorId: input.prestadorId, valor, result: "ok" });
+  revalidarFinanceiro();
+  return { ok: true };
+}
+
+/**
+ * Depois de um OK/✗ por serviço, acerta os pagamentos que o prestador tinha
+ * informado ("Enviei o Pix") — o OK por serviço é a fonte da verdade (D-048):
+ * informado com todas as comissões pagas vira confirmado; informado sem
+ * nenhuma comissão (todas voltaram) vira recusado; o valor acompanha o que
+ * sobrou ligado a ele. Confirmado que perdeu todas as comissões sai do
+ * histórico.
+ */
+async function reconciliarPagamentos(db: DB, pagamentoIds: readonly string[], userId: string) {
+  for (const id of new Set(pagamentoIds)) {
+    const [{ data: pg }, { data: ligadas }] = await Promise.all([
+      db.from("pagamentos_comissao").select("id, status").eq("id", id).maybeSingle(),
+      db.from("comissoes").select("status, valor").eq("pagamento_id", id),
+    ]);
+    if (!pg) continue;
+    const lista = ligadas ?? [];
+    const valor = somar(lista.map((c) => c.valor));
+    if (lista.length === 0) {
+      if (pg.status === "informado") {
+        await db
+          .from("pagamentos_comissao")
+          .update({ status: "recusado", decidido_por: userId, decidido_em: new Date().toISOString(), observacao: "Conferido serviço a serviço: não recebido." })
+          .eq("id", id);
+      } else if (pg.status === "confirmado") {
+        await db.from("pagamentos_comissao").delete().eq("id", id);
+      }
+      continue;
+    }
+    const tudoPago = lista.every((c) => c.status === "paga");
+    const mudanca: { valor: number; status?: string; decidido_por?: string; decidido_em?: string } = { valor };
+    if (pg.status === "informado" && tudoPago) {
+      mudanca.status = "confirmado";
+      mudanca.decidido_por = userId;
+      mudanca.decidido_em = new Date().toISOString();
+    }
+    await db.from("pagamentos_comissao").update(mudanca).eq("id", id);
+  }
+}
+
+/**
+ * ✓ (OK, Pix recebido) ou ✗ (não recebido) na comissão de UM serviço — a
+ * célula da grade do Financeiro do Administrador (D-048). ✗ numa comissão já
+ * paga a reabre (em aberto).
+ */
+export async function alternarComissaoPagaAction(comissaoId: string, paga: boolean): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  const user = w.user;
+  if (!ehAdministracao(user)) return { ok: false, erro: "Só a administração confirma pagamentos." };
+
+  const db = createAdminClient();
+  const { data: c } = await db.from("comissoes").select("id, workspace_id, status, pagamento_id").eq("id", comissaoId).maybeSingle();
+  if (!c) return { ok: false, erro: "Comissão não encontrada." };
+  const pracas = await pracasDoAtor(db, user);
+  if (!pracaAlcancada(user, pracas, c.workspace_id)) return { ok: false, erro: "Você não administra esta praça." };
+
+  const { error } = await db
+    .from("comissoes")
+    .update(
+      paga
+        ? { status: "paga", paga_em: new Date().toISOString(), confirmada_por: user.id }
+        : { status: "em_aberto", paga_em: null, confirmada_por: null, pagamento_id: null },
+    )
+    .eq("id", comissaoId);
+  if (error) return { ok: false, erro: "Não foi possível registrar." };
+  if (c.pagamento_id) await reconciliarPagamentos(db, [c.pagamento_id], user.id);
+  logAction("comissao_ok", { userId: user.id, comissaoId, paga, result: "ok" });
+  revalidarFinanceiro();
+  return { ok: true };
+}
+
+/**
+ * "Marcar o mês como pago" (D-048): o prestador pagou todos os Pix daquele mês
+ * — cada comissão de serviço do mês (pela data do serviço) recebe o OK.
+ * Pensada para `.bind(null, workspaceId)` na página, com a assinatura
+ * (prestadorId, mes) que a grade chama.
+ */
+export async function marcarMesPagoAction(workspaceId: string, prestadorId: string, mes: string): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  const user = w.user;
+  if (!ehAdministracao(user)) return { ok: false, erro: "Só a administração confirma pagamentos." };
+  if (!mesValido(mes)) return { ok: false, erro: "Mês inválido." };
+
+  const db = createAdminClient();
+  const pracas = await pracasDoAtor(db, user);
+  if (!pracaAlcancada(user, pracas, workspaceId)) return { ok: false, erro: "Você não administra esta praça." };
+
+  const { data } = await db
+    .from("comissoes")
+    .select("id, status, pagamento_id, servicos(agenda_slots(data))")
+    .eq("workspace_id", workspaceId)
+    .eq("prestador_id", prestadorId)
+    .neq("status", "paga");
+  const { inicio, fim } = intervaloDoMes(mes);
+  const doMes = ((data ?? []) as unknown as { id: string; pagamento_id: string | null; servicos: { agenda_slots: { data: string } | null } | null }[]).filter(
+    (c) => {
+      const d = c.servicos?.agenda_slots?.data;
+      return d != null && d >= inicio && d <= fim;
+    },
+  );
+  if (doMes.length === 0) return { ok: false, erro: "Nada em aberto neste mês." };
+
+  const { error } = await db
+    .from("comissoes")
+    .update({ status: "paga", paga_em: new Date().toISOString(), confirmada_por: user.id })
+    .in("id", doMes.map((c) => c.id));
+  if (error) return { ok: false, erro: "Não foi possível marcar o mês como pago." };
+  await reconciliarPagamentos(db, doMes.map((c) => c.pagamento_id).filter((x): x is string => Boolean(x)), user.id);
+  logAction("mes_pago", { userId: user.id, workspaceId, prestadorId, mes, quantas: doMes.length, result: "ok" });
   revalidarFinanceiro();
   return { ok: true };
 }

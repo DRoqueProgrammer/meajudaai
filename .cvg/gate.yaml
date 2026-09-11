@@ -23,7 +23,7 @@ protected_paths:
   - "**/*_secret*"
   - "**/id_rsa*"
   - "**/.terraform/**"
-  # migrations já aplicadas (0001–0058)
+  # migrations já aplicadas (0001–0059)
   - "supabase/migrations/000*"
   - "supabase/migrations/001*"
   - "supabase/migrations/002*"
@@ -56,6 +56,7 @@ protected_paths:
   - "supabase/migrations/0056_*"
   - "supabase/migrations/0057_*"
   - "supabase/migrations/0058_*"
+  - "supabase/migrations/0059_*"
   - "app/auth/**"
   - "**/payments/**"
   - "**/billing/**"

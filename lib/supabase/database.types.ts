@@ -309,8 +309,10 @@ export type Database = {
       comissoes: {
         Row: {
           base: number
+          confirmada_por: string | null
           created_at: string
           id: string
+          paga_em: string | null
           pagamento_id: string | null
           percentual: number
           prestador_id: string
@@ -322,8 +324,10 @@ export type Database = {
         }
         Insert: {
           base: number
+          confirmada_por?: string | null
           created_at?: string
           id?: string
+          paga_em?: string | null
           pagamento_id?: string | null
           percentual: number
           prestador_id: string
@@ -335,8 +339,10 @@ export type Database = {
         }
         Update: {
           base?: number
+          confirmada_por?: string | null
           created_at?: string
           id?: string
+          paga_em?: string | null
           pagamento_id?: string | null
           percentual?: number
           prestador_id?: string
@@ -849,6 +855,7 @@ export type Database = {
           cidade_ibge: string | null
           created_at: string
           disponibilidade: string | null
+          emite_nota_fiscal: boolean
           estado: string | null
           exemplo: boolean
           foto_url: string | null
@@ -872,6 +879,7 @@ export type Database = {
           cidade_ibge?: string | null
           created_at?: string
           disponibilidade?: string | null
+          emite_nota_fiscal?: boolean
           estado?: string | null
           exemplo?: boolean
           foto_url?: string | null
@@ -895,6 +903,7 @@ export type Database = {
           cidade_ibge?: string | null
           created_at?: string
           disponibilidade?: string | null
+          emite_nota_fiscal?: boolean
           estado?: string | null
           exemplo?: boolean
           foto_url?: string | null
@@ -938,6 +947,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      recebimentos: {
+        Row: {
+          cliente_id: string | null
+          created_at: string
+          descricao: string
+          forma: string
+          id: string
+          numero: number
+          pagador_nome: string
+          prestador_id: string
+          recebido_em: string
+          servico_id: string | null
+          valor: number
+        }
+        Insert: {
+          cliente_id?: string | null
+          created_at?: string
+          descricao: string
+          forma?: string
+          id?: string
+          numero?: never
+          pagador_nome: string
+          prestador_id: string
+          recebido_em: string
+          servico_id?: string | null
+          valor: number
+        }
+        Update: {
+          cliente_id?: string | null
+          created_at?: string
+          descricao?: string
+          forma?: string
+          id?: string
+          numero?: never
+          pagador_nome?: string
+          prestador_id?: string
+          recebido_em?: string
+          servico_id?: string | null
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recebimentos_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: true
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       servico_comentarios_admin: {
         Row: {
@@ -1539,6 +1598,10 @@ export type Database = {
       }
       pode_assinar_recibos: { Args: never; Returns: boolean }
       praca_do_prestador: { Args: { p_prestador: string }; Returns: string }
+      recebimento_valido: {
+        Args: { p_cliente: string; p_servico: string }
+        Returns: boolean
+      }
       tem_servico_com: { Args: { v_outro: string }; Returns: boolean }
       vaga_aberta: { Args: { v_vaga: string }; Returns: boolean }
     }

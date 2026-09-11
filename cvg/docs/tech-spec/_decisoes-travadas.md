@@ -416,3 +416,21 @@ continua registrada (D-045) e sai do perfil. Decisões do controller, revisávei
 o da data do serviço; o Administrador também pode "registrar recebimento" (quitar o saldo em
 aberto que o prestador pagou por fora do "Enviei o Pix"); D-045 aplicada ao "Baixar meus dados"
 (as sinalizações que a pessoa escreveu saíram da exportação).
+
+**D-048 (do dono, 11/09) — Financeiro em grade (molde amazing-school/careconnect), para o
+Administrador e para o prestador.** Referências clonadas em `refs/amazing-school-app`
+(`components/owner/management-grid.tsx`, `teacher/finance`) e `refs/careconnect` (filtros na URL).
+- **Prestador** ganha a aba Financeiro (`/meu-financeiro`): grade **clientes × meses**; todo
+  serviço realizado entra "a receber" no mês do cliente; o card do mês (hover/toque) lista cada
+  serviço com ✓ recebido / ✗ a receber (clicável) e **gera recibo** — com nome e, embaixo, a função
+  do prestador, e o aviso de que **não vale como nota fiscal** (é só comprovante de referência) e
+  de que a Me Ajuda Aí é um marketplace e não se responsabiliza. O recibo é opcional, o prestador
+  **gera e manda pelo WhatsApp**; o cliente **não** o vê no app. Nota fiscal é assunto entre as
+  partes; o perfil do prestador ganha **"Emite nota fiscal: sim/não"**, visível ao cliente.
+- **Administrador**: grade **prestadores × meses** com a comissão do mês; o card lista os serviços
+  (valor, %, comissão) com ✓ OK / ✗ não recebido **por serviço**; **"marcar o mês como pago"** = o
+  prestador pagou todos os Pix daquele mês e cada serviço recebeu o OK. Pode emitir recibo de
+  qualquer serviço realizado. **Só entradas** do workspace (comissões, notas avulsas).
+- As abas Financeiro têm **filtros** (ano, situação, pessoa, tipo, busca), na URL.
+- Controller: "a receber" vira "em atraso" com 7 dias sem receber (mesma régua da D-044); o
+  "Enviei o Pix" continua como aviso do prestador — o OK por serviço é a fonte da verdade.

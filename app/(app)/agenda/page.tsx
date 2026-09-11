@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
+import { servicosPorHorario } from "@/lib/servico-do-horario";
 import { CriarSlotForm } from "@/components/agenda/criar-slot-form";
 import { AgendaCalendarV2, type AgendaEvento } from "@/components/agenda/agenda-calendar-v2";
 import { AgendasAbertas } from "@/components/agenda/agendas-abertas";
@@ -94,7 +95,7 @@ export default async function AgendaPage() {
   const { data: servicos } = slotIds.length
     ? await sb
         .from("servicos")
-        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id")
+        .select("id, slot_id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, created_at")
         .in("slot_id", slotIds)
     : { data: [] };
 
@@ -104,8 +105,12 @@ export default async function AgendaPage() {
     : { data: [] };
   const nomeDeCliente = new Map((clientesNomes ?? []).map((c) => [c.user_id, c.nome]));
 
+  // Um horário pode ter um cancelado e um novo (migration 0048): fica o que ocupa.
   const servicoDeSlot = new Map(
-    (servicos ?? []).map((s) => [s.slot_id, { ...s, clienteNome: nomeDeCliente.get(s.cliente_id) ?? null }]),
+    [...servicosPorHorario(servicos ?? []).values()].map((s) => [
+      s.slot_id,
+      { ...s, clienteNome: nomeDeCliente.get(s.cliente_id) ?? null },
+    ]),
   );
 
   const servicoIds = (servicos ?? []).map((s) => s.id);

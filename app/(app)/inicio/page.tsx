@@ -16,6 +16,8 @@ import {
   type AnuncioDaPracaInfo,
 } from "@/components/admin/painel-da-praca";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
+import { hojeEmSaoPaulo } from "@/lib/datas";
+import { servicosPorHorario } from "@/lib/servico-do-horario";
 import { pracasDoMundoDeExemplo } from "@/lib/actions/pracas";
 import { listarPrestadoresDaPraca, listarAnunciosDosPrestadores, listarLimitesDosPrestadores } from "@/lib/admin/consultas";
 import { limiteEfetivo, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
@@ -142,7 +144,8 @@ export default async function InicioPage() {
   // "vagas" já tem card próprio acima; aqui ficam os módulos que sobraram do rodapé.
   const modulosPainel = PANEL_MODULES.filter((m) => m.key !== "vagas" && permitidos?.has(m.key));
 
-  const hojeStr = new Date().toLocaleDateString("sv-SE");
+  // Fuso de São Paulo (lib/datas.ts): o servidor roda em UTC.
+  const hojeStr = hojeEmSaoPaulo();
 
   // Prestador v2: a home não tem mais "vagas" (isso é do fluxo de diária por
   // workspace, v1) — o que importa aqui é a agenda de curto prazo, quanto
@@ -163,6 +166,7 @@ export default async function InicioPage() {
       .select("id, data, hora_inicio, hora_fim, status")
       .eq("prestador_id", user!.id)
       .eq("data", hojeStr)
+      .neq("status", "fechado")
       .order("hora_inicio", { ascending: true });
 
     // Sem nada hoje, a home não pode virar beco sem saída — mostra os
@@ -175,6 +179,7 @@ export default async function InicioPage() {
         .select("id, data, hora_inicio, hora_fim, status")
         .eq("prestador_id", user!.id)
         .gt("data", hojeStr)
+        .neq("status", "fechado")
         .order("data", { ascending: true })
         .order("hora_inicio", { ascending: true })
         .limit(5);
@@ -182,9 +187,11 @@ export default async function InicioPage() {
     }
     const idsAgenda = slotsAgenda.map((s) => s.id);
     const { data: servicosAgenda } = idsAgenda.length
-      ? await sb.from("servicos").select("slot_id, descricao, status").in("slot_id", idsAgenda)
+      ? await sb.from("servicos").select("slot_id, descricao, status, created_at").in("slot_id", idsAgenda)
       : { data: [] };
-    const servicoPorSlot = new Map((servicosAgenda ?? []).map((s) => [s.slot_id, s]));
+    // Horário fechado não aparece; com cancelado e novo no mesmo horário
+    // (migration 0048), fica o serviço que ocupa.
+    const servicoPorSlot = servicosPorHorario(servicosAgenda ?? []);
     agendaCurta = slotsAgenda.map((s) => {
       const serv = servicoPorSlot.get(s.id);
       return { id: s.id, data: s.data, hora_inicio: s.hora_inicio, hora_fim: s.hora_fim, descricao: serv?.descricao ?? null, status: serv?.status ?? s.status };

@@ -166,6 +166,13 @@ export async function moderarAnuncioAction(anuncioId: string, tirarDoAr: boolean
 
   const papel = papelAutorizado(user);
   if (!papel.ok) return papel;
+  // Revisão do controller: qualquer visitante abre a conta de exemplo pela
+  // landing, e o anúncio está no mural PÚBLICO — deixar a conta de exemplo
+  // tirar anúncio do ar esvaziaria a vitrine de todo mundo. Limite pode (não
+  // tira nada do ar); moderação, não.
+  if (user.exemplo) {
+    return { ok: false, erro: "Na conta de demonstração, tirar anúncio do ar fica desligado — o mural é público." };
+  }
 
   const db = createAdminClient();
   const { data: anuncio, error: anuncioErr } = await db

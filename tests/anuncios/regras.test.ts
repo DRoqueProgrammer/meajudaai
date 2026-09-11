@@ -62,7 +62,7 @@ describe("Painel do Administrador · código", () => {
   it("as actions do Administrador existem e conferem o alcance", () => {
     const acoes = ler("lib/actions/anuncios-admin.ts");
     for (const nome of ["definirLimitePadraoAction", "definirLimitePrestadorAction", "moderarAnuncioAction"]) {
-      expect(acoes).toMatch(new RegExp(`export async function ${nome}\(`));
+      expect(acoes).toContain(`export async function ${nome}(`);
     }
     expect(acoes).toMatch(/adminAlcancaPrestador/);
   });

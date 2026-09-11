@@ -6,6 +6,7 @@ import { SlotDetalhe } from "@/components/agenda/slot-detalhe";
 import { CobrancaPix } from "@/components/pix/cobranca-pix";
 import { ClienteDoServico } from "@/components/agenda/cliente-do-servico";
 import { listarTiposServico } from "@/lib/tipos-servico";
+import { servicoDoHorario } from "@/lib/servico-do-horario";
 import type { AppRole } from "@/lib/auth/roles";
 
 /**
@@ -28,11 +29,13 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
     .maybeSingle();
   if (!slot) notFound();
 
-  const { data: servico } = await sb
+  // Um horário pode ter um serviço cancelado e outro novo (migration 0048):
+  // mostra o que ocupa o horário — ver lib/servico-do-horario.ts.
+  const { data: servicosDoHorario } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng, tipo")
-    .eq("slot_id", slotId)
-    .maybeSingle();
+    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng, tipo, created_at")
+    .eq("slot_id", slotId);
+  const servico = servicoDoHorario(servicosDoHorario ?? []);
   const tipos = await listarTiposServico(sb);
 
   const { data: logs } = servico

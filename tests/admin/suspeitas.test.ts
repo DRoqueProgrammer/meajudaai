@@ -18,7 +18,9 @@ describe("Suspeitas · código", () => {
     for (const nome of ["adicionarSuspeitaAction", "suspenderPrestadorAction", "encerrarSuspensaoAction"]) {
       expect(acoes).toContain(`export async function ${nome}(`);
     }
-    expect(acoes).toContain("adminAlcancaPrestador");
+    // O alcance saiu de adminAlcancaPrestador para a regra geral (lib/admin/alcance.ts:atorAlcanca).
+    expect(acoes).toContain("atorAlcanca");
+    expect(acoes).toContain("sinalizarAction");
     expect(acoes).toMatch(/exemplo/);
   });
 

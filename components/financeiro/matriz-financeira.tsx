@@ -78,10 +78,10 @@ const NOME_ESTADO: Record<EstadoCelula, string> = {
 const preencher = (modelo: string, pessoa: string, mes?: string) =>
   modelo.replaceAll("{pessoa}", pessoa).replaceAll("{mes}", mes ?? "");
 
-/** Valor curto para caber na célula: "R$ 1,2 mil" a partir de mil. */
+/** Valor curto para caber na célula, sem o "R$" (a legenda avisa que é em reais): "127,20", "1,2 mil". */
 function valorCurto(v: number): string {
-  if (v >= 1000) return `R$ ${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
-  return formatBRL(v);
+  if (v >= 1000) return `${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
+  return v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 interface Aberto {
@@ -131,13 +131,72 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
     setAberto({ pessoa, mes, ancora: el.getBoundingClientRect(), fixo });
   }
 
+  /** Botão de uma célula (tabela) ou de um quadradinho (cartões) — o mesmo card abre nos dois. Função, não componente: um componente declarado aqui dentro seria recriado a cada render e o hover piscaria. */
+  function botaoMes(l: LinhaMatriz, m: string, compacto = false) {
+    const itens = l.meses[m];
+    const estado = estadoDaCelula(itens, hoje);
+    const t = totais(itens);
+    const i = Number(m) - 1;
+    if (estado === "vazia") {
+      return compacto ? (
+        <div
+          className="flex min-h-12 flex-col items-center justify-center rounded-lg border border-dashed border-line text-muted"
+          aria-label={`${MESES_CURTOS[i]}: sem serviços`}
+        >
+          <span className="text-[10px] font-semibold uppercase tracking-wide">{MESES_CURTOS[i]}</span>
+          <span className="text-xs">—</span>
+        </div>
+      ) : (
+        <span className="block text-center text-muted" aria-label="sem serviços">
+          —
+        </span>
+      );
+    }
+    const ativo = aberto?.pessoa.pessoaId === l.pessoaId && aberto.mes === m;
+    return (
+      <button
+        type="button"
+        onMouseEnter={compacto ? undefined : (e) => abrir(e.currentTarget, l, m, false)}
+        onMouseLeave={compacto ? undefined : agendarFechar}
+        onClick={(e) => abrir(e.currentTarget, l, m, true)}
+        aria-expanded={ativo}
+        aria-label={`${l.nome}, ${mesPorExtenso(`${ano}-${m}`)}: ${formatBRL(t.total)} ${sufixoValor}, ${NOME_ESTADO[estado]}`}
+        className={`flex w-full flex-col items-center justify-center rounded-lg px-0.5 font-semibold leading-tight transition-shadow hover:shadow-[0_0_0_2px_var(--line-strong)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand ${
+          compacto ? "min-h-12 py-1" : "min-h-11"
+        } ${ESTILO_CELULA[estado]} ${ativo ? "shadow-[0_0_0_2px_var(--brand-ink)]" : ""}`}
+      >
+        {compacto ? <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">{MESES_CURTOS[i]}</span> : null}
+        <span className="flex max-w-full items-center gap-0.5 text-xs">
+          {estado === "ok" ? <Marca ok /> : estado === "atrasada" ? <Marca ok={false} /> : null}
+          <span className="truncate">{valorCurto(t.total)}</span>
+        </span>
+        {compacto ? null : (
+          <span className="max-w-full truncate text-[10px] font-medium opacity-80">
+            {itens!.length} {itens!.length === 1 ? "serviço" : "serviços"}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  const totalGeral = linhas.reduce((s, l) => s + Math.round(totaisDaLinha(l).total * 100), 0) / 100;
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="overflow-x-auto rounded-2xl border border-line bg-card">
-        <table className="w-full min-w-[980px] border-separate border-spacing-0 text-sm tabular-nums">
+    <div className="flex min-w-0 flex-col gap-2">
+      {/* Notebook e acima (≥1280px): a tabela inteira cabe — colunas fixas,
+          valores sem o "R$" repetido em cada célula. */}
+      <div className="hidden overflow-x-auto rounded-2xl border border-line bg-card xl:block">
+        <table className="w-full table-fixed border-separate border-spacing-0 text-sm tabular-nums">
           <caption className="sr-only">
-            Grade de {ano}: uma linha por {rotuloPessoa.toLowerCase()}, uma coluna por mês. Abra uma célula para ver os serviços.
+            Grade de {ano}: uma linha por {rotuloPessoa.toLowerCase()}, uma coluna por mês, valores em reais. Abra uma célula para ver os serviços.
           </caption>
+          <colgroup>
+            <col className="w-36" />
+            {CHAVES_MESES.map((m) => (
+              <col key={m} />
+            ))}
+            <col className="w-28" />
+          </colgroup>
           <thead>
             <tr>
               <th scope="col" className="sticky left-0 z-10 border-b border-line bg-card px-3 py-2 text-left text-rotulo font-semibold uppercase tracking-wide text-muted">
@@ -147,12 +206,12 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
                 <th
                   key={m}
                   scope="col"
-                  className={`border-b border-line px-1 py-2 text-center text-rotulo font-semibold uppercase tracking-wide ${m === mesCorrente ? "text-brand" : "text-muted"}`}
+                  className={`border-b border-line px-0.5 py-2 text-center text-rotulo font-semibold uppercase tracking-wide ${m === mesCorrente ? "text-brand" : "text-muted"}`}
                 >
                   {MESES_CURTOS[i]}
                 </th>
               ))}
-              <th scope="col" className="border-b border-l border-line px-3 py-2 text-right text-rotulo font-semibold uppercase tracking-wide text-muted">
+              <th scope="col" className="border-b border-l border-line px-2 py-2 text-right text-rotulo font-semibold uppercase tracking-wide text-muted">
                 {ano}
               </th>
             </tr>
@@ -161,57 +220,17 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
             {linhas.map((l) => {
               const totalAno = totaisDaLinha(l);
               return (
-                <tr key={l.pessoaId} className="group">
+                <tr key={l.pessoaId}>
                   <th scope="row" className="sticky left-0 z-10 border-b border-line bg-card px-3 py-2 text-left font-normal">
-                    {props.perfilHref ? (
-                      <Link href={preencher(props.perfilHref, l.pessoaId)} className="block max-w-[11rem] truncate font-semibold text-ink hover:text-brand hover:underline">
-                        {l.nome}
-                      </Link>
-                    ) : (
-                      <span className="block max-w-[11rem] truncate font-semibold">{l.nome}</span>
-                    )}
+                    <NomePessoa l={l} perfilHref={props.perfilHref} />
                   </th>
-                  {CHAVES_MESES.map((m) => {
-                    const itens = l.meses[m];
-                    const estado = estadoDaCelula(itens, hoje);
-                    const t = totais(itens);
-                    if (estado === "vazia") {
-                      return (
-                        <td key={m} className="border-b border-line px-1 py-1.5 text-center text-muted" aria-label="sem serviços">
-                          —
-                        </td>
-                      );
-                    }
-                    const ativo = aberto?.pessoa.pessoaId === l.pessoaId && aberto.mes === m;
-                    return (
-                      <td key={m} className="border-b border-line px-1 py-1.5">
-                        <button
-                          type="button"
-                          onMouseEnter={(e) => abrir(e.currentTarget, l, m, false)}
-                          onMouseLeave={agendarFechar}
-                          onClick={(e) => abrir(e.currentTarget, l, m, true)}
-                          aria-expanded={ativo}
-                          aria-label={`${l.nome}, ${mesPorExtenso(`${ano}-${m}`)}: ${formatBRL(t.total)} ${sufixoValor}, ${NOME_ESTADO[estado]}`}
-                          className={`flex min-h-11 w-full flex-col items-center justify-center rounded-lg px-1 text-xs font-semibold leading-tight transition-shadow hover:shadow-[0_0_0_2px_var(--line-strong)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-brand ${ESTILO_CELULA[estado]} ${ativo ? "shadow-[0_0_0_2px_var(--brand-ink)]" : ""}`}
-                        >
-                          <span className="flex items-center gap-0.5">
-                            {estado === "ok" ? <Marca ok /> : estado === "atrasada" ? <Marca ok={false} /> : null}
-                            {valorCurto(t.total)}
-                          </span>
-                          <span className="text-[10px] font-medium opacity-80">
-                            {itens!.length} {itens!.length === 1 ? "serviço" : "serviços"}
-                          </span>
-                        </button>
-                      </td>
-                    );
-                  })}
-                  <td className="border-b border-l border-line px-3 py-1.5 text-right">
-                    <span className="block font-semibold">{formatBRL(totalAno.total)}</span>
-                    {totalAno.aReceber > 0 ? (
-                      <span className="block text-[11px] text-danger">{formatBRL(totalAno.aReceber)} a receber</span>
-                    ) : (
-                      <span className="block text-[11px] text-ok">em dia</span>
-                    )}
+                  {CHAVES_MESES.map((m) => (
+                    <td key={m} className="border-b border-line px-0.5 py-1.5">
+                      {botaoMes(l, m)}
+                    </td>
+                  ))}
+                  <td className="border-b border-l border-line px-2 py-1.5 text-right">
+                    <TotalAno total={totalAno} />
                   </td>
                 </tr>
               );
@@ -225,18 +244,46 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
               {CHAVES_MESES.map((m) => {
                 const t = totaisDoMes(linhas, m);
                 return (
-                  <td key={m} className="px-1 py-2 text-center text-xs font-semibold text-ink">
+                  <td key={m} className="truncate px-0.5 py-2 text-center text-xs font-semibold text-ink">
                     {t.total > 0 ? valorCurto(t.total) : <span className="text-muted">—</span>}
                   </td>
                 );
               })}
-              <td className="border-l border-line px-3 py-2 text-right text-sm font-bold text-brand">
-                {formatBRL(linhas.reduce((s, l) => s + Math.round(totaisDaLinha(l).total * 100), 0) / 100)}
-              </td>
+              <td className="border-l border-line px-2 py-2 text-right text-sm font-bold text-brand">{formatBRL(totalGeral)}</td>
             </tr>
           </tfoot>
         </table>
       </div>
+
+      {/* Celular e tablet (<1280px): um cartão por pessoa, com os 12 meses em
+          quadradinhos (4×3 no celular, 6×2 a partir de 640px) — nada rola de
+          lado; tocar abre o mesmo card do mês (no celular, uma folha embaixo). */}
+      <ul className="flex flex-col gap-2 xl:hidden">
+        {linhas.map((l) => {
+          const totalAno = totaisDaLinha(l);
+          return (
+            <li key={l.pessoaId} className="rounded-2xl border border-line bg-card p-3">
+              <div className="mb-2 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <NomePessoa l={l} perfilHref={props.perfilHref} />
+                </div>
+                <div className="shrink-0 text-right tabular-nums">
+                  <TotalAno total={totalAno} />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-1.5 tabular-nums sm:grid-cols-6">
+                {CHAVES_MESES.map((m) => (
+                  <div key={m}>{botaoMes(l, m, true)}</div>
+                ))}
+              </div>
+            </li>
+          );
+        })}
+        <li className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-3 py-2 text-sm">
+          <span className="text-rotulo font-semibold uppercase tracking-wide text-muted">Total de {ano}</span>
+          <span className="font-bold tabular-nums text-brand">{formatBRL(totalGeral)}</span>
+        </li>
+      </ul>
 
       <Legenda />
 
@@ -252,6 +299,29 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
         />
       ) : null}
     </div>
+  );
+}
+
+function NomePessoa({ l, perfilHref }: { l: LinhaMatriz; perfilHref?: string }) {
+  return perfilHref ? (
+    <Link href={preencher(perfilHref, l.pessoaId)} className="block truncate font-semibold text-ink hover:text-brand hover:underline">
+      {l.nome}
+    </Link>
+  ) : (
+    <span className="block truncate font-semibold">{l.nome}</span>
+  );
+}
+
+function TotalAno({ total }: { total: { total: number; aReceber: number } }) {
+  return (
+    <>
+      <span className="block text-sm font-semibold">{formatBRL(total.total)}</span>
+      {total.aReceber > 0 ? (
+        <span className="block text-[11px] leading-tight text-danger">{formatBRL(total.aReceber)} a receber</span>
+      ) : (
+        <span className="block text-[11px] text-ok">em dia</span>
+      )}
+    </>
   );
 }
 
@@ -279,6 +349,7 @@ function Legenda() {
   ];
   return (
     <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted" aria-label="Legenda das cores">
+      <li className="font-medium text-ink">Valores em R$</li>
       {itens.map(([e, rotulo]) => (
         <li key={e} className="flex items-center gap-1.5">
           <span className={`inline-block h-3 w-4 rounded ${ESTILO_CELULA[e]} border border-line`} aria-hidden="true" />

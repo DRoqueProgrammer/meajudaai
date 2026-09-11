@@ -81,7 +81,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       {/* A coluna ocupa ao menos a altura da tela (dvh acompanha a barra de
           endereço do celular) e o <main> cresce: em página curta o rodapé desce
           até o fim da tela em vez de ficar no meio (pedido do Leonardo). */}
-      <div className="flex min-h-dvh flex-1 flex-col">
+      {/* min-w-0: sem ele, o item flex não encolhe abaixo do conteúdo, e uma
+          tabela larga (a grade do Financeiro) empurrava a página inteira para o
+          lado em vez de rolar dentro do próprio quadro. */}
+      <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
         {demo ? <DemoBanner nome={nome} /> : null}
         {/* A casca só dá o TETO de largura (direção e do parecer de design) —
             1100px é o topo da faixa pedida pra listas/painéis, e sobra pro

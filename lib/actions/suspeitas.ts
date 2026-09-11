@@ -194,13 +194,13 @@ export async function encerrarSuspensaoAction(userId: string): Promise<ActionRes
 }
 
 /**
- * Prestador sinaliza ("Flag Pilantra") um cliente com quem teve serviço — pela
- * SESSÃO: a policy de insert (migration 0053) confere o vínculo e que nasce
- * pendente. Vai para o Administrador aprovar.
+ * Prestador sinaliza ("Flag Pilantra") o cliente DE UM SERVIÇO — a bandeira é
+ * dada no serviço em si (pedido do Leonardo), uma por serviço. Pela SESSÃO: a
+ * policy de insert (migration 0053) confere que o serviço é dele com esse
+ * cliente e que nasce pendente. Vai para o Administrador aprovar.
  */
 export async function sinalizarClienteAction(input: {
-  clienteId: string;
-  servicoId?: string | null;
+  servicoId: string;
   motivo: string;
   descricao?: string;
 }): Promise<ActionResult> {
@@ -211,20 +211,30 @@ export async function sinalizarClienteAction(input: {
   if (!(MOTIVOS_SINALIZACAO as readonly string[]).includes(input.motivo)) return { ok: false, erro: "Escolha o motivo." };
 
   const sb = await createServerClient();
+  // O cliente vem do próprio serviço (o prestador lê os serviços dele pela RLS).
+  const { data: servico } = await sb
+    .from("servicos")
+    .select("id, cliente_id, prestador_id")
+    .eq("id", input.servicoId)
+    .maybeSingle();
+  if (!servico || servico.prestador_id !== user.id) return { ok: false, erro: "Serviço não encontrado." };
+
   const { error } = await sb.from("sinalizacoes_cliente").insert({
-    cliente_id: input.clienteId,
+    cliente_id: servico.cliente_id,
     prestador_id: user.id,
-    servico_id: input.servicoId ?? null,
+    servico_id: servico.id,
     motivo: input.motivo,
     descricao: textoOpcional(input.descricao),
   });
   if (error) {
     if (error.code === "23505") return { ok: false, erro: "Você já sinalizou este serviço." };
-    logAction("sinalizar_cliente", { userId: user.id, clienteId: input.clienteId, result: "erro", code: error.code });
-    return { ok: false, erro: "Não foi possível enviar a sinalização. Só dá para sinalizar cliente de um serviço seu." };
+    logAction("sinalizar_cliente", { userId: user.id, servicoId: servico.id, result: "erro", code: error.code });
+    return { ok: false, erro: "Não foi possível enviar a sinalização. Tente de novo." };
   }
-  logAction("sinalizar_cliente", { userId: user.id, clienteId: input.clienteId, motivo: input.motivo, result: "ok" });
+  logAction("sinalizar_cliente", { userId: user.id, servicoId: servico.id, motivo: input.motivo, result: "ok" });
   revalidatePath("/clientes");
+  revalidatePath("/servicos");
+  revalidatePath(`/agenda/${servico.id}`);
   revalidatePath("/inicio");
   return { ok: true };
 }

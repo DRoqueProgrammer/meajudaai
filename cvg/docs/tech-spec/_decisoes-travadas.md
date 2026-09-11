@@ -291,3 +291,52 @@ Fatia 1: gabarito escrito antes (`tests/fatia2/titular.test.ts`), migration nova
 tier 2 e a regressão verde. Conta de exemplo não pede exclusão (qualquer visitante as abre).
 Fica em aberto, para o dono: qual é a ação principal do Administrador na v2 (o Início dele
 ainda oferece "Publique uma vaga", do mural da v1).
+
+## Rodada 8 — 10/09/2026 · retornos do dono ao vivo e o começo da Fatia 4
+
+**D-034 (do dono) — A ação v2 do Administrador são os anúncios da praça.** Resposta à
+pergunta aberta da D-033: *"O prestador de serviço pode criar X anúncios, tanto oferecendo
+serviços quanto oferecendo serviços para Ajudantes (que não terão conta nem acesso ao app a
+princípio)… Quem define o X anúncios é o administrador. tem o padrão, e tem a qtde por
+Prestador de Serviço."* Escolhas dele: vaga de ajudante num **mural público na página
+inicial**, antes do login, em carrossel, com o WhatsApp do prestador; anúncio de serviço na
+busca, no perfil e na vitrine pública; limite **por praça** (vale para os prestadores da cidade
+da praça) com ajuste por prestador; sem praça nem ajuste, 3. Banco: migrations 0044/0045,
+gabarito `tests/anuncios/banco.test.ts`. Conta de exemplo não escreve anúncio (qualquer
+visitante a abre e o anúncio é público); o padrão de praça do mundo de exemplo só vale para
+prestador de exemplo. O Início do Administrador vira o painel da praça.
+
+**D-035 (do dono) — O Hero volta a ter as frases, e fica grande.** *"esse hero… está feio há
+muitas horas… repare como tem espaço livre no card, e o relógio pequeno e a previsão do tempo
+pequena… Você RETIROU as frases que eu tinha pedido no início para aparecer aleatoriamente.
+recoloque"*. Supera a parte da D-022 que tirou a citação e o teto de ~120 px no celular:
+saudação em tamanho de título, frase sorteada com "Outra frase", relógio grande, tempo agora e
+4 dias. Continua recolhível.
+
+**D-036 (do dono) — Nenhuma conta sem foto.** *"no account without photo, who is without
+photo, you bring a random free public from internet… just respect genders"*. Supera a
+doutrina de `docs/FOTOS_DEMO.md` (fotos só geradas por IA) e o lote 2C, que tinha tirado as
+fotos do seed. Retrato do randomuser.me pelo gênero, escolhido pelo id (`lib/foto-aleatoria.ts`,
+`scripts/fotos-publicas.mjs`); o cadastro ganha foto opcional, e sem ela vale o retrato.
+
+**D-037 (do dono) — Todo serviço tem um tipo.** *"Todo serviço deve poder ser categorizado…
+manutenção em madeira, instalação elétrica, instalação de varal, instalação de móveis,
+desmontagem/remontagem de móveis e outros"*. Migration 0047: catálogo `tipos_servico`,
+`servicos.tipo` (padrão "outros"), classificação única dos antigos pela descrição; o cliente
+escolhe ao agendar, o prestador recategoriza até serviço realizado (só essa coluna). Empilha o
+gráfico de faturamento: filtro de período (15 dias padrão; 30, 60, 90, este ano, último ano —
+o controller leu "último ano" como os últimos 365 dias), agrupado por semana por padrão, card
+no hover com os tipos em ordem alfabética e os dias.
+
+**D-038 (do dono e do controller) — Agenda: fechar agenda aberta, e o horário cancelado
+volta.** *"falta uma forma de FECHAR uma agenda aberta… Se tiver serviços agendados numa
+agenda, não pode cancelar"*: status `fechado` em `agenda_slots` e gatilho (0046). Na mesma
+linha, o controller adiantou da Fatia 4 o ADR 0017: `slot_id` deixa de ser único na tabela
+inteira e passa a ser único só entre serviços que ocupam o horário, o banco devolve o horário
+a livre em qualquer cancelamento — inclusive do cliente — e a corrida da reserva continua
+travada pelo índice (0048).
+
+**D-039 (do dono) — Endereço e mapa no perfil, também do Administrador; obrigatórios no
+cadastro, foto opcional.** Cadastro em duas colunas no notebook, confirmação de senha com
+mostrar/ocultar, máscara do telefone à mostra, gênero como "Masculino / Feminino / Prefiro não
+informar" (a saudação continua derivada dele).

@@ -14,6 +14,7 @@ import { formatBRL, formatData, formatHora } from "@/lib/format";
 import type { TipoServico } from "@/lib/tipos-servico";
 import { HoraCombinada } from "@/components/agenda/hora-combinada";
 import { rotuloPeriodo } from "@/lib/periodo-da-visita";
+import { SinalizarServico, type SinalizacaoExistente } from "@/components/sinalizar-servico";
 
 export interface SlotDetalheProps {
   slot: {
@@ -41,6 +42,10 @@ export interface SlotDetalheProps {
   logs: { id: string; texto: string; created_at: string }[];
   /** Catálogo pro select "Tipo" — só é preciso quando `paginaCompleta` (o único lugar com o select por ora). */
   tipos?: TipoServico[];
+  /** Nome do cliente — só pro texto do "Flag Pilantra" (migration 0055). */
+  clienteNome?: string | null;
+  /** A própria sinalização deste serviço, se já enviada (a RLS deixa o autor ler a dele). */
+  minhaSinalizacao?: SinalizacaoExistente | null;
 }
 
 /**
@@ -50,7 +55,15 @@ export interface SlotDetalheProps {
  * `paginaCompleta` pula o cabeçalho clicável e mostra tudo aberto (usado em
  * /agenda/[slotId]).
  */
-export function SlotDetalhe({ slot, servico, logs, tipos, paginaCompleta = false }: SlotDetalheProps & { paginaCompleta?: boolean }) {
+export function SlotDetalhe({
+  slot,
+  servico,
+  logs,
+  tipos,
+  clienteNome,
+  minhaSinalizacao,
+  paginaCompleta = false,
+}: SlotDetalheProps & { paginaCompleta?: boolean }) {
   const router = useRouter();
   const [aberto, setAberto] = useState(paginaCompleta);
   const [pending, start] = useTransition();
@@ -117,6 +130,17 @@ export function SlotDetalhe({ slot, servico, logs, tipos, paginaCompleta = false
               </p>
               {servico.cancelado_motivo ? (
                 <p className="text-xs text-danger">Cancelado: {servico.cancelado_motivo}</p>
+              ) : null}
+
+              {/* "Flag Pilantra" (migration 0055) — só depois que houve engajamento
+                  de verdade (confirmado, realizado ou cancelado); num pendente
+                  ainda não aconteceu nada pra sinalizar. */}
+              {servico.status === "confirmado" || servico.status === "realizado" || servico.status === "cancelado" ? (
+                <SinalizarServico
+                  servicoId={servico.id}
+                  alvoNome={clienteNome ?? "o cliente"}
+                  jaSinalizado={minhaSinalizacao ?? null}
+                />
               ) : null}
 
               {tipos ? (

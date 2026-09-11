@@ -215,6 +215,7 @@ export function Nav({
           : role === "prestador_servico"
             ? [
                 { href: "/agenda", label: "Agenda", icon: "calendar" },
+                { href: "/servicos", label: "Serviços", icon: "clipboard" },
                 { href: "/clientes", label: "Clientes", icon: "users" },
                 { href: "/anuncios", label: "Anúncios", icon: "megaphone" },
                 { href: "/mapa", label: "Mapa", icon: "map" },

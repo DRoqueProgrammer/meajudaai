@@ -66,6 +66,15 @@ export interface DadosDoTitular {
   // conteúdo dela, sem outra parte envolvida, então `select *` completo (o
   // WhatsApp da vaga é dela mesma, quem escolheu expor).
   anuncios: Database["public"]["Tables"]["anuncios"]["Row"][];
+  // Suspensões (migrations 0052/0054) — o motivo que ELA leu é dado pessoal
+  // dela. As sinalizações que ela ESCREVEU também entram (é atividade dela,
+  // como uma avaliação ou uma mensagem); mas nem as suspeitas privadas
+  // (`suspeitas_prestador`) nem as sinalizações que a têm como ALVO entram
+  // aqui — são registros da ADMINISTRAÇÃO sobre ela, não dela.
+  suspensoes: Database["public"]["Tables"]["suspensoes"]["Row"][];
+  sinalizacoes_enviadas: Array<
+    Database["public"]["Tables"]["sinalizacoes"]["Row"] & { alvo: PessoaPublica | null }
+  >;
   vinculos: {
     equipe: Array<
       Database["public"]["Tables"]["workspace_members"]["Row"] & {
@@ -95,6 +104,8 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     modulosRes,
     pedidosRes,
     anunciosRes,
+    suspensoesRes,
+    sinalizacoesEnviadasRes,
   ] = await Promise.all([
     db.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
     db.from("profiles_pii").select("*").eq("user_id", userId).maybeSingle(),
@@ -112,6 +123,8 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     db.from("user_modules").select("*").eq("user_id", userId),
     db.from("pedidos_exclusao").select("*").eq("user_id", userId),
     db.from("anuncios").select("*").eq("prestador_id", userId),
+    db.from("suspensoes").select("*").eq("user_id", userId),
+    db.from("sinalizacoes").select("*").eq("autor_id", userId),
   ]);
 
   const comoCliente = comoClienteRes.data ?? [];
@@ -119,6 +132,7 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
   const avaliacoesFeitas = avaliacoesFeitasRes.data ?? [];
   const avaliacoesRecebidas = avaliacoesRecebidasRes.data ?? [];
   const equipe = equipeRes.data ?? [];
+  const sinalizacoesEnviadas = sinalizacoesEnviadasRes.data ?? [];
 
   // Só id + nome público de quem participou de uma atividade com a pessoa —
   // nunca o contato: uma única consulta a `profiles` (pública) resolve todos
@@ -128,6 +142,7 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     ...comoPrestador.map((s) => s.cliente_id),
     ...avaliacoesFeitas.map((a) => a.avaliado_id),
     ...avaliacoesRecebidas.map((a) => a.avaliador_id),
+    ...sinalizacoesEnviadas.map((s) => s.alvo_id),
   ]);
 
   const idsPraca = [...new Set(equipe.map((m) => m.workspace_id))];
@@ -169,5 +184,7 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     },
     pedidos_de_exclusao: pedidosRes.data ?? [],
     anuncios: anunciosRes.data ?? [],
+    suspensoes: suspensoesRes.data ?? [],
+    sinalizacoes_enviadas: sinalizacoesEnviadas.map((s) => ({ ...s, alvo: pessoa(nomes, s.alvo_id) })),
   };
 }

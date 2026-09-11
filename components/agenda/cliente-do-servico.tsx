@@ -1,11 +1,13 @@
 import { PerfilPopover, type PerfilResumo } from "@/components/perfil-popover";
 import { TelefoneWhatsApp } from "@/components/telefone-whatsapp";
 import { PontosMap, type MapaPonto } from "@/components/maps/pontos-map-dynamic";
+import { FlagsPessoa, type FlagPessoa } from "@/components/flags-pessoa";
 import { waShareLink } from "@/lib/whatsapp";
 
 /**
  * Dados do cliente na página de detalhe de um serviço — nome (popover de
- * perfil), telefone/WhatsApp, e o endereço/PIN EXATO daquele serviço
+ * perfil), bandeirinhas de "Suspeita de Pilantragem" (`flags_da_pessoa`,
+ * migration 0055), telefone/WhatsApp, e o endereço/PIN EXATO daquele serviço
  * específico (`servicos.endereco/lat/lng`, migration 0037 — não o endereço
  * do perfil, porque o mesmo cliente pode pedir serviço em lugares
  * diferentes). Telefone vem de profiles_pii, liberado só porque há um
@@ -18,12 +20,15 @@ export function ClienteDoServico({
   isWhatsapp,
   endereco,
   local,
+  flags = [],
 }: {
   perfil: PerfilResumo;
   telefone: string | null;
   isWhatsapp: boolean;
   endereco: string | null;
   local: { lat: number; lng: number } | null;
+  /** Bandeiras aprovadas do cliente, já na ordem decrescente (vem de `sb.rpc("flags_da_pessoa", ...)`). */
+  flags?: FlagPessoa[];
 }) {
   const pontos: MapaPonto[] = local ? [{ id: perfil.userId, lat: local.lat, lng: local.lng, titulo: perfil.nome }] : [];
   const linkMaps = local ? `https://www.google.com/maps?q=${local.lat},${local.lng}` : null;
@@ -32,7 +37,10 @@ export function ClienteDoServico({
   return (
     <div className="card flex flex-col gap-2">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">Cliente</p>
-      <PerfilPopover perfil={perfil} className="text-base font-semibold hover:text-brand hover:underline" />
+      <div className="flex items-center gap-1.5">
+        <PerfilPopover perfil={perfil} className="text-base font-semibold hover:text-brand hover:underline" />
+        <FlagsPessoa flags={flags} />
+      </div>
       {telefone ? <TelefoneWhatsApp telefone={telefone} isWhatsapp={isWhatsapp} /> : null}
       {endereco ? <p className="text-sm text-muted">{endereco}</p> : null}
 

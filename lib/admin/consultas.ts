@@ -49,6 +49,20 @@ type LinhaAnuncioDaPraca = Pick<
 
 type LinhaLimiteAjustado = Pick<Database["public"]["Tables"]["anuncio_limites"]["Row"], "prestador_id" | "limite">;
 
+type LinhaSuspeitaPrestador = Pick<
+  Database["public"]["Tables"]["suspeitas_prestador"]["Row"],
+  "id" | "prestador_id" | "autor_id" | "motivo" | "descricao" | "created_at"
+>;
+
+type LinhaSuspensao = Pick<Database["public"]["Tables"]["suspensoes"]["Row"], "id" | "user_id" | "motivo_publico" | "suspenso_em">;
+
+type LinhaSinalizacao = Pick<
+  Database["public"]["Tables"]["sinalizacoes"]["Row"],
+  "id" | "autor_id" | "alvo_id" | "servico_id" | "direcao" | "motivo" | "justificativa" | "status" | "created_at"
+>;
+
+type LinhaClienteDaPraca = Pick<Database["public"]["Tables"]["profiles"]["Row"], "user_id" | "nome" | "foto_url">;
+
 /**
  * Ids de `profiles` no recorte do ator: se ele é de exemplo, só quem tem
  * `exemplo = true`; se é real, todo mundo (sem filtro de papel aqui — quem
@@ -394,4 +408,111 @@ export async function resumoDaPlataforma(db: DB, ator: MarcaDeExemplo): Promise<
     ultimosCadastros,
     ultimosServicos,
   };
+}
+
+/**
+ * Suspeitas privadas (`suspeitas_prestador`, migration 0052) dos prestadores
+ * dados — mais recentes primeiro. Só a administração vê ("Suspeitas (N)" em
+ * cada prestador do painel da praça, lote F5, pedido do Leonardo em
+ * 10/09/2026).
+ */
+export async function listarSuspeitasDosPrestadores(db: DB, prestadorIds: string[]): Promise<LinhaSuspeitaPrestador[]> {
+  if (prestadorIds.length === 0) return [];
+  const { data, error } = await db
+    .from("suspeitas_prestador")
+    .select("id, prestador_id, autor_id, motivo, descricao, created_at")
+    .in("prestador_id", prestadorIds)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Suspensões ABERTAS (`suspensoes`, migrations 0052/0054) das pessoas dadas — no máximo uma por pessoa. */
+export async function listarSuspensoesAtivas(db: DB, userIds: string[]): Promise<LinhaSuspensao[]> {
+  if (userIds.length === 0) return [];
+  const { data, error } = await db
+    .from("suspensoes")
+    .select("id, user_id, motivo_publico, suspenso_em")
+    .in("user_id", userIds)
+    .is("encerrada_em", null);
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Sinalizações ("Flag Pilantra", migration 0055) das pessoas-ALVO dadas, nos
+ * status pedidos — mais recente primeiro. Serve tanto para as bandeiras
+ * aprovadas (`status: ["aprovada"]`, o painel da praça já é chave de serviço
+ * e não pode chamar `flags_da_pessoa`, que depende de `auth.uid()`) quanto
+ * para achar "clientes com sinalização" (`status: ["pendente", "aprovada"]`).
+ */
+export async function listarSinalizacoesDosAlvos(db: DB, alvoIds: string[], status: string[]): Promise<LinhaSinalizacao[]> {
+  if (alvoIds.length === 0 || status.length === 0) return [];
+  const { data, error } = await db
+    .from("sinalizacoes")
+    .select("id, autor_id, alvo_id, servico_id, direcao, motivo, justificativa, status, created_at")
+    .in("alvo_id", alvoIds)
+    .in("status", status)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Sinalizações PENDENTES que tocam a praça dada — pelo menos uma das partes
+ * (quem sinalizou ou quem foi sinalizado) mora na cidade/UF da praça, no
+ * mesmo mundo (real ou de exemplo). Espelha o alcance de `atorAlcanca`
+ * (lib/admin/alcance.ts: `decidirSinalizacaoAction` confere o mesmo, numa
+ * sinalização por vez) sem precisar do client da sessão — o filtro roda em
+ * memória porque o PostgREST não filtra, numa chamada só, por uma coluna que
+ * pode estar em QUALQUER UMA de duas colunas de FK (autor OU alvo).
+ */
+export async function listarSinalizacoesPendentesDaPraca(
+  db: DB,
+  cidade: string | null,
+  estado: string | null,
+  exemplo: boolean,
+): Promise<LinhaSinalizacao[]> {
+  if (!cidade || !estado) return [];
+  const { data, error } = await db
+    .from("sinalizacoes")
+    .select("id, autor_id, alvo_id, servico_id, direcao, motivo, justificativa, status, created_at")
+    .eq("status", "pendente")
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  const linhas = data ?? [];
+  if (linhas.length === 0) return [];
+
+  const ids = [...new Set(linhas.flatMap((s) => [s.autor_id, s.alvo_id]))];
+  const { data: perfis, error: erroPerfis } = await db
+    .from("profiles")
+    .select("user_id, cidade, estado, exemplo")
+    .in("user_id", ids);
+  if (erroPerfis) throw erroPerfis;
+  const perfilDe = new Map((perfis ?? []).map((p) => [p.user_id, p]));
+  const naPraca = (id: string) => {
+    const p = perfilDe.get(id);
+    return !!p && p.cidade === cidade && p.estado === estado && p.exemplo === exemplo;
+  };
+  return linhas.filter((s) => naPraca(s.autor_id) || naPraca(s.alvo_id));
+}
+
+/** Clientes da cidade/UF de uma praça, do mundo dado — base de "Clientes com sinalizações" (espelha `listarPrestadoresDaPraca`). */
+export async function listarClientesDaPraca(
+  db: DB,
+  cidade: string | null,
+  estado: string | null,
+  exemplo: boolean,
+): Promise<LinhaClienteDaPraca[]> {
+  if (!cidade || !estado) return [];
+  const { data, error } = await db
+    .from("profiles")
+    .select("user_id, nome, foto_url")
+    .eq("tipo_base", "cliente")
+    .eq("cidade", cidade)
+    .eq("estado", estado)
+    .eq("exemplo", exemplo)
+    .order("nome");
+  if (error) throw error;
+  return data ?? [];
 }

@@ -9,6 +9,16 @@ import { Avatar, FormError } from "@/components/ui";
 import { nomeCategoria } from "@/lib/categorias";
 import { formatData, formatTelefone } from "@/lib/format";
 import { dataEmSaoPaulo } from "@/lib/datas";
+import { type FlagPessoa } from "@/components/flags-pessoa";
+import {
+  SinalizacoesParaAnalisar,
+  SuspeitasDoPrestador,
+  ClientesComSinalizacoes,
+  type SinalizacaoPendenteInfo,
+  type SuspeitaInfo,
+  type SuspensaoInfo,
+  type ClienteComSinalizacaoInfo,
+} from "@/components/admin/suspeitas-da-praca";
 
 /**
  * "Painel da praça": conteúdo do Início do Administrador (troca o mural de
@@ -69,6 +79,12 @@ export interface PrestadorDaPracaInfo {
   limite: number;
   /** `true` quando este prestador tem uma linha em `anuncio_limites` (ajuste individual, vence o padrão da praça). */
   ajusteProprio: boolean;
+  /** Suspeitas privadas (migration 0052) — só a administração vê ("Suspeitas (N)", lote F5). */
+  suspeitas: SuspeitaInfo[];
+  /** Bandeiras aprovadas (migration 0055) — sinalizações aceitas contra este prestador. */
+  flagsAprovadas: FlagPessoa[];
+  /** Suspensão aberta, se houver (migrations 0052/0054). */
+  suspensaoAtiva: SuspensaoInfo | null;
 }
 
 export interface AnuncioDaPracaInfo {
@@ -89,22 +105,48 @@ export interface AnuncioDaPracaInfo {
 
 type AcaoLimite = (id: string, limite: number | null) => Promise<ActionResult>;
 type AcaoModerar = (anuncioId: string, tirarDoAr: boolean) => Promise<ActionResult>;
+type AcaoDecidirSinalizacao = (sinalizacaoId: string, aprovar: boolean) => Promise<ActionResult>;
+type AcaoAdicionarSuspeita = (input: { prestadorId: string; motivo: string; descricao?: string }) => Promise<ActionResult>;
+type AcaoRemoverSuspeita = (suspeitaId: string) => Promise<ActionResult>;
+type AcaoSuspender = (userId: string, motivoPublico: string) => Promise<ActionResult>;
+type AcaoEncerrarSuspensao = (userId: string) => Promise<ActionResult>;
 
-/** Painel completo — cabeçalho, números, limite da praça, prestadores e anúncios. */
+/**
+ * Painel completo — cabeçalho, números, limite da praça, sinalizações a
+ * analisar, prestadores (com suspeitas e suspensão), anúncios e clientes com
+ * sinalização (migrations 0052–0055, lote F5, pedido do Leonardo em
+ * 10/09/2026).
+ */
 export function PainelDaPraca({
   praca,
   prestadores,
   anuncios,
+  sinalizacoesPendentes,
+  clientesComSinalizacao,
   definirLimitePadrao,
   definirLimitePrestador,
   moderarAnuncio,
+  decidirSinalizacaoAction,
+  adicionarSuspeitaAction,
+  removerSuspeitaAction,
+  suspenderPrestadorAction,
+  suspenderClienteAction,
+  encerrarSuspensaoAction,
 }: {
   praca: PracaAtivaInfo;
   prestadores: PrestadorDaPracaInfo[];
   anuncios: AnuncioDaPracaInfo[];
+  sinalizacoesPendentes: SinalizacaoPendenteInfo[];
+  clientesComSinalizacao: ClienteComSinalizacaoInfo[];
   definirLimitePadrao: AcaoLimite;
   definirLimitePrestador: AcaoLimite;
   moderarAnuncio: AcaoModerar;
+  decidirSinalizacaoAction: AcaoDecidirSinalizacao;
+  adicionarSuspeitaAction: AcaoAdicionarSuspeita;
+  removerSuspeitaAction: AcaoRemoverSuspeita;
+  suspenderPrestadorAction: AcaoSuspender;
+  suspenderClienteAction: AcaoSuspender;
+  encerrarSuspensaoAction: AcaoEncerrarSuspensao;
 }) {
   const ativosServico = anuncios.filter((a) => a.status === "ativo" && a.tipo === "servico").length;
   const ativosVaga = anuncios.filter((a) => a.status === "ativo" && a.tipo === "vaga_ajudante").length;
@@ -129,6 +171,8 @@ export function PainelDaPraca({
         <Numero n={moderados} rotulo="tirados do ar" tone="danger" />
       </div>
 
+      <SinalizacoesParaAnalisar sinalizacoes={sinalizacoesPendentes} decidirSinalizacaoAction={decidirSinalizacaoAction} />
+
       <LimitePadraoForm praca={praca} definirLimitePadrao={definirLimitePadrao} />
 
       <div>
@@ -141,7 +185,15 @@ export function PainelDaPraca({
         ) : (
           <div className="flex flex-col gap-2">
             {prestadores.map((p) => (
-              <LinhaPrestador key={p.userId} prestador={p} definirLimitePrestador={definirLimitePrestador} />
+              <LinhaPrestador
+                key={p.userId}
+                prestador={p}
+                definirLimitePrestador={definirLimitePrestador}
+                adicionarSuspeitaAction={adicionarSuspeitaAction}
+                removerSuspeitaAction={removerSuspeitaAction}
+                suspenderPrestadorAction={suspenderPrestadorAction}
+                encerrarSuspensaoAction={encerrarSuspensaoAction}
+              />
             ))}
           </div>
         )}
@@ -159,6 +211,12 @@ export function PainelDaPraca({
           </div>
         )}
       </div>
+
+      <ClientesComSinalizacoes
+        clientes={clientesComSinalizacao}
+        suspenderClienteAction={suspenderClienteAction}
+        encerrarSuspensaoAction={encerrarSuspensaoAction}
+      />
     </div>
   );
 }
@@ -250,9 +308,17 @@ function LimitePadraoForm({ praca, definirLimitePadrao }: { praca: PracaAtivaInf
 function LinhaPrestador({
   prestador,
   definirLimitePrestador,
+  adicionarSuspeitaAction,
+  removerSuspeitaAction,
+  suspenderPrestadorAction,
+  encerrarSuspensaoAction,
 }: {
   prestador: PrestadorDaPracaInfo;
   definirLimitePrestador: AcaoLimite;
+  adicionarSuspeitaAction: AcaoAdicionarSuspeita;
+  removerSuspeitaAction: AcaoRemoverSuspeita;
+  suspenderPrestadorAction: AcaoSuspender;
+  encerrarSuspensaoAction: AcaoEncerrarSuspensao;
 }) {
   const router = useRouter();
   const [valor, setValor] = useState(String(prestador.limite));
@@ -290,52 +356,68 @@ function LinhaPrestador({
   }
 
   return (
-    <div className="card flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex min-w-0 items-center gap-3">
-        <Avatar nome={prestador.nome} fotoUrl={prestador.fotoUrl} />
-        <div className="min-w-0">
-          <p className="flex items-center gap-2 truncate text-sm font-semibold">
-            {prestador.nome}
-            {prestador.ajusteProprio ? (
-              <span className="shrink-0 rounded-full bg-tint-info px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide text-brand">
-                ajuste próprio
-              </span>
-            ) : null}
-          </p>
-          <p className="truncate text-xs text-muted">
-            {prestador.categoria ? `${nomeCategoria(prestador.categoria)} · ` : ""}
-            {prestador.ativos} de {prestador.limite} ativos
-          </p>
+    <div className="card flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
+          <Avatar nome={prestador.nome} fotoUrl={prestador.fotoUrl} />
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 truncate text-sm font-semibold">
+              {prestador.nome}
+              {prestador.ajusteProprio ? (
+                <span className="shrink-0 rounded-full bg-tint-info px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide text-brand">
+                  ajuste próprio
+                </span>
+              ) : null}
+            </p>
+            <p className="truncate text-xs text-muted">
+              {prestador.categoria ? `${nomeCategoria(prestador.categoria)} · ` : ""}
+              {prestador.ativos} de {prestador.limite} ativos
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            type="number"
+            min={0}
+            max={LIMITE_MAXIMO}
+            className="input w-20 text-sm"
+            value={valor}
+            onChange={(e) => {
+              setValor(e.target.value);
+              setOk(false);
+            }}
+            aria-label={`Limite de anúncios de ${prestador.nome}`}
+          />
+          <button type="button" onClick={salvar} disabled={pending || valor === ""} className="btn-ghost px-3 py-2 text-sm">
+            {pending ? "Salvando…" : "Salvar"}
+          </button>
+          {prestador.ajusteProprio ? (
+            <button type="button" onClick={usarPadrao} disabled={pending} className="text-sm font-medium text-brand disabled:opacity-60">
+              Usar o padrão
+            </button>
+          ) : null}
+          {ok ? (
+            <span className="text-xs text-ok">
+              Salvo <span aria-hidden="true">✓</span>
+            </span>
+          ) : null}
         </div>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          type="number"
-          min={0}
-          max={LIMITE_MAXIMO}
-          className="input w-20 text-sm"
-          value={valor}
-          onChange={(e) => {
-            setValor(e.target.value);
-            setOk(false);
-          }}
-          aria-label={`Limite de anúncios de ${prestador.nome}`}
-        />
-        <button type="button" onClick={salvar} disabled={pending || valor === ""} className="btn-ghost px-3 py-2 text-sm">
-          {pending ? "Salvando…" : "Salvar"}
-        </button>
-        {prestador.ajusteProprio ? (
-          <button type="button" onClick={usarPadrao} disabled={pending} className="text-sm font-medium text-brand disabled:opacity-60">
-            Usar o padrão
-          </button>
-        ) : null}
-        {ok ? (
-          <span className="text-xs text-ok">
-            Salvo <span aria-hidden="true">✓</span>
-          </span>
-        ) : null}
-      </div>
       {erro ? <FormError className="text-xs">{erro}</FormError> : null}
+
+      <div className="border-t border-line pt-3">
+        <SuspeitasDoPrestador
+          prestadorId={prestador.userId}
+          prestadorNome={prestador.nome}
+          suspeitas={prestador.suspeitas}
+          flagsAprovadas={prestador.flagsAprovadas}
+          suspensaoAtiva={prestador.suspensaoAtiva}
+          adicionarSuspeitaAction={adicionarSuspeitaAction}
+          removerSuspeitaAction={removerSuspeitaAction}
+          suspenderPrestadorAction={suspenderPrestadorAction}
+          encerrarSuspensaoAction={encerrarSuspensaoAction}
+        />
+      </div>
     </div>
   );
 }

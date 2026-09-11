@@ -73,12 +73,30 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
       ? await sb.from("profile_local").select("endereco, lat, lng").eq("user_id", servico.cliente_id).maybeSingle()
       : { data: null };
 
+  // Bandeiras do cliente (flags_da_pessoa só devolve linha pro outro lado ou
+  // a administração — nunca pro próprio alvo) e a própria sinalização deste
+  // serviço, se já enviada (a RLS deixa o autor ler a dele) — migration 0055.
+  const { data: flagsCliente } = servico
+    ? await sb.rpc("flags_da_pessoa", { p_alvo: servico.cliente_id })
+    : { data: null };
+  const { data: minhaSinalizacao } = servico
+    ? await sb.from("sinalizacoes").select("status, created_at").eq("autor_id", user.id).eq("servico_id", servico.id).maybeSingle()
+    : { data: null };
+
   return (
     <div className="flex flex-col gap-4">
       <Link href="/agenda" className="text-sm font-semibold text-brand">
         ← Voltar pra agenda
       </Link>
-      <SlotDetalhe slot={slot} servico={servico ?? null} logs={logs ?? []} tipos={tipos} paginaCompleta />
+      <SlotDetalhe
+        slot={slot}
+        servico={servico ?? null}
+        logs={logs ?? []}
+        tipos={tipos}
+        paginaCompleta
+        clienteNome={cliente?.nome ?? null}
+        minhaSinalizacao={minhaSinalizacao ? { status: minhaSinalizacao.status, criadoEm: minhaSinalizacao.created_at } : null}
+      />
       {servico && cliente ? (
         <ClienteDoServico
           perfil={{
@@ -101,6 +119,7 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
                 ? { lat: localCliente.lat, lng: localCliente.lng }
                 : null
           }
+          flags={flagsCliente ?? []}
         />
       ) : null}
       {servico && (minhasChaves ?? []).length > 0 ? (

@@ -11,6 +11,7 @@ import { nomeCategoria } from "@/lib/categorias";
 import { papelLabel } from "@/lib/papel-label";
 import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
 import { CompartilharLocal } from "@/components/maps/compartilhar-local";
+import { FlagsPessoa } from "@/components/flags-pessoa";
 import { waLink } from "@/lib/whatsapp";
 import { ChavesPix } from "@/components/pix/chaves-pix";
 
@@ -101,6 +102,11 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
     : { data: [] };
   const nomeAutor = new Map((autores ?? []).map((a) => [a.user_id, a.nome]));
 
+  // Bandeirinhas de "Suspeita de Pilantragem" (migration 0055) — a função só
+  // devolve linha pra quem é do outro lado (cliente↔prestador) ou da
+  // administração; pra própria pessoa (ehEu), vem vazia.
+  const { data: flags } = await sb.rpc("flags_da_pessoa", { p_alvo: id });
+
   return (
     <TelaComHeader titulo="Perfil" voltar="/inicio">
       <div className="flex flex-col gap-4">
@@ -112,6 +118,7 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
               {/* O selo sai de baixo do bloco e vem para o lado do nome: ele é
                   parte da identidade, não um detalhe de rodapé. */}
               {p.verificado ? <Verificado /> : null}
+              <FlagsPessoa flags={flags ?? []} />
             </div>
             <p className="text-sm text-muted">{papelLabel(p.tipo_base as AppRole, p.genero)}</p>
             <div className="mt-1">

@@ -4,6 +4,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao";
 import { ResponderRenegociacao } from "@/components/agenda/responder-renegociacao";
 import { PerfilPopover } from "@/components/perfil-popover";
+import { FlagsPessoa } from "@/components/flags-pessoa";
+import { SinalizarServico } from "@/components/sinalizar-servico";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { quandoDoServico } from "@/lib/periodo-da-visita";
 import { nomeCategoria } from "@/lib/categorias";
@@ -14,6 +16,9 @@ const STATUS_ESTILO: Record<string, string> = {
   cancelado: "bg-tint-danger text-danger",
   realizado: "bg-tint-neutral text-ink",
 };
+
+/** Status em que já houve engajamento de verdade — só nesses o "Flag Pilantra" aparece (pendente ainda não virou nada). */
+const STATUS_COM_FLAG = new Set(["confirmado", "realizado", "cancelado"]);
 
 function StatusPill({ status }: { status: string }) {
   return (
@@ -56,6 +61,25 @@ export default async function MeusServicosPage({
     : { data: [] };
   const slotDe = new Map((slots ?? []).map((s) => [s.id, s]));
 
+  // Bandeiras de cada prestador (flags_da_pessoa só devolve linha pro outro
+  // lado — o cliente vê as do prestador, nunca as próprias, migration 0055).
+  const flagsPorPrestador = new Map(
+    await Promise.all(
+      prestadorIds.map(async (id) => {
+        const { data } = await sb.rpc("flags_da_pessoa", { p_alvo: id });
+        return [id, data ?? []] as const;
+      }),
+    ),
+  );
+
+  // As próprias sinalizações (a RLS deixa o autor ler as dele) — pra trocar o
+  // botão "Flag Pilantra" pelo status, se este serviço já foi sinalizado.
+  const servicoIds = (servicosBrutos ?? []).map((s) => s.id);
+  const { data: minhasSinalizacoes } = servicoIds.length
+    ? await sb.from("sinalizacoes").select("servico_id, status, created_at").eq("autor_id", user.id).in("servico_id", servicoIds)
+    : { data: [] };
+  const sinalizacaoDe = new Map((minhasSinalizacoes ?? []).map((s) => [s.servico_id, s]));
+
   // Filtro geral em memória: nome do prestador, descrição do serviço ou categoria — três
   // colunas que vivem em duas tabelas diferentes, sem dado o bastante por cliente pra
   // justificar um índice full-text só pra isso.
@@ -95,26 +119,30 @@ export default async function MeusServicosPage({
           {servicos.map((s) => {
             const slot = slotDe.get(s.slot_id);
             const p = perfilDe.get(s.prestador_id);
+            const sinalizacao = sinalizacaoDe.get(s.id);
             return (
               <div key={s.id} className="flex flex-col gap-1 rounded-xl border border-line bg-card px-3 py-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    {p ? (
-                      <PerfilPopover
-                        perfil={{
-                          userId: s.prestador_id,
-                          nome: p.nome,
-                          fotoUrl: p.foto_url,
-                          genero: p.genero,
-                          papel: p.tipo_base as AppRole,
-                          notaMedia: p.nota_media,
-                          totalAvaliacoes: p.total_avaliacoes,
-                          verificado: p.verificado,
-                        }}
-                      />
-                    ) : (
-                      <span className="text-sm font-semibold">Prestador</span>
-                    )}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {p ? (
+                        <PerfilPopover
+                          perfil={{
+                            userId: s.prestador_id,
+                            nome: p.nome,
+                            fotoUrl: p.foto_url,
+                            genero: p.genero,
+                            papel: p.tipo_base as AppRole,
+                            notaMedia: p.nota_media,
+                            totalAvaliacoes: p.total_avaliacoes,
+                            verificado: p.verificado,
+                          }}
+                        />
+                      ) : (
+                        <span className="text-sm font-semibold">Prestador</span>
+                      )}
+                      <FlagsPessoa flags={flagsPorPrestador.get(s.prestador_id) ?? []} />
+                    </div>
                     <p className="truncate text-xs text-muted">
                       {slot ? `${formatData(slot.data)} · ${quandoDoServico(slot, s)} · ` : ""}
                       {s.descricao}
@@ -133,6 +161,13 @@ export default async function MeusServicosPage({
                 {s.cancelado_motivo ? <p className="text-xs text-danger">Cancelado: {s.cancelado_motivo}</p> : null}
                 {s.preco_pendente != null ? (
                   <ResponderRenegociacao servicoId={s.id} precoPendente={s.preco_pendente} />
+                ) : null}
+                {STATUS_COM_FLAG.has(s.status) ? (
+                  <SinalizarServico
+                    servicoId={s.id}
+                    alvoNome={p?.nome ?? "o prestador"}
+                    jaSinalizado={sinalizacao ? { status: sinalizacao.status, criadoEm: sinalizacao.created_at } : null}
+                  />
                 ) : null}
               </div>
             );

@@ -26,9 +26,29 @@ import {
   listarLimitesDosPrestadores,
   resumoDaPlataforma,
   type ResumoDaPlataforma,
+  listarSuspeitasDosPrestadores,
+  listarSuspensoesAtivas,
+  listarSinalizacoesDosAlvos,
+  listarSinalizacoesPendentesDaPraca,
+  listarClientesDaPraca,
 } from "@/lib/admin/consultas";
 import { limiteEfetivo, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
 import { definirLimitePadraoAction, definirLimitePrestadorAction, moderarAnuncioAction } from "@/lib/actions/anuncios-admin";
+import {
+  decidirSinalizacaoAction,
+  adicionarSuspeitaAction,
+  removerSuspeitaAction,
+  suspenderPrestadorAction,
+  suspenderClienteAction,
+  encerrarSuspensaoAction,
+} from "@/lib/actions/suspeitas";
+import type {
+  SinalizacaoPendenteInfo,
+  ClienteComSinalizacaoInfo,
+  SuspeitaInfo,
+  SuspensaoInfo,
+} from "@/components/admin/suspeitas-da-praca";
+import type { FlagPessoa } from "@/components/flags-pessoa";
 
 const STATUS_ESTILO: Record<string, string> = {
   pendente: "bg-tint-warn text-tint-warn-ink",
@@ -296,6 +316,8 @@ export default async function InicioPage() {
   let pracaAtiva: PracaAtivaInfo | null = null;
   let prestadoresDaPraca: PrestadorDaPracaInfo[] = [];
   let anunciosDaPraca: AnuncioDaPracaInfo[] = [];
+  let sinalizacoesPendentesDaPraca: SinalizacaoPendenteInfo[] = [];
+  let clientesComSinalizacaoDaPraca: ClienteComSinalizacaoInfo[] = [];
   if (user!.role === "admin") {
     const ws = await getActiveWorkspace();
     if (ws) {
@@ -319,11 +341,29 @@ export default async function InicioPage() {
         const pracasExemplo = await pracasDoMundoDeExemplo(db);
         const pracaEhExemplo = pracasExemplo.has(wsRow.id);
 
-        const prestadoresRaw = await listarPrestadoresDaPraca(db, wsRow.cidade, wsRow.estado, pracaEhExemplo);
+        const [prestadoresRaw, clientesRaw] = await Promise.all([
+          listarPrestadoresDaPraca(db, wsRow.cidade, wsRow.estado, pracaEhExemplo),
+          listarClientesDaPraca(db, wsRow.cidade, wsRow.estado, pracaEhExemplo),
+        ]);
         const idsPrestadores = prestadoresRaw.map((p) => p.user_id);
-        const [anunciosRaw, limitesRaw] = await Promise.all([
+        const idsClientes = clientesRaw.map((c) => c.user_id);
+
+        const [
+          anunciosRaw,
+          limitesRaw,
+          suspeitasRaw,
+          suspensoesAtivasRaw,
+          flagsAprovadasPrestadoresRaw,
+          flagsClientesRaw,
+          sinalizacoesPendentesRaw,
+        ] = await Promise.all([
           listarAnunciosDosPrestadores(db, idsPrestadores),
           listarLimitesDosPrestadores(db, idsPrestadores),
+          listarSuspeitasDosPrestadores(db, idsPrestadores),
+          listarSuspensoesAtivas(db, [...idsPrestadores, ...idsClientes]),
+          listarSinalizacoesDosAlvos(db, idsPrestadores, ["aprovada"]),
+          listarSinalizacoesDosAlvos(db, idsClientes, ["aprovada", "pendente"]),
+          listarSinalizacoesPendentesDaPraca(db, wsRow.cidade, wsRow.estado, pracaEhExemplo),
         ]);
 
         const limitePorPrestador = new Map(limitesRaw.map((l) => [l.prestador_id, l.limite]));
@@ -332,6 +372,40 @@ export default async function InicioPage() {
           if (a.status === "ativo") ativosPorPrestador.set(a.prestador_id, (ativosPorPrestador.get(a.prestador_id) ?? 0) + 1);
         }
         const nomePorPrestador = new Map(prestadoresRaw.map((p) => [p.user_id, p.nome]));
+        const nomePorCliente = new Map(clientesRaw.map((c) => [c.user_id, c.nome]));
+
+        // Nomes de quem aparece nas suspeitas/sinalizações mas não está nas
+        // duas listas acima (ex.: quem sinalizou pode morar em outra praça).
+        const idsExtras = new Set<string>();
+        for (const s of suspeitasRaw) if (s.autor_id) idsExtras.add(s.autor_id);
+        for (const f of flagsAprovadasPrestadoresRaw) idsExtras.add(f.autor_id);
+        for (const f of flagsClientesRaw) idsExtras.add(f.autor_id);
+        for (const s of sinalizacoesPendentesRaw) {
+          idsExtras.add(s.autor_id);
+          idsExtras.add(s.alvo_id);
+        }
+        for (const id of [...idsPrestadores, ...idsClientes]) idsExtras.delete(id);
+        const { data: perfisExtras } = idsExtras.size
+          ? await db.from("profiles").select("user_id, nome").in("user_id", [...idsExtras])
+          : { data: [] };
+        const nomeExtra = new Map((perfisExtras ?? []).map((p) => [p.user_id, p.nome]));
+        const nomeDe = (id: string): string => nomePorPrestador.get(id) ?? nomePorCliente.get(id) ?? nomeExtra.get(id) ?? "Pessoa";
+
+        // Suspeitas privadas e bandeiras aprovadas, por prestador.
+        const suspeitasPorPrestador = new Map<string, SuspeitaInfo[]>();
+        for (const s of suspeitasRaw) {
+          const arr = suspeitasPorPrestador.get(s.prestador_id) ?? [];
+          arr.push({ id: s.id, motivo: s.motivo, descricao: s.descricao, autorNome: s.autor_id ? nomeDe(s.autor_id) : "—", criadoEm: s.created_at });
+          suspeitasPorPrestador.set(s.prestador_id, arr);
+        }
+        const flagsAprovadasPorPrestador = new Map<string, FlagPessoa[]>();
+        for (const f of flagsAprovadasPrestadoresRaw) {
+          const arr = flagsAprovadasPorPrestador.get(f.alvo_id) ?? [];
+          arr.push({ quando: f.created_at, sinalizado_por: nomeDe(f.autor_id) });
+          flagsAprovadasPorPrestador.set(f.alvo_id, arr);
+        }
+        const suspensaoPorPessoa = new Map<string, SuspensaoInfo>();
+        for (const s of suspensoesAtivasRaw) suspensaoPorPessoa.set(s.user_id, { motivoPublico: s.motivo_publico, suspensoEm: s.suspenso_em });
 
         prestadoresDaPraca = prestadoresRaw.map((p) => {
           const ajuste = limitePorPrestador.get(p.user_id) ?? null;
@@ -343,6 +417,9 @@ export default async function InicioPage() {
             ativos: ativosPorPrestador.get(p.user_id) ?? 0,
             limite: limiteEfetivo(ajuste, wsRow.limite_anuncios_padrao),
             ajusteProprio: limitePorPrestador.has(p.user_id),
+            suspeitas: suspeitasPorPrestador.get(p.user_id) ?? [],
+            flagsAprovadas: flagsAprovadasPorPrestador.get(p.user_id) ?? [],
+            suspensaoAtiva: suspensaoPorPessoa.get(p.user_id) ?? null,
           };
         });
         anunciosDaPraca = anunciosRaw.map((a) => ({
@@ -359,6 +436,65 @@ export default async function InicioPage() {
           estado: a.estado,
           criadoEm: a.created_at,
         }));
+
+        // Clientes da praça com sinalização aprovada ou pendente.
+        const flagsAprovadasPorCliente = new Map<string, FlagPessoa[]>();
+        const pendentesPorCliente = new Map<string, number>();
+        for (const f of flagsClientesRaw) {
+          if (f.status === "aprovada") {
+            const arr = flagsAprovadasPorCliente.get(f.alvo_id) ?? [];
+            arr.push({ quando: f.created_at, sinalizado_por: nomeDe(f.autor_id) });
+            flagsAprovadasPorCliente.set(f.alvo_id, arr);
+          } else if (f.status === "pendente") {
+            pendentesPorCliente.set(f.alvo_id, (pendentesPorCliente.get(f.alvo_id) ?? 0) + 1);
+          }
+        }
+        const idsClientesComSinalizacao = new Set([...flagsAprovadasPorCliente.keys(), ...pendentesPorCliente.keys()]);
+        const fotoPorCliente = new Map(clientesRaw.map((c) => [c.user_id, c.foto_url]));
+        clientesComSinalizacaoDaPraca = [...idsClientesComSinalizacao].map((id) => ({
+          userId: id,
+          nome: nomeDe(id),
+          fotoUrl: fotoPorCliente.get(id) ?? null,
+          flagsAprovadas: flagsAprovadasPorCliente.get(id) ?? [],
+          sinalizacoesPendentes: pendentesPorCliente.get(id) ?? 0,
+          suspensaoAtiva: suspensaoPorPessoa.get(id) ?? null,
+        }));
+
+        // Sinalizações pendentes da praça (as duas direções) — a papel do
+        // autor/alvo sai da própria `direcao`, sem precisar de outra consulta.
+        const servicoIdsPendentes = [...new Set(sinalizacoesPendentesRaw.map((s) => s.servico_id))];
+        const { data: servicosPendentes } = servicoIdsPendentes.length
+          ? await db.from("servicos").select("id, descricao, slot_id").in("id", servicoIdsPendentes)
+          : { data: [] };
+        const servicoPendenteDe = new Map((servicosPendentes ?? []).map((s) => [s.id, s]));
+        const slotIdsPendentes = [...new Set((servicosPendentes ?? []).map((s) => s.slot_id))];
+        const { data: slotsPendentes } = slotIdsPendentes.length
+          ? await db.from("agenda_slots").select("id, data").in("id", slotIdsPendentes)
+          : { data: [] };
+        const slotPendenteDe = new Map((slotsPendentes ?? []).map((s) => [s.id, s]));
+
+        const alvoIdsPendentes = [...new Set(sinalizacoesPendentesRaw.map((s) => s.alvo_id))];
+        const flagsAlvoPendente = await listarSinalizacoesDosAlvos(db, alvoIdsPendentes, ["aprovada"]);
+        const contagemFlagsAlvo = new Map<string, number>();
+        for (const f of flagsAlvoPendente) contagemFlagsAlvo.set(f.alvo_id, (contagemFlagsAlvo.get(f.alvo_id) ?? 0) + 1);
+
+        sinalizacoesPendentesDaPraca = sinalizacoesPendentesRaw.map((s) => {
+          const servico = servicoPendenteDe.get(s.servico_id);
+          const slot = servico ? slotPendenteDe.get(servico.slot_id) : undefined;
+          return {
+            id: s.id,
+            autorNome: nomeDe(s.autor_id),
+            autorPapel: s.direcao === "prestador_para_cliente" ? "prestador_servico" : "cliente",
+            alvoNome: nomeDe(s.alvo_id),
+            alvoPapel: s.direcao === "prestador_para_cliente" ? "cliente" : "prestador_servico",
+            alvoFlagsAprovadas: contagemFlagsAlvo.get(s.alvo_id) ?? 0,
+            motivo: s.motivo,
+            justificativa: s.justificativa,
+            servicoDescricao: servico?.descricao ?? null,
+            servicoData: slot ? formatData(slot.data) : null,
+            criadoEm: s.created_at,
+          };
+        });
       }
     }
   }
@@ -507,9 +643,17 @@ export default async function InicioPage() {
             praca={pracaAtiva}
             prestadores={prestadoresDaPraca}
             anuncios={anunciosDaPraca}
+            sinalizacoesPendentes={sinalizacoesPendentesDaPraca}
+            clientesComSinalizacao={clientesComSinalizacaoDaPraca}
             definirLimitePadrao={definirLimitePadraoAction}
             definirLimitePrestador={definirLimitePrestadorAction}
             moderarAnuncio={moderarAnuncioAction}
+            decidirSinalizacaoAction={decidirSinalizacaoAction}
+            adicionarSuspeitaAction={adicionarSuspeitaAction}
+            removerSuspeitaAction={removerSuspeitaAction}
+            suspenderPrestadorAction={suspenderPrestadorAction}
+            suspenderClienteAction={suspenderClienteAction}
+            encerrarSuspensaoAction={encerrarSuspensaoAction}
           />
         ) : (
           <p className="card-vazio">

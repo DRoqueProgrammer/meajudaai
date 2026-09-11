@@ -125,7 +125,24 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
   // — apagar é o certo, igual ao endereço (passo 7).
   conferir("apagar anúncios", await db.from("anuncios").delete().eq("prestador_id", userId));
 
-  // 4) profiles — nome/foto/bio/disponibilidade/gênero/localização textual
+  // 4) Suspeitas privadas sobre ela como prestadora (`suspeitas_prestador`,
+  // migration 0052) — são registro da ADMINISTRAÇÃO, não dela: apagadas, não
+  // exportadas (ver `lib/titular/exportar.ts`).
+  conferir("apagar suspeitas de pilantragem", await db.from("suspeitas_prestador").delete().eq("prestador_id", userId));
+
+  // 5) Sinalizações ("Flag Pilantra", migration 0055) — nas duas pontas: como
+  // ALVO (sinal que alguém deu sobre ela — da administração, não exportado) e
+  // como AUTORA (o que ela mesma escreveu — some junto, como qualquer outro
+  // conteúdo dela: mensagens, comentários de avaliação).
+  conferir("apagar sinalizações recebidas", await db.from("sinalizacoes").delete().eq("alvo_id", userId));
+  conferir("apagar sinalizações enviadas", await db.from("sinalizacoes").delete().eq("autor_id", userId));
+
+  // 6) Suspensões (`suspensoes`, migrations 0052/0054) — o motivo é dado
+  // pessoal dela (o aviso que ela leu); a decisão de moderação em si já não
+  // tem efeito prático numa conta anonimizada/banida.
+  conferir("apagar suspensões", await db.from("suspensoes").delete().eq("user_id", userId));
+
+  // 7) profiles — nome/foto/bio/disponibilidade/gênero/localização textual
   // limpos e status 'removido' (some da busca e não recebe reserva — 0043);
   // `tipo_base` (papel) e as métricas de reputação (nota_media,
   // total_avaliacoes, servicos_realizados) ficam, porque são o histórico da
@@ -149,7 +166,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("user_id", userId),
   );
 
-  // 5) A foto em si, no bucket — `foto_url` null não apaga o arquivo, e a URL
+  // 8) A foto em si, no bucket — `foto_url` null não apaga o arquivo, e a URL
   // pública antiga continuaria abrindo. `remove` de caminho inexistente não
   // é erro, então repetir é seguro.
   conferir(
@@ -157,7 +174,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
     await db.storage.from("avatares").remove(EXTENSOES_FOTO.map((ext) => `${userId}/perfil.${ext}`)),
   );
 
-  // 6) profiles_pii — contato inteiro limpo (CPF já não existe mais nesta
+  // 9) profiles_pii — contato inteiro limpo (CPF já não existe mais nesta
   // tabela desde a migration 0018).
   conferir(
     "limpar contato",
@@ -167,25 +184,25 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("user_id", userId),
   );
 
-  // 7) profile_local (endereço + PIN exato) — apagado, não só limpo: é uma
+  // 10) profile_local (endereço + PIN exato) — apagado, não só limpo: é uma
   // tabela 1:1 por pessoa, sem valor em manter a linha vazia.
   conferir("apagar endereço e localização", await db.from("profile_local").delete().eq("user_id", userId));
 
-  // 8) login_logs (auditoria de acesso) — apagados; não há razão para manter
+  // 11) login_logs (auditoria de acesso) — apagados; não há razão para manter
   // IP/dispositivo de uma conta que não pode mais logar.
   conferir("apagar acessos", await db.from("login_logs").delete().eq("user_id", userId));
 
-  // 9) notificações e demandas de busca — apagadas (não são histórico de
+  // 12) notificações e demandas de busca — apagadas (não são histórico de
   // ninguém além da própria pessoa).
   conferir("apagar notificações", await db.from("notificacoes").delete().eq("user_id", userId));
   conferir("apagar demandas de busca", await db.from("demanda_servico").delete().eq("user_id", userId));
 
-  // 10) vínculos de equipe e módulos — apagados; a praça e os colegas de
+  // 13) vínculos de equipe e módulos — apagados; a praça e os colegas de
   // equipe continuam existindo, só a pessoa sai.
   conferir("apagar vínculos de equipe", await db.from("workspace_members").delete().eq("user_id", userId));
   conferir("apagar módulos", await db.from("user_modules").delete().eq("user_id", userId));
 
-  // 11) serviços em que ela é CLIENTE — endereço/coordenada (o local do
+  // 14) serviços em que ela é CLIENTE — endereço/coordenada (o local do
   // serviço, dado dela) e descrição (texto livre que ela escreveu) limpos.
   // `descricao` é NOT NULL, então vira um texto neutro em vez de null.
   // Serviços em que ela é PRESTADORA não entram aqui: o endereço ali é do
@@ -198,18 +215,18 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("cliente_id", userId),
   );
 
-  // 12) mensagens que ela enviou — conteúdo trocado por texto neutro; a
+  // 15) mensagens que ela enviou — conteúdo trocado por texto neutro; a
   // conversa e as mensagens da outra parte continuam intactas.
   conferir(
     "limpar mensagens",
     await db.from("mensagens").update({ conteudo: CONTEUDO_MENSAGEM_REMOVIDO }).eq("remetente_id", userId),
   );
 
-  // 13) comentários que ela escreveu em avaliações — limpos; a nota fica (é o
+  // 16) comentários que ela escreveu em avaliações — limpos; a nota fica (é o
   // histórico de reputação de quem foi avaliado).
   conferir("limpar comentários de avaliação", await db.from("avaliacoes").update({ comentario: null }).eq("avaliador_id", userId));
 
-  // 14) Auth — nunca apaga (cascata derrubaria o histórico da outra parte).
+  // 17) Auth — nunca apaga (cascata derrubaria o histórico da outra parte).
   // Muda e-mail (determinístico, então idempotente) e senha (aleatória) e
   // bane por tempo bem longo: a pessoa não entra mais com a conta antiga.
   conferir(
@@ -221,7 +238,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
     }),
   );
 
-  // 15) Por último, registra a conclusão no pedido pendente, se houver. Sem
+  // 18) Por último, registra a conclusão no pedido pendente, se houver. Sem
   // pedido (ex.: chamada direta, como no gabarito), não afeta nenhuma linha.
   conferir(
     "concluir pedido",

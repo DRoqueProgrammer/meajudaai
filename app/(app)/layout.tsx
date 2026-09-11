@@ -9,6 +9,7 @@ import { Nav } from "@/components/nav";
 import { WorkspaceSwitcher } from "@/components/workspace-switcher";
 import { DemoBanner } from "@/components/demo-banner";
 import { Footer } from "@/components/footer";
+import { AvisoSuspensao } from "@/components/aviso-suspensao";
 
 /** Layout das rotas autenticadas `(app)`: exige sessão, resolve papel/módulos e monta a navegação e os banners. */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -31,10 +32,26 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const sb = await createServerClient();
   const { data: perfil } = await sb
     .from("profiles")
-    .select("nome, genero")
+    .select("nome, genero, status")
     .eq("user_id", user.id)
     .maybeSingle();
   const nome = perfil?.nome ?? null;
+
+  // Aviso de conta suspensa (migrations 0052/0054, pedido do Leonardo em
+  // 10/09/2026): quem está suspenso lê o aviso formal no topo de TODA tela,
+  // antes do conteúdo. A RLS deixa a própria pessoa ler a própria suspensão
+  // aberta (encerrada_em is null — no máximo uma).
+  let suspensaoAtiva: { motivo_publico: string; suspenso_em: string } | null = null;
+  const papelSuspensivel = user.role === "prestador_servico" || user.role === "cliente" ? user.role : null;
+  if (perfil?.status === "suspenso" && papelSuspensivel) {
+    const { data } = await sb
+      .from("suspensoes")
+      .select("motivo_publico, suspenso_em")
+      .eq("user_id", user.id)
+      .is("encerrada_em", null)
+      .maybeSingle();
+    suspensaoAtiva = data ?? null;
+  }
 
   // Contador de alertas não vistos. O badge de mensagens não-lidas foi adiado na
   // migração para o modelo de conversa (ver BUILD_REPORT): o cursor
@@ -74,6 +91,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             a própria largura. */}
         <main id="conteudo" className="mx-auto w-full max-w-[1100px] flex-1 px-4 py-4 md:px-6">
           {temSeletor ? <WorkspaceSwitcher workspaces={wsList} active={activeWs} /> : null}
+          {suspensaoAtiva && papelSuspensivel ? (
+            <AvisoSuspensao
+              papel={papelSuspensivel}
+              motivoPublico={suspensaoAtiva.motivo_publico}
+              suspensoEm={suspensaoAtiva.suspenso_em}
+            />
+          ) : null}
           {children}
         </main>
         <Footer />

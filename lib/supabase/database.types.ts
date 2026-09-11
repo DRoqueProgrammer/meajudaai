@@ -1027,6 +1027,7 @@ export type Database = {
           exemplo: boolean
           id: string
           prestador_categoria: string
+          prestador_foto: string
           prestador_id: string
           prestador_nome: string
           tipo: string

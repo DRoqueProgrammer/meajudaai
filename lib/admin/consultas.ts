@@ -35,6 +35,18 @@ type LinhaPedidoExclusao = Pick<
   "id" | "user_id" | "status" | "solicitado_em" | "pode_processar_em" | "cancelado_em" | "concluido_em"
 >;
 
+type LinhaPrestadorDaPraca = Pick<
+  Database["public"]["Tables"]["profiles"]["Row"],
+  "user_id" | "nome" | "foto_url" | "categoria"
+>;
+
+type LinhaAnuncioDaPraca = Pick<
+  Database["public"]["Tables"]["anuncios"]["Row"],
+  "id" | "prestador_id" | "tipo" | "titulo" | "status" | "created_at"
+>;
+
+type LinhaLimiteAjustado = Pick<Database["public"]["Tables"]["anuncio_limites"]["Row"], "prestador_id" | "limite">;
+
 /**
  * Ids de `profiles` no recorte do ator: se ele é de exemplo, só quem tem
  * `exemplo = true`; se é real, todo mundo (sem filtro de papel aqui — quem
@@ -120,6 +132,53 @@ export async function listarPedidosDeExclusao(db: DB, ator: MarcaDeExemplo): Pro
   }
 
   const { data, error } = await query;
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Prestadores de Serviço da cidade/UF de uma praça, do mundo `exemplo` dado
+ * (D-026, painel do Administrador, lote A4) — base da seção "Prestadores da
+ * praça" em `/inicio`. `exemplo` aqui é o mundo da PRAÇA (não do ator): a
+ * página só chama esta função depois de confirmar que a praça pertence ao
+ * ator, então o mundo dela já é o que vale (espelha `adminAlcancaPrestador`,
+ * que compara `praca.exemplo` com o do prestador, nunca o do ator direto).
+ */
+export async function listarPrestadoresDaPraca(
+  db: DB,
+  cidade: string | null,
+  estado: string | null,
+  exemplo: boolean,
+): Promise<LinhaPrestadorDaPraca[]> {
+  if (!cidade || !estado) return [];
+  const { data, error } = await db
+    .from("profiles")
+    .select("user_id, nome, foto_url, categoria")
+    .eq("tipo_base", "prestador_servico")
+    .eq("cidade", cidade)
+    .eq("estado", estado)
+    .eq("exemplo", exemplo)
+    .order("nome");
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Anúncios (qualquer status) dos prestadores dados — seção "Anúncios da praça" em `/inicio`. */
+export async function listarAnunciosDosPrestadores(db: DB, prestadorIds: string[]): Promise<LinhaAnuncioDaPraca[]> {
+  if (prestadorIds.length === 0) return [];
+  const { data, error } = await db
+    .from("anuncios")
+    .select("id, prestador_id, tipo, titulo, status, created_at")
+    .in("prestador_id", prestadorIds)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Ajustes individuais (`anuncio_limites`) dos prestadores dados — quem tem o selo "ajuste próprio" em `/inicio`. */
+export async function listarLimitesDosPrestadores(db: DB, prestadorIds: string[]): Promise<LinhaLimiteAjustado[]> {
+  if (prestadorIds.length === 0) return [];
+  const { data, error } = await db.from("anuncio_limites").select("prestador_id, limite").in("prestador_id", prestadorIds);
   if (error) throw error;
   return data ?? [];
 }

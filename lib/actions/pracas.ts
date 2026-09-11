@@ -23,9 +23,11 @@ type DB = ReturnType<typeof createAdminClient>;
  * Ids de `workspaces` do mundo de exemplo (R-42, ADR 0012, D-015): a praça
  * cujo dono é de exemplo, ou que tem algum membro de exemplo. Único critério
  * usado por `vincularAdministradorAction` quando o ator é de exemplo — para a
- * página `/admin/pracas` aplicar o mesmo recorte na listagem.
+ * página `/admin/pracas` aplicar o mesmo recorte na listagem. Exportada
+ * porque `lib/actions/anuncios-admin.ts` reaproveita o mesmo critério (lote
+ * do painel do Administrador, D-026) em vez de recalculá-lo.
  */
-async function pracasDoMundoDeExemplo(db: DB): Promise<Set<string>> {
+export async function pracasDoMundoDeExemplo(db: DB): Promise<Set<string>> {
   const { data: pessoasExemplo } = await db.from("profiles").select("user_id").eq("exemplo", true);
   const idsExemplo = new Set((pessoasExemplo ?? []).map((p) => p.user_id));
   if (idsExemplo.size === 0) return new Set();

@@ -1,13 +1,25 @@
 import Link from "next/link";
 import { getCurrentUser, type AppRole } from "@/lib/auth/roles";
 import { getAllowedModules } from "@/lib/auth/modules";
+import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { PANEL_MODULES } from "@/lib/modules";
 import { boasVindas } from "@/lib/saudacao";
 import { HeroCard } from "@/components/hero-card";
 import { PerfilPopover } from "@/components/perfil-popover";
 import { FaturamentoPrestador } from "@/components/dashboard/faturamento-prestador";
+import {
+  PainelDaPraca,
+  type PracaAtivaInfo,
+  type PrestadorDaPracaInfo,
+  type AnuncioDaPracaInfo,
+} from "@/components/admin/painel-da-praca";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
+import { pracasDoMundoDeExemplo } from "@/lib/actions/pracas";
+import { listarPrestadoresDaPraca, listarAnunciosDosPrestadores, listarLimitesDosPrestadores } from "@/lib/admin/consultas";
+import { limiteEfetivo, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
+import { definirLimitePadraoAction, definirLimitePrestadorAction, moderarAnuncioAction } from "@/lib/actions/anuncios-admin";
 
 const STATUS_ESTILO: Record<string, string> = {
   pendente: "bg-tint-warn text-tint-warn-ink",
@@ -73,19 +85,25 @@ function AcaoCard({
   desc,
   cta,
   tone,
+  icone,
 }: {
   href: string;
   titulo: string;
   desc: string;
   cta: string;
   tone: "brand" | "action";
+  /** Ícone opcional ao lado do título — "Minha agenda"/"Meus clientes" nunca tiveram; adicionado pro card de anúncios. */
+  icone?: string;
 }) {
   return (
     <Link
       href={href}
       className="rounded-2xl border border-line bg-surface p-5 transition hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
-      <p className="text-base font-semibold">{titulo}</p>
+      <p className="flex items-center gap-1.5 text-base font-semibold">
+        {icone ? <span aria-hidden="true">{icone}</span> : null}
+        {titulo}
+      </p>
       <p className="mt-1 text-sm leading-relaxed text-muted">{desc}</p>
       <p className={`mt-3 text-sm font-semibold ${tone === "action" ? "text-ok" : "text-brand"}`}>{cta}</p>
     </Link>
@@ -112,14 +130,17 @@ export default async function InicioPage() {
     .eq("ativo", true)
     .maybeSingle();
 
-  const isEmpresa = user!.role === "admin" || user!.role === "funcionario";
-  const permitidos = user!.role === "funcionario" ? await getAllowedModules(user!) : null;
-  const podePublicar = user!.role === "admin" || !!permitidos?.has("vagas");
+  // O Administrador SAIU deste bloco v1 (isEmpresa cobria admin e funcionário
+  // juntos): ele tem painel próprio agora — <PainelDaPraca> mais abaixo —, e
+  // "vagas"/"mapa"/"financeiro"/"relatorios" são dados do mural de vagas por
+  // workspace que não fazem sentido pra ação v2 dele (anúncios). Funcionário
+  // fica como estava: os módulos que o admin liberou pra ele.
+  const isFuncionario = user!.role === "funcionario";
+  const permitidos = isFuncionario ? await getAllowedModules(user!) : null;
+  const podePublicar = !!permitidos?.has("vagas");
 
   // "vagas" já tem card próprio acima; aqui ficam os módulos que sobraram do rodapé.
-  const modulosPainel = PANEL_MODULES.filter(
-    (m) => m.key !== "vagas" && (user!.role === "admin" || permitidos?.has(m.key)),
-  );
+  const modulosPainel = PANEL_MODULES.filter((m) => m.key !== "vagas" && permitidos?.has(m.key));
 
   const hojeStr = new Date().toLocaleDateString("sv-SE");
 
@@ -132,6 +153,10 @@ export default async function InicioPage() {
   let faturamentoMes = 0;
   let totalRealizados = 0;
   let perfilIncompleto: string[] = [];
+  // "Meus anúncios" (item 4, lote A4, painel do Administrador): quantos
+  // anúncios ATIVOS o prestador tem, e o limite dele agora.
+  let meusAnunciosAtivos = 0;
+  let meuLimiteAnuncios = LIMITE_PADRAO_PLATAFORMA;
   if (user!.role === "prestador_servico") {
     const { data: slotsHoje } = await sb
       .from("agenda_slots")
@@ -206,6 +231,18 @@ export default async function InicioPage() {
     if (!meuPerfilCompleto?.categoria) perfilIncompleto.push("categoria");
     if (meuPerfilCompleto?.preco_valor == null) perfilIncompleto.push("preço");
     if (!minhaPiiCompleta?.chave_pix) perfilIncompleto.push("chave Pix");
+
+    const { count: countAnunciosAtivos } = await sb
+      .from("anuncios")
+      .select("id", { count: "exact", head: true })
+      .eq("prestador_id", user!.id)
+      .eq("status", "ativo");
+    meusAnunciosAtivos = countAnunciosAtivos ?? 0;
+    // `limite_de_anuncios` é SECURITY DEFINER (lê praças e membros que a
+    // sessão não enxerga) mas concedida a authenticated — o prestador pode
+    // chamar pra saber o próprio número, sem precisar da chave de serviço.
+    const { data: meuLimiteRaw } = await sb.rpc("limite_de_anuncios", { p_prestador: user!.id });
+    meuLimiteAnuncios = meuLimiteRaw ?? LIMITE_PADRAO_PLATAFORMA;
   }
 
   let ultimosServicos: {
@@ -237,6 +274,75 @@ export default async function InicioPage() {
     }
   }
 
+  // "Painel da praça" do Administrador (decisão do Leonardo em 10/09/2026,
+  // lote A4): troca o mural de vagas v1. Leitura pela chave de serviço
+  // (padrão das telas administrativas, lib/admin/consultas.ts), recortada
+  // pela praça ATIVA do ator (getActiveWorkspace) — sem praça vinculada
+  // ainda, `pracaAtiva` fica null e a página mostra o estado vazio.
+  let pracaAtiva: PracaAtivaInfo | null = null;
+  let prestadoresDaPraca: PrestadorDaPracaInfo[] = [];
+  let anunciosDaPraca: AnuncioDaPracaInfo[] = [];
+  if (user!.role === "admin") {
+    const ws = await getActiveWorkspace();
+    if (ws) {
+      const db = createAdminClient();
+      const { data: wsRow } = await db
+        .from("workspaces")
+        .select("id, nome, cidade, estado, limite_anuncios_padrao")
+        .eq("id", ws.workspace_id)
+        .maybeSingle();
+      if (wsRow) {
+        pracaAtiva = {
+          id: wsRow.id,
+          nome: wsRow.nome,
+          cidade: wsRow.cidade,
+          estado: wsRow.estado,
+          limitePadrao: wsRow.limite_anuncios_padrao,
+        };
+
+        // Mundo da praça (R-42, ADR 0012): a mesma praça só alcança
+        // prestadores do mesmo mundo (adminAlcancaPrestador espelha isto).
+        const pracasExemplo = await pracasDoMundoDeExemplo(db);
+        const pracaEhExemplo = pracasExemplo.has(wsRow.id);
+
+        const prestadoresRaw = await listarPrestadoresDaPraca(db, wsRow.cidade, wsRow.estado, pracaEhExemplo);
+        const idsPrestadores = prestadoresRaw.map((p) => p.user_id);
+        const [anunciosRaw, limitesRaw] = await Promise.all([
+          listarAnunciosDosPrestadores(db, idsPrestadores),
+          listarLimitesDosPrestadores(db, idsPrestadores),
+        ]);
+
+        const limitePorPrestador = new Map(limitesRaw.map((l) => [l.prestador_id, l.limite]));
+        const ativosPorPrestador = new Map<string, number>();
+        for (const a of anunciosRaw) {
+          if (a.status === "ativo") ativosPorPrestador.set(a.prestador_id, (ativosPorPrestador.get(a.prestador_id) ?? 0) + 1);
+        }
+        const nomePorPrestador = new Map(prestadoresRaw.map((p) => [p.user_id, p.nome]));
+
+        prestadoresDaPraca = prestadoresRaw.map((p) => {
+          const ajuste = limitePorPrestador.get(p.user_id) ?? null;
+          return {
+            userId: p.user_id,
+            nome: p.nome,
+            fotoUrl: p.foto_url,
+            categoria: p.categoria,
+            ativos: ativosPorPrestador.get(p.user_id) ?? 0,
+            limite: limiteEfetivo(ajuste, wsRow.limite_anuncios_padrao),
+            ajusteProprio: limitePorPrestador.has(p.user_id),
+          };
+        });
+        anunciosDaPraca = anunciosRaw.map((a) => ({
+          id: a.id,
+          tipo: a.tipo,
+          titulo: a.titulo,
+          status: a.status,
+          prestadorId: a.prestador_id,
+          prestadorNome: nomePorPrestador.get(a.prestador_id) ?? "—",
+        }));
+      }
+    }
+  }
+
   const painel =
     user!.role === "prestador_servico"
       ? "Painel do prestador"
@@ -244,7 +350,9 @@ export default async function InicioPage() {
         ? "Painel do cliente"
         : user!.role === "funcionario"
           ? "Painel do funcionário"
-          : "Painel do profissional";
+          : user!.role === "admin"
+            ? "Painel da praça"
+            : "Painel do profissional";
 
   return (
     // Início é painel, não formulário (direção e): usa o teto de 1100px da
@@ -277,14 +385,14 @@ export default async function InicioPage() {
           conhecido, então o primário é o do papel — amarelo para quem contrata,
           verde para quem trabalha — e o segundo caminho fica como card sóbrio.
           Dois CTAs de mesmo peso com um deles morto seria pior que um só. */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {isEmpresa ? (
+      <div className={`grid gap-3 ${user!.role === "prestador_servico" ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+        {isFuncionario ? (
           <>
             {podePublicar ? (
               <CtaGrande
                 href="/publicar"
-                titulo="PRECISO DE AJUDANTE"
-                desc="Publique uma vaga e receba candidatos para reforçar a equipe."
+                titulo="ABRIR VAGA PARA AJUDANTE"
+                desc="Cadastre uma vaga e receba candidatos para reforçar a equipe."
                 tone="accent"
                 icone="🛠️"
               />
@@ -297,7 +405,7 @@ export default async function InicioPage() {
               tone="brand"
             />
           </>
-        ) : user!.role === "cliente" ? (
+        ) : user!.role === "admin" ? null : user!.role === "cliente" ? (
           <>
             <CtaGrande
               href="/buscar-prestador"
@@ -330,6 +438,17 @@ export default async function InicioPage() {
               cta="Abrir →"
               tone="brand"
             />
+            {/* Item 4 do lote A4: o prestador vê quantos anúncios tem no ar,
+                sem precisar abrir /anuncios pra descobrir — a tela em si é de
+                outro lote e ainda não existe. */}
+            <AcaoCard
+              href="/anuncios"
+              titulo="Meus anúncios"
+              desc={`${meusAnunciosAtivos} de ${meuLimiteAnuncios} ativos.`}
+              cta="Abrir →"
+              tone="brand"
+              icone="📣"
+            />
           </>
         ) : (
           <>
@@ -349,6 +468,24 @@ export default async function InicioPage() {
           </>
         )}
       </div>
+
+      {user!.role === "admin" ? (
+        pracaAtiva ? (
+          <PainelDaPraca
+            praca={pracaAtiva}
+            prestadores={prestadoresDaPraca}
+            anuncios={anunciosDaPraca}
+            definirLimitePadrao={definirLimitePadraoAction}
+            definirLimitePrestador={definirLimitePrestadorAction}
+            moderarAnuncio={moderarAnuncioAction}
+          />
+        ) : (
+          <p className="card-vazio">
+            Você ainda não está vinculado a uma praça — peça ao SysAdmin pra vincular seu usuário a uma em
+            /admin/pracas.
+          </p>
+        )
+      ) : null}
 
       {user!.role === "prestador_servico" ? (
         <>
@@ -443,8 +580,10 @@ export default async function InicioPage() {
       ) : null}
 
       {/* Equipe, Financeiro e Relatórios saíram do rodapé (teto de 5 itens).
-          No celular, este painel é o único caminho até eles. */}
-      {isEmpresa && modulosPainel.length > 0 ? (
+          No celular, este painel é o único caminho até eles. Só funcionário:
+          o Administrador tem o painel próprio acima, e financeiro/relatórios/
+          mapa nem aparecem mais pro papel dele (são do mural de vagas v1). */}
+      {isFuncionario && modulosPainel.length > 0 ? (
         <div>
           <h2 className="mb-2 text-sm font-semibold text-muted">Painel da equipe</h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

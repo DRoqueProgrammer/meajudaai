@@ -100,6 +100,13 @@ const NAV_ICONS: Record<string, ReactNode> = {
       <path d="M9 4v13M15 6.5v13" />
     </>
   ),
+  megaphone: (
+    <>
+      <path d="M3 11v3a1.5 1.5 0 0 0 1.5 1.5H6l3.5 4V5.5L6 9.5H4.5A1.5 1.5 0 0 0 3 11z" />
+      <path d="M9.5 5.5 19 3v15l-9.5-2.5" />
+      <path d="M6.5 15.5 8 20" />
+    </>
+  ),
 };
 
 function NavIcon({ name, className }: { name: string; className?: string }) {
@@ -175,11 +182,19 @@ export function Nav({
   const path = usePathname();
   const router = useRouter();
 
-  // Admin vê todos os módulos; funcionário só os liberados; sysadmin/ajudante têm nav próprio.
+  // Funcionário só vê os módulos que o admin liberou (allowedSet); sysadmin/
+  // ajudante têm nav próprio. O Administrador SAIU deste cálculo (empresaItems
+  // cobria os dois juntos): "Minhas Vagas", "Mapa", "Financeiro" e
+  // "Relatórios" são o mural de vagas por diária da v1 — sem sentido pra ação
+  // v2 dele (anúncios, decisão do Leonardo em 10/09/2026) —, então o menu dele
+  // fica só com "Equipe" (as páginas continuam existindo pro funcionário).
   const allowedSet = new Set(modules ?? []);
-  const empresaItems: Item[] = PANEL_MODULES.filter(
-    (m) => role === "admin" || allowedSet.has(m.key),
-  ).map((m) => ({ href: m.href, label: m.label, icon: m.icon }));
+  const empresaItems: Item[] = PANEL_MODULES.filter((m) => allowedSet.has(m.key)).map((m) => ({
+    href: m.href,
+    label: m.label,
+    icon: m.icon,
+  }));
+  const itemsDoAdmin: Item[] = [{ href: "/equipe", label: "Equipe", icon: "users" }];
 
   const meio: Item[] =
     role === "sysadmin"
@@ -193,32 +208,39 @@ export function Nav({
           { href: "/admin/logs", label: "Logs", icon: "shield" },
           { href: "/admin/servicos", label: "Serviços", icon: "clipboard" },
         ]
-      : role === "admin" || role === "funcionario"
-        ? empresaItems
-        : role === "prestador_servico"
-          ? [
-              { href: "/agenda", label: "Agenda", icon: "calendar" },
-              { href: "/clientes", label: "Clientes", icon: "users" },
-              { href: "/mapa", label: "Mapa", icon: "map" },
-            ]
-          : role === "cliente"
+      : role === "admin"
+        ? itemsDoAdmin
+        : role === "funcionario"
+          ? empresaItems
+          : role === "prestador_servico"
             ? [
                 { href: "/agenda", label: "Agenda", icon: "calendar" },
-                { href: "/buscar-prestador", label: "Buscar", icon: "search" },
-                { href: "/meus-servicos", label: "Meus serviços", icon: "clipboard" },
-              ]
-            : [
-                { href: "/vagas", label: "Buscar", icon: "search" },
+                { href: "/clientes", label: "Clientes", icon: "users" },
+                { href: "/anuncios", label: "Anúncios", icon: "megaphone" },
                 { href: "/mapa", label: "Mapa", icon: "map" },
-                { href: "/agenda", label: "Agenda", icon: "calendar" },
-              ];
+              ]
+            : role === "cliente"
+              ? [
+                  { href: "/agenda", label: "Agenda", icon: "calendar" },
+                  { href: "/buscar-prestador", label: "Buscar", icon: "search" },
+                  { href: "/meus-servicos", label: "Meus serviços", icon: "clipboard" },
+                ]
+              : [
+                  { href: "/vagas", label: "Buscar", icon: "search" },
+                  { href: "/mapa", label: "Mapa", icon: "map" },
+                  { href: "/agenda", label: "Agenda", icon: "calendar" },
+                ];
+
+  // Início do Administrador virou o "Painel da praça" (lote A4) — o rótulo do
+  // item de nav acompanha, pra não dizer uma coisa no menu e mostrar outra na tela.
+  const inicioLabel = role === "admin" ? "Painel da praça" : "Início";
 
   // Sysadmin modera; não participa de diária, então não tem caixa de mensagens.
   const mensagens: Item[] =
     role === "sysadmin" ? [] : [{ href: "/mensagens", label: "Mensagens", icon: "chat" }];
 
   const items: Item[] = [
-    { href: "/inicio", label: "Início", icon: "home" },
+    { href: "/inicio", label: inicioLabel, icon: "home" },
     ...meio,
     ...mensagens,
     { href: "/notificacoes", label: "Alertas", icon: "bell" },
@@ -228,7 +250,7 @@ export function Nav({
   // painel de /inicio); Início, Mensagens e Alertas nunca caem.
   const fixos = 1 + mensagens.length + 1;
   const rodape: Item[] = [
-    { href: "/inicio", label: "Início", icon: "home" },
+    { href: "/inicio", label: inicioLabel, icon: "home" },
     ...meio.slice(0, Math.max(0, MAX_RODAPE - 1 - fixos)),
     ...mensagens,
     { href: "/notificacoes", label: "Alertas", icon: "bell" },

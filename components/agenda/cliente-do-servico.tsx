@@ -42,7 +42,11 @@ export function ClienteDoServico({
         <FlagsPessoa flags={flags} />
       </div>
       {telefone ? <TelefoneWhatsApp telefone={telefone} isWhatsapp={isWhatsapp} /> : null}
-      {endereco ? <p className="text-sm text-muted">{endereco}</p> : null}
+      {endereco ? (
+        <p className="text-sm text-muted">{endereco}</p>
+      ) : local ? (
+        <p className="text-sm text-muted">Endereço escrito não informado — use o ponto no mapa.</p>
+      ) : null}
 
       {local ? (
         <>

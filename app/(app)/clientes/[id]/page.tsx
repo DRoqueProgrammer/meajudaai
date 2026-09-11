@@ -78,7 +78,8 @@ export default async function ClienteDetalhePage({
       {local ? (
         <div className="card flex flex-col gap-3">
           <h2 className="text-sm font-semibold text-muted">Endereço e localização</h2>
-          {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : null}
+          {/* Ponto sem endereço escrito (conta antiga ou de exemplo): avisa em vez de sumir com a linha. */}
+            {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : <p className="text-sm text-muted">Endereço escrito não informado — use o ponto no mapa.</p>}
           <LocalMapa lat={local.lat} lng={local.lng} />
           <CompartilharLocal modo="perfil" lat={local.lat} lng={local.lng} />
         </div>

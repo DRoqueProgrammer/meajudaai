@@ -166,7 +166,8 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
                 </Link>
               ) : null}
             </div>
-            {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : null}
+            {/* Ponto sem endereço escrito (conta antiga ou de exemplo): avisa em vez de sumir com a linha. */}
+            {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : <p className="text-sm text-muted">Endereço escrito não informado — use o ponto no mapa.</p>}
             <LocalMapa lat={local.lat} lng={local.lng} />
             <CompartilharLocal modo="perfil" lat={local.lat} lng={local.lng} />
           </div>

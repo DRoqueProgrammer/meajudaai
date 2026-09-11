@@ -148,6 +148,8 @@ export async function reservarSlotAction(input: {
   endereco: string;
   lat: number;
   lng: number;
+  /** `tipos_servico.slug` (migration 0047) — cliente escolhe ao agendar. 'outros' se omitido. */
+  tipo?: string;
 }): Promise<ActionResult> {
   const w = await tryWriter();
   if ("erro" in w) return { ok: false, erro: w.erro };
@@ -158,6 +160,10 @@ export async function reservarSlotAction(input: {
   }
 
   const sb = await createServerClient();
+  const tipo = input.tipo?.trim() || "outros";
+  const { data: tipoValido } = await sb.from("tipos_servico").select("slug").eq("slug", tipo).maybeSingle();
+  if (!tipoValido) return { ok: false, erro: "Tipo de serviço inválido." };
+
   const { data: slot, error: slotErr } = await sb
     .from("agenda_slots")
     .select("id, prestador_id, status")
@@ -185,6 +191,7 @@ export async function reservarSlotAction(input: {
     endereco: input.endereco.trim(),
     lat: input.lat,
     lng: input.lng,
+    tipo,
   });
   if (insServico) return { ok: false, erro: "Não foi possível registrar o serviço." };
   revalidatePath("/agenda");

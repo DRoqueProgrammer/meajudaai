@@ -48,6 +48,24 @@
   --tint-warn-ink: #8a6d00;
   --tint-neutral: #eef1f5;
   --tint-danger: #fdeaea;
+
+  /* Paleta categórica do gráfico de faturamento por tipo de serviço
+     (components/dashboard/grafico-faturamento.tsx) — 5 tipos reais em ordem
+     de tipos_servico.ordem; "Outros" reusa --muted (cinza neutro, de
+     propósito: não é uma 6ª cor categórica, é a categoria "resto"). Validada
+     com o script do skill de dataviz (scripts/validate_palette.js) nas duas
+     superfícies do app (#ffffff claro / #1e293b escuro, o `--card-rgb` de
+     cada tema): CVD e contraste normal-vision passam com a cadeia completa
+     azul→laranja→aqua→amarelo→magenta→muted (pior par ≥ 9,1 claro / ≥ 8,4
+     escuro — ambos acima do alvo de 8). Contraste de aqua/amarelo/magenta
+     contra a superfície clara fica abaixo de 3:1 (esperado pela própria
+     paleta de referência do skill) — mitigado pela legenda e pelo card de
+     hover sempre em texto, nunca só a cor. */
+  --tipo-1: #2a78d6; /* manutencao_madeira */
+  --tipo-2: #eb6834; /* instalacao_eletrica */
+  --tipo-3: #1baf7a; /* instalacao_varal */
+  --tipo-4: #eda100; /* instalacao_moveis */
+  --tipo-5: #e87ba4; /* desmontagem_remontagem_moveis */
 }
 
 /*
@@ -82,6 +100,13 @@
   --tint-warn-ink: #f0d27a;
   --tint-neutral: #26303e;
   --tint-danger: #40232a;
+
+  /* Mesmos 5 tipos, passo escuro — ver a nota da versão clara acima. */
+  --tipo-1: #3987e5;
+  --tipo-2: #d95926;
+  --tipo-3: #199e70;
+  --tipo-4: #c98500;
+  --tipo-5: #d55181;
 }
 
 html,

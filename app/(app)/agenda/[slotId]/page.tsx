@@ -5,6 +5,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { SlotDetalhe } from "@/components/agenda/slot-detalhe";
 import { CobrancaPix } from "@/components/pix/cobranca-pix";
 import { ClienteDoServico } from "@/components/agenda/cliente-do-servico";
+import { listarTiposServico } from "@/lib/tipos-servico";
 import type { AppRole } from "@/lib/auth/roles";
 
 /**
@@ -29,9 +30,10 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
 
   const { data: servico } = await sb
     .from("servicos")
-    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng")
+    .select("id, descricao, preco_tipo, preco_valor, status, cancelado_motivo, cliente_id, endereco, lat, lng, tipo")
     .eq("slot_id", slotId)
     .maybeSingle();
+  const tipos = await listarTiposServico(sb);
 
   const { data: logs } = servico
     ? await sb
@@ -60,7 +62,7 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
       <Link href="/agenda" className="text-sm font-semibold text-brand">
         ← Voltar pra agenda
       </Link>
-      <SlotDetalhe slot={slot} servico={servico ?? null} logs={logs ?? []} paginaCompleta />
+      <SlotDetalhe slot={slot} servico={servico ?? null} logs={logs ?? []} tipos={tipos} paginaCompleta />
       {servico && cliente ? (
         <ClienteDoServico
           perfil={{

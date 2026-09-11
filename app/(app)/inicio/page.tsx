@@ -6,7 +6,7 @@ import { PANEL_MODULES } from "@/lib/modules";
 import { boasVindas } from "@/lib/saudacao";
 import { HeroCard } from "@/components/hero-card";
 import { PerfilPopover } from "@/components/perfil-popover";
-import { GraficoFaturamento, type MesFaturamento } from "@/components/dashboard/grafico-faturamento";
+import { FaturamentoPrestador } from "@/components/dashboard/faturamento-prestador";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 
 const STATUS_ESTILO: Record<string, string> = {
@@ -131,7 +131,6 @@ export default async function InicioPage() {
   let pendentesCount = 0;
   let faturamentoMes = 0;
   let totalRealizados = 0;
-  let mesesFaturamento: MesFaturamento[] = [];
   let perfilIncompleto: string[] = [];
   if (user!.role === "prestador_servico") {
     const { data: slotsHoje } = await sb
@@ -173,49 +172,20 @@ export default async function InicioPage() {
       .eq("status", "pendente");
     pendentesCount = count ?? 0;
 
-    // Últimos 6 meses (incluindo o atual) pro gráfico — junta slot (pela data
-    // real do serviço) com o valor/cliente de cada serviço realizado nesse período.
-    const inicioJanela = new Date();
-    inicioJanela.setDate(1);
-    inicioJanela.setMonth(inicioJanela.getMonth() - 5);
-    const inicioJanelaStr = inicioJanela.toLocaleDateString("sv-SE");
-    const { data: slotsJanela } = await sb
+    // "Faturado no mês" (card de estatística) — só o mês corrente; o gráfico
+    // completo por tipo/período vive em `FaturamentoPrestador`.
+    const inicioMesStr = `${hojeStr.slice(0, 7)}-01`; // 1º do mês corrente, sem passar por Date (sem shift de fuso)
+    const { data: slotsMes } = await sb
       .from("agenda_slots")
-      .select("id, data")
+      .select("id")
       .eq("prestador_id", user!.id)
-      .gte("data", inicioJanelaStr)
+      .gte("data", inicioMesStr)
       .lte("data", hojeStr);
-    const dataPorSlot = new Map((slotsJanela ?? []).map((s) => [s.id, s.data]));
-    const idsJanela = (slotsJanela ?? []).map((s) => s.id);
-    const { data: realizadosJanela } = idsJanela.length
-      ? await sb.from("servicos").select("slot_id, preco_valor, cliente_id").in("slot_id", idsJanela).eq("status", "realizado")
+    const idsMes = (slotsMes ?? []).map((s) => s.id);
+    const { data: realizadosMes } = idsMes.length
+      ? await sb.from("servicos").select("preco_valor").in("slot_id", idsMes).eq("status", "realizado")
       : { data: [] };
-
-    const porMes = new Map<string, { faturamento: number; servicos: number; clientes: Set<string> }>();
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(inicioJanela);
-      d.setMonth(d.getMonth() + i);
-      porMes.set(d.toLocaleDateString("sv-SE").slice(0, 7), { faturamento: 0, servicos: 0, clientes: new Set() });
-    }
-    for (const s of realizadosJanela ?? []) {
-      const data = dataPorSlot.get(s.slot_id);
-      if (!data) continue;
-      const chave = data.slice(0, 7);
-      const acc = porMes.get(chave);
-      if (!acc) continue;
-      acc.faturamento += s.preco_valor;
-      acc.servicos += 1;
-      acc.clientes.add(s.cliente_id);
-    }
-    const NOME_MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-    mesesFaturamento = [...porMes.entries()].map(([chave, v]) => ({
-      mes: chave,
-      rotulo: NOME_MES[Number(chave.slice(5, 7)) - 1]!,
-      faturamento: v.faturamento,
-      numServicos: v.servicos,
-      numClientes: v.clientes.size,
-    }));
-    faturamentoMes = mesesFaturamento[mesesFaturamento.length - 1]?.faturamento ?? 0;
+    faturamentoMes = (realizadosMes ?? []).reduce((acc, s) => acc + s.preco_valor, 0);
 
     const { count: countRealizados } = await sb
       .from("servicos")
@@ -419,7 +389,7 @@ export default async function InicioPage() {
             </Link>
           </div>
 
-          <GraficoFaturamento meses={mesesFaturamento} />
+          <FaturamentoPrestador />
         </>
       ) : null}
 

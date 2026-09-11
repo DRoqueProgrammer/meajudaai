@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatData, formatHora } from "@/lib/format";
 import { SlotReservar, type SlotBasico } from "@/components/agenda/slot-reservar";
+import type { TipoServico } from "@/lib/tipos-servico";
 
 /**
  * Seletor de horário do perfil público do prestador — a ação central do
@@ -17,7 +18,7 @@ import { SlotReservar, type SlotBasico } from "@/components/agenda/slot-reservar
  * visível no rótulo — a regressão automatizada (scripts/regressao/fatia1.mjs)
  * encontra o horário certo por esse nome, no formato `dd/mm/aaaa · HH:MM–HH:MM`.
  */
-export function SlotPicker({ slots }: { slots: SlotBasico[] }) {
+export function SlotPicker({ slots, tipos }: { slots: SlotBasico[]; tipos: TipoServico[] }) {
   const grupos = useMemo(() => agruparPorDia(slots), [slots]);
   const ordemFocal = useMemo(() => grupos.flatMap((g) => g.slots), [grupos]);
   const [selecionadoId, setSelecionadoId] = useState<string | null>(null);
@@ -97,7 +98,7 @@ export function SlotPicker({ slots }: { slots: SlotBasico[] }) {
       </div>
 
       {/* `key` reinicia o formulário (descrição/endereço) quando o cliente troca de horário. */}
-      <div ref={formularioRef}>{selecionado ? <SlotReservar key={selecionado.id} slot={selecionado} /> : null}</div>
+      <div ref={formularioRef}>{selecionado ? <SlotReservar key={selecionado.id} slot={selecionado} tipos={tipos} /> : null}</div>
     </div>
   );
 }

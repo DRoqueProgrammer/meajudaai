@@ -8,8 +8,10 @@ import {
   cancelarServicoAction,
   escreverLogServicoAction,
 } from "@/lib/actions/agenda-v2";
+import { recategorizarServicoAction } from "@/lib/actions/servico-tipo";
 import { FormError } from "@/components/ui";
 import { formatBRL, formatData, formatHora } from "@/lib/format";
+import type { TipoServico } from "@/lib/tipos-servico";
 
 export interface SlotDetalheProps {
   slot: {
@@ -26,8 +28,12 @@ export interface SlotDetalheProps {
     preco_valor: number;
     status: string;
     cancelado_motivo: string | null;
+    /** `tipos_servico.slug` (migration 0047) — o prestador pode recategorizar em qualquer estado. */
+    tipo?: string;
   } | null;
   logs: { id: string; texto: string; created_at: string }[];
+  /** Catálogo pro select "Tipo" — só é preciso quando `paginaCompleta` (o único lugar com o select por ora). */
+  tipos?: TipoServico[];
 }
 
 /**
@@ -37,12 +43,13 @@ export interface SlotDetalheProps {
  * `paginaCompleta` pula o cabeçalho clicável e mostra tudo aberto (usado em
  * /agenda/[slotId]).
  */
-export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: SlotDetalheProps & { paginaCompleta?: boolean }) {
+export function SlotDetalhe({ slot, servico, logs, tipos, paginaCompleta = false }: SlotDetalheProps & { paginaCompleta?: boolean }) {
   const router = useRouter();
   const [aberto, setAberto] = useState(paginaCompleta);
   const [pending, start] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
   const [textoLog, setTextoLog] = useState("");
+  const [tipoSelecionado, setTipoSelecionado] = useState(servico?.tipo ?? "outros");
 
   const corStatus: Record<string, string> = {
     livre: "text-muted",
@@ -85,6 +92,40 @@ export function SlotDetalhe({ slot, servico, logs, paginaCompleta = false }: Slo
               </p>
               {servico.cancelado_motivo ? (
                 <p className="text-xs text-danger">Cancelado: {servico.cancelado_motivo}</p>
+              ) : null}
+
+              {tipos ? (
+                <div>
+                  <label className="label" htmlFor={`tipo-${servico.id}`}>
+                    Tipo
+                  </label>
+                  <select
+                    id={`tipo-${servico.id}`}
+                    className="input text-sm"
+                    value={tipoSelecionado}
+                    disabled={pending}
+                    onChange={(e) => {
+                      const novoTipo = e.target.value;
+                      const anterior = tipoSelecionado;
+                      setTipoSelecionado(novoTipo);
+                      setErro(null);
+                      start(async () => {
+                        const r = await recategorizarServicoAction(servico.id, novoTipo);
+                        if (r.ok) router.refresh();
+                        else {
+                          setTipoSelecionado(anterior);
+                          setErro(r.erro ?? "Não foi possível recategorizar.");
+                        }
+                      });
+                    }}
+                  >
+                    {tipos.map((t) => (
+                      <option key={t.slug} value={t.slug}>
+                        {t.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               ) : null}
 
               {servico.status === "pendente" ? (

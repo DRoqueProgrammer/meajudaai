@@ -4,6 +4,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui";
 import { SlotPicker } from "@/components/agenda/slot-picker";
 import { nomeCategoria } from "@/lib/categorias";
+import { listarTiposServico } from "@/lib/tipos-servico";
 import { formatBRL } from "@/lib/format";
 
 /**
@@ -32,6 +33,7 @@ export default async function PerfilPrestadorPage({ params }: { params: Promise<
     .gte("data", hojeStr)
     .order("data", { ascending: true })
     .order("hora_inicio", { ascending: true });
+  const tipos = await listarTiposServico(sb);
 
   return (
     <div className="flex flex-col gap-4">
@@ -65,7 +67,7 @@ export default async function PerfilPrestadorPage({ params }: { params: Promise<
         {user.role !== "cliente" ? (
           <p className="text-sm text-muted">Só clientes podem agendar um horário.</p>
         ) : (
-          <SlotPicker slots={slotsLivres ?? []} />
+          <SlotPicker slots={slotsLivres ?? []} tipos={tipos} />
         )}
       </div>
     </div>

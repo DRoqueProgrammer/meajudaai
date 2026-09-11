@@ -18,7 +18,7 @@ import {
 import { formatBRL, formatData, formatHora } from "@/lib/format";
 import { hojeEmSaoPaulo } from "@/lib/datas";
 import { servicosPorHorario } from "@/lib/servico-do-horario";
-import { pracasDoMundoDeExemplo } from "@/lib/actions/pracas";
+import { pracasDoMundoDeExemplo } from "@/lib/admin/alcance";
 import { listarPrestadoresDaPraca, listarAnunciosDosPrestadores, listarLimitesDosPrestadores } from "@/lib/admin/consultas";
 import { limiteEfetivo, LIMITE_PADRAO_PLATAFORMA } from "@/lib/anuncios/regras";
 import { definirLimitePadraoAction, definirLimitePrestadorAction, moderarAnuncioAction } from "@/lib/actions/anuncios-admin";

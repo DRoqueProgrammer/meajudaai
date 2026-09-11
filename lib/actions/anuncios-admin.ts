@@ -6,8 +6,8 @@ import { podeAgirSobre } from "@/lib/auth/exemplo";
 import type { CurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAction } from "@/lib/log";
-import { adminAlcancaPrestador, limiteValido, LIMITE_MAXIMO, type PracaParaAlcance } from "@/lib/anuncios/regras";
-import { pracasDoMundoDeExemplo } from "./pracas";
+import { adminAlcancaPrestador, limiteValido, LIMITE_MAXIMO } from "@/lib/anuncios/regras";
+import { pracasDoAtor } from "@/lib/admin/alcance";
 import type { ActionResult } from "./auth";
 
 /**
@@ -28,29 +28,7 @@ import type { ActionResult } from "./auth";
 
 type DB = ReturnType<typeof createAdminClient>;
 
-/**
- * Praças do ator, no recorte que `adminAlcancaPrestador` precisa (id, cidade,
- * UF e se é do mundo de exemplo): do Administrador, as que ele integra
- * (`workspace_members.user_id`); do SysAdmin, todas — espelha "papel admin
- * (as praças dele) ou sysadmin (todas as praças)" do lote. Um ator que não é
- * nem admin nem sysadmin não alcança nenhuma praça.
- */
-async function pracasDoAtor(db: DB, ator: CurrentUser): Promise<PracaParaAlcance[]> {
-  if (ator.role !== "admin" && ator.role !== "sysadmin") return [];
-
-  let query = db.from("workspaces").select("id, cidade, estado");
-  if (ator.role === "admin") {
-    const { data: membros } = await db.from("workspace_members").select("workspace_id").eq("user_id", ator.id);
-    const ids = (membros ?? []).map((m) => m.workspace_id);
-    if (ids.length === 0) return [];
-    query = query.in("id", ids);
-  }
-  const { data: pracas, error } = await query;
-  if (error || !pracas) return [];
-
-  const pracasExemplo = await pracasDoMundoDeExemplo(db);
-  return pracas.map((p) => ({ id: p.id, cidade: p.cidade, estado: p.estado, exemplo: pracasExemplo.has(p.id) }));
-}
+// `pracasDoAtor` mora em lib/admin/alcance.ts (módulo só de servidor).
 
 /**
  * `{ ok: true }` se `pracaId` é uma das praças do `ator` (`pracasDoAtor`) E o

@@ -5,6 +5,7 @@ import { tryWriter } from "@/lib/auth/guard";
 import { podeAgirSobre } from "@/lib/auth/exemplo";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ActionResult } from "./auth";
+import { pracasDoMundoDeExemplo } from "@/lib/admin/alcance";
 import { campo, valoresPreservados, type EstadoForm } from "./form";
 
 /**
@@ -19,29 +20,8 @@ import { campo, valoresPreservados, type EstadoForm } from "./form";
 
 type DB = ReturnType<typeof createAdminClient>;
 
-/**
- * Ids de `workspaces` do mundo de exemplo (R-42, ADR 0012, D-015): a praça
- * cujo dono é de exemplo, ou que tem algum membro de exemplo. Único critério
- * usado por `vincularAdministradorAction` quando o ator é de exemplo — para a
- * página `/admin/pracas` aplicar o mesmo recorte na listagem. Exportada
- * porque `lib/actions/anuncios-admin.ts` reaproveita o mesmo critério (lote
- * do painel do Administrador, D-026) em vez de recalculá-lo.
- */
-export async function pracasDoMundoDeExemplo(db: DB): Promise<Set<string>> {
-  const { data: pessoasExemplo } = await db.from("profiles").select("user_id").eq("exemplo", true);
-  const idsExemplo = new Set((pessoasExemplo ?? []).map((p) => p.user_id));
-  if (idsExemplo.size === 0) return new Set();
-
-  const [{ data: donos }, { data: membros }] = await Promise.all([
-    db.from("workspaces").select("id, owner_id"),
-    db.from("workspace_members").select("workspace_id, user_id"),
-  ]);
-
-  const out = new Set<string>();
-  for (const w of donos ?? []) if (idsExemplo.has(w.owner_id)) out.add(w.id);
-  for (const m of membros ?? []) if (idsExemplo.has(m.user_id)) out.add(m.workspace_id);
-  return out;
-}
+// `pracasDoMundoDeExemplo` mora em lib/admin/alcance.ts (módulo só de servidor): exportada
+// daqui, de um arquivo "use server", ela virava uma action que o navegador podia chamar.
 
 /**
  * SysAdmin cria uma praça nova (R-46). Campos: nome, cidade, estado.

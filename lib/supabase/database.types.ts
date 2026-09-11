@@ -839,6 +839,110 @@ export type Database = {
           },
         ]
       }
+      sinalizacoes_cliente: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          decidido_em: string | null
+          decidido_por: string | null
+          descricao: string | null
+          id: string
+          motivo: string
+          prestador_id: string
+          servico_id: string | null
+          status: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          descricao?: string | null
+          id?: string
+          motivo: string
+          prestador_id: string
+          servico_id?: string | null
+          status?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          descricao?: string | null
+          id?: string
+          motivo?: string
+          prestador_id?: string
+          servico_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sinalizacoes_cliente_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suspeitas_prestador: {
+        Row: {
+          autor_id: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          motivo: string
+          prestador_id: string
+        }
+        Insert: {
+          autor_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          motivo: string
+          prestador_id: string
+        }
+        Update: {
+          autor_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          motivo?: string
+          prestador_id?: string
+        }
+        Relationships: []
+      }
+      suspensoes: {
+        Row: {
+          encerrada_em: string | null
+          encerrada_por: string | null
+          id: string
+          motivo_publico: string
+          suspenso_em: string
+          suspenso_por: string | null
+          user_id: string
+        }
+        Insert: {
+          encerrada_em?: string | null
+          encerrada_por?: string | null
+          id?: string
+          motivo_publico: string
+          suspenso_em?: string
+          suspenso_por?: string | null
+          user_id: string
+        }
+        Update: {
+          encerrada_em?: string | null
+          encerrada_por?: string | null
+          id?: string
+          motivo_publico?: string
+          suspenso_em?: string
+          suspenso_por?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tipos_servico: {
         Row: {
           nome: string
@@ -1098,6 +1202,17 @@ export type Database = {
       current_app_role: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       enfileirar_lembretes_avaliacao: { Args: never; Returns: number }
+      flags_aprovadas_do_cliente: {
+        Args: { p_cliente: string }
+        Returns: number
+      }
+      flags_do_cliente: {
+        Args: { p_cliente: string }
+        Returns: {
+          quando: string
+          sinalizado_por: string
+        }[]
+      }
       has_capability: {
         Args: { v_cap: string; v_user: string; v_ws: string }
         Returns: boolean

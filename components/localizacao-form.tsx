@@ -35,7 +35,11 @@ export function LocalizacaoForm({
       <input type="hidden" name="lat" value={valor.lat ?? ""} />
       <input type="hidden" name="lng" value={valor.lng ?? ""} />
 
-      <AddressMapPicker inicial={{ endereco: endereco ?? "", lat, lng }} onChange={setValor} />
+      <AddressMapPicker
+        inicial={{ endereco: endereco ?? "", lat, lng }}
+        onChange={setValor}
+        dicaSemPino="Marque o ponto exato no mapa para salvar a localização."
+      />
 
       {valor.lat != null && valor.lng != null ? (
         <div className="border-t border-line pt-3">

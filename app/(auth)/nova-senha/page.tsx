@@ -6,6 +6,7 @@ import { definirSenhaAction } from "@/lib/actions/auth";
 import { Logo } from "@/components/logo";
 import { FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
+import { CampoSenha } from "@/components/campo-senha";
 
 /**
  * Híbrido de propósito: o envio é Server Action (funciona sem JavaScript e o
@@ -38,39 +39,29 @@ export default function NovaSenhaPage() {
           Escolha uma senha de pelo menos 6 caracteres. Depois de salvar, você já entra direto.
         </p>
         <div>
-          <label className="label" htmlFor="senha">
-            Senha nova
-          </label>
-          <input
+          <CampoSenha
             id="senha"
             name="senha"
-            type="password"
+            label="Senha nova"
             autoComplete="new-password"
-            className="input"
+            minLength={6}
+            autoFocus
+            ariaDescribedby="senha-dica"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
-            minLength={6}
-            required
-            autoFocus
-            aria-describedby="senha-dica"
           />
           <p id="senha-dica" aria-live="polite" className="mt-1 text-xs text-muted">
             {curta ? `Faltam ${6 - senha.length} caracteres.` : "Mínimo de 6 caracteres."}
           </p>
         </div>
         <div>
-          <label className="label" htmlFor="repetida">
-            Repita a senha
-          </label>
-          <input
+          <CampoSenha
             id="repetida"
             name="repetida"
-            type="password"
+            label="Repita a senha"
             autoComplete="new-password"
-            className="input"
             value={repetida}
             onChange={(e) => setRepetida(e.target.value)}
-            required
           />
           {diferem ? (
             <p aria-live="polite" className="mt-1 text-xs text-danger">

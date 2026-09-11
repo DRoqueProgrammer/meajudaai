@@ -24,6 +24,23 @@ function Recenter({ lat, lng }: { lat: number; lng: number }) {
   return null;
 }
 
+/**
+ * Leaflet mede o contêiner só na montagem. O cadastro usa uma altura de mapa
+ * maior a partir do breakpoint `lg` (classe Tailwind, não JS) — sem isto o
+ * mapa montado em mobile e depois redimensionado pra desktop (ou o DevTools
+ * mudando de viewport) ficava com o tile pane no tamanho antigo.
+ */
+function AjustarTamanho() {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+    const aoRedimensionar = () => map.invalidateSize();
+    window.addEventListener("resize", aoRedimensionar);
+    return () => window.removeEventListener("resize", aoRedimensionar);
+  }, [map]);
+  return null;
+}
+
 export interface AddressValue {
   endereco: string;
   lat: number | null;
@@ -36,13 +53,25 @@ export interface AddressValue {
  * formulário via onChange. `inicial` semeia o estado (pino já salvo em
  * `profile_local`, por ex. em `/perfil/editar`) sem quebrar quem não passa
  * nada (cadastro, publicar diária) — nesse caso começa sem pino, como antes.
+ *
+ * `dicaSemPino` é a legenda mostrada enquanto não há pino — cada tela decide a
+ * própria (obrigatório no cadastro, opcional em publicar diária); sem prop,
+ * nada aparece. Antes o aviso de pino dispensável ficava fixo aqui e
+ * contradizia o cadastro, que trata o pino como obrigatório (parecer de
+ * design, item [ALTO] "copy contraditória"). `alturaMapa` são classes
+ * Tailwind de altura — o cadastro usa uma versão maior a partir do desktop
+ * (`lg:`).
  */
 export function AddressMapPicker({
   inicial,
   onChange,
+  dicaSemPino,
+  alturaMapa = "h-[260px]",
 }: {
   inicial?: AddressValue;
   onChange: (v: AddressValue) => void;
+  dicaSemPino?: string;
+  alturaMapa?: string;
 }) {
   const [endereco, setEndereco] = useState(inicial?.endereco ?? "");
   const [lat, setLat] = useState<number | null>(inicial?.lat ?? null);
@@ -184,14 +213,15 @@ export function AddressMapPicker({
         </ul>
       ) : null}
 
-      <div className="overflow-hidden rounded-2xl border border-line">
+      <div className={`overflow-hidden rounded-2xl border border-line ${alturaMapa}`}>
         <MapContainer
           center={[hasPin ? lat! : -22.9, hasPin ? lng! : -43.1]}
           zoom={hasPin ? 15 : 11}
           scrollWheelZoom
-          style={{ height: 260, width: "100%" }}
+          style={{ height: "100%", width: "100%" }}
         >
           <TileLayer attribution="&copy; OpenStreetMap" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <AjustarTamanho />
           {hasPin ? (
             <>
               <Recenter lat={lat!} lng={lng!} />
@@ -221,9 +251,9 @@ export function AddressMapPicker({
         <p className="text-xs text-muted">
           📍 {coordLabel(lat!, lng!)} · arraste o pino para ajustar
         </p>
-      ) : (
-        <p className="text-xs text-faint">Opcional: marque o ponto exato da obra no mapa.</p>
-      )}
+      ) : dicaSemPino ? (
+        <p className="text-xs text-muted">{dicaSemPino}</p>
+      ) : null}
     </div>
   );
 }

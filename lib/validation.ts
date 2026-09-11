@@ -1,18 +1,39 @@
 import { z } from "zod";
 import { ALVOS_DENUNCIA, MOTIVOS_DENUNCIA } from "./denuncias";
 
-/** Validação do cadastro de conta. `funcionario` só passa no fluxo via convite (a action barra fora dele). */
-export const CadastroSchema = z.object({
-  nome: z.string().min(2, "Informe seu nome"),
-  email: z.string().email("E-mail inválido"),
-  senha: z.string().min(6, "Mínimo de 6 caracteres"),
-  telefone: z.string().min(10, "Telefone inválido"),
-  cidade: z.string().min(2, "Informe a cidade"),
-  estado: z.string().min(2).max(2),
-  // "funcionario" só é válido no cadastro-via-convite (a action barra fora dele).
-  tipo_base: z.enum(["admin", "prestador_servico", "cliente", "funcionario"]),
-  genero: z.enum(["masculino", "feminino", "prefiro_nao_responder"]),
-});
+/**
+ * Validação do cadastro de conta. `funcionario` só passa no fluxo via convite
+ * (a action barra fora dele). `confirmacao_senha` existe só para pegar erro de
+ * digitação na hora — o `superRefine` compara com `senha` e aponta o erro no
+ * próprio campo da confirmação, não num erro genérico do formulário (pedido do
+ * Leonardo em 10/09/2026). É `.optional()` no schema (o campo do formulário é
+ * `required` no HTML e a action sempre manda os dois) só para não quebrar
+ * quem chama `CadastroSchema` direto sem essa chave — a comparação roda
+ * sempre que ela vier preenchida, então nenhum cadastro real deixa de ser
+ * checado.
+ */
+export const CadastroSchema = z
+  .object({
+    nome: z.string().min(2, "Informe seu nome"),
+    email: z.string().email("E-mail inválido"),
+    senha: z.string().min(6, "Mínimo de 6 caracteres"),
+    confirmacao_senha: z.string().min(6, "Mínimo de 6 caracteres").optional(),
+    telefone: z.string().min(10, "Telefone inválido"),
+    cidade: z.string().min(2, "Informe a cidade"),
+    estado: z.string().min(2).max(2),
+    // "funcionario" só é válido no cadastro-via-convite (a action barra fora dele).
+    tipo_base: z.enum(["admin", "prestador_servico", "cliente", "funcionario"]),
+    genero: z.enum(["masculino", "feminino", "prefiro_nao_responder"]),
+  })
+  .superRefine((d, ctx) => {
+    if (d.confirmacao_senha !== undefined && d.senha !== d.confirmacao_senha) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "As senhas não conferem.",
+        path: ["confirmacao_senha"],
+      });
+    }
+  });
 export type CadastroInput = z.infer<typeof CadastroSchema>;
 
 /** Validação de publicação/edição de vaga. Data/hora obrigatórias e sem passado; teto de valor contra digitação errada. */

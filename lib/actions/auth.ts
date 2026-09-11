@@ -21,6 +21,12 @@ export interface ActionResult {
   erro?: string;
 }
 
+// Mesmas regras de lib/actions/perfil.ts (a foto do cadastro segue o padrão
+// já existente de editar perfil) — duplicado em vez de importado porque
+// perfil.ts não exporta essas constantes.
+const TIPOS_FOTO_CADASTRO = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FOTO_CADASTRO = 2 * 1024 * 1024;
+
 /**
  * Cria a conta (form sem JS). Dois caminhos: via convite, o papel vem do
  * convite e o usuário entra na empresa de quem convidou (fica pendente de
@@ -28,12 +34,34 @@ export interface ActionResult {
  * única de `lib/auth/papeis.ts` (R-44, D-016; Administrador nasce só por ação
  * do SysAdmin). Cria auth user + profiles + profiles_pii (checando
  * telefone/e-mail únicos) e já inicia a sessão.
+ *
+ * A foto é opcional (pedido do Leonardo em 10/09/2026): quando escolhida,
+ * é validada ANTES de `createUser` — tipo/tamanho errados nunca chegam a
+ * criar a conta pela metade — e sobe pro bucket `avatares` só depois que a
+ * conta já existe (precisa do id definitivo no caminho do arquivo). Sem foto
+ * ou se o upload falhar, a conta fica com a foto pública de
+ * `lib/foto-aleatoria.ts` — nenhuma conta nasce sem foto.
  */
 export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
   // `cidadeUf` chega como "Niterói|RJ" do <select>.
   const [cidade, estado] = campo(fd, "cidadeUf").split("|");
-  const preserva = valoresPreservados(fd, ["senha"]);
+  const preserva = valoresPreservados(fd, ["senha", "confirmacao_senha"]);
   const admin = createAdminClient();
+
+  // Foto opcional: `getAll` + find, não `get` — um campo de arquivo pode vir
+  // acompanhado de uma entrada vazia de texto, e `get` devolveria essa em vez
+  // do arquivo (mesmo cuidado de lib/actions/perfil.ts). Validada aqui, antes
+  // de qualquer escrita no banco — foto inválida não pode deixar a conta
+  // criada pela metade.
+  const foto = fd.getAll("foto").find((v): v is File => v instanceof File && v.size > 0);
+  if (foto) {
+    if (!TIPOS_FOTO_CADASTRO.includes(foto.type)) {
+      return { erro: "A foto precisa ser JPG, PNG ou WEBP.", valores: preserva };
+    }
+    if (foto.size > MAX_FOTO_CADASTRO) {
+      return { erro: "A foto precisa ter menos de 2 MB.", valores: preserva };
+    }
+  }
 
   // Cadastro via convite: o papel vem do convite (owner → admin, membro →
   // funcionario), não do formulário; e não se cria empresa (entra na de quem convidou).
@@ -56,6 +84,7 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     nome: campo(fd, "nome"),
     email: campo(fd, "email"),
     senha: String(fd.get("senha") ?? ""),
+    confirmacao_senha: String(fd.get("confirmacao_senha") ?? ""),
     telefone: campo(fd, "telefone"),
     cidade,
     estado,
@@ -119,9 +148,30 @@ export async function cadastrarAction(_estado: EstadoForm, fd: FormData): Promis
     tipo_base: d.tipo_base,
     genero: d.genero,
     // Nenhuma conta sem foto (lib/foto-aleatoria.ts): nasce com um retrato
-    // público pelo gênero; a pessoa troca pela dela em Editar perfil.
+    // público pelo gênero; a pessoa troca pela dela em Editar perfil — ou,
+    // se já escolheu uma foto agora, o upload abaixo substitui isto.
     foto_url: fotoAleatoria(userId, d.genero),
   });
+  if (foto) {
+    // Só dá para montar o caminho `<id>/perfil.<ext>` depois de `createUser`
+    // — por isso o upload acontece aqui, não antes. Falha de upload não
+    // desfaz a conta (já criada e validada): ela só fica com a foto pública
+    // padrão, trocável depois em Editar perfil — o mesmo caminho de
+    // lib/actions/perfil.ts.
+    const ext = foto.type === "image/png" ? "png" : foto.type === "image/webp" ? "webp" : "jpg";
+    const caminho = `${userId}/perfil.${ext}`;
+    const { error: upErr } = await admin.storage
+      .from("avatares")
+      .upload(caminho, foto, { upsert: true, contentType: foto.type });
+    if (!upErr) {
+      const { data: pub } = admin.storage.from("avatares").getPublicUrl(caminho);
+      // `?v=` força o navegador a buscar a nova: o caminho é sempre o mesmo.
+      await admin
+        .from("profiles")
+        .update({ foto_url: `${pub.publicUrl}?v=${Date.now()}` })
+        .eq("user_id", userId);
+    }
+  }
   if (precisaLocalizacao) {
     // Endereço escrito e ponto exato moram juntos em profile_local, sob a mesma
     // RLS (dono, sysadmin, ou a outra parte de um serviço válido) — nunca em

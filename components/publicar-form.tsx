@@ -104,7 +104,10 @@ export function PublicarForm({
             <input id="bairro" name="bairro" className="input" defaultValue={v.bairro ?? ""} />
           </div>
         </div>
-        <AddressMapPicker onChange={(val) => setLocal({ lat: val.lat, lng: val.lng })} />
+        <AddressMapPicker
+          onChange={(val) => setLocal({ lat: val.lat, lng: val.lng })}
+          dicaSemPino="Marcar o ponto no mapa é opcional aqui — ajuda a ordenar a vaga por proximidade."
+        />
         <input type="hidden" name="local_lat" value={local.lat ?? ""} />
         <input type="hidden" name="local_lng" value={local.lng ?? ""} />
         <p className="mt-1 text-sm font-semibold text-brand">3. Data e horário</p>

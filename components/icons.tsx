@@ -56,6 +56,31 @@ export function AlvoIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
+/**
+ * Olho aberto — botão de "mostrar senha" (components/campo-senha.tsx). Mesmo
+ * traço fino dos demais ícones de contorno; sem diagonal, ao contrário de
+ * `OlhoFechadoIcon`, que é o mesmo desenho com uma linha cortando por cima.
+ */
+export function OlhoIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...stroke} aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** Olho fechado (com diagonal) — botão de "ocultar senha", par de `OlhoIcon`. */
+export function OlhoFechadoIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...stroke} aria-hidden="true">
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+      <line x1="3" y1="21" x2="21" y2="3" />
+    </svg>
+  );
+}
+
 export function HardHat({ className = S }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} fill="currentColor" aria-hidden="true">

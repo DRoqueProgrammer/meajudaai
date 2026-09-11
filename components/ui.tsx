@@ -203,6 +203,7 @@ export function CampoArquivo({
   label,
   icone = "📷",
   className = "",
+  onChange,
 }: {
   id: string;
   name: string;
@@ -210,12 +211,14 @@ export function CampoArquivo({
   label: string;
   icone?: string;
   className?: string;
+  /** Opcional — quem precisa de prévia (cadastro, editar perfil) lê o arquivo escolhido aqui. */
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <label htmlFor={id} className={`input flex cursor-pointer items-center gap-2 py-2 text-xs ${className}`}>
       <span aria-hidden="true">{icone}</span>
       <span>{label}</span>
-      <input id={id} name={name} type="file" accept={accept} className="sr-only" />
+      <input id={id} name={name} type="file" accept={accept} className="sr-only" onChange={onChange} />
     </label>
   );
 }

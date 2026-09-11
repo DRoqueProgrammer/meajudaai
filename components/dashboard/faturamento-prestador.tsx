@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import { listarTiposServico } from "@/lib/tipos-servico";
 import { GraficoFaturamento } from "@/components/dashboard/grafico-faturamento";
 import type { ServicoFaturado } from "@/lib/faturamento";
+import { hojeEmSaoPaulo, somarDias } from "@/lib/datas";
 
 /**
  * Busca os serviços REALIZADOS do prestador da sessão no último ano (a maior
@@ -20,10 +21,9 @@ import type { ServicoFaturado } from "@/lib/faturamento";
 export async function FaturamentoPrestador() {
   const user = await getCurrentUser();
   const sb = await createServerClient();
-  const hoje = new Date().toLocaleDateString("sv-SE");
-  const umAnoAtras = new Date();
-  umAnoAtras.setDate(umAnoAtras.getDate() - 365);
-  const inicioStr = umAnoAtras.toLocaleDateString("sv-SE");
+  // Fuso de São Paulo (lib/datas.ts): o servidor roda em UTC.
+  const hoje = hojeEmSaoPaulo();
+  const inicioStr = somarDias(hoje, -365);
 
   const { data: slotsJanela } = await sb
     .from("agenda_slots")

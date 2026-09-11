@@ -5,12 +5,9 @@ import { tryWriter } from "@/lib/auth/guard";
 import { createServerClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatData } from "@/lib/format";
+import { hojeEmSaoPaulo, somarDias, diaDaSemana } from "@/lib/datas";
 import type { ActionResult } from "./auth";
 
-/** Data de hoje no fuso do produto (YYYY-MM-DD) — separa horário futuro de passado ao fechar uma agenda aberta. */
-function hojeEmSaoPaulo(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
-}
 
 /**
  * Prestador oferece um horário na própria agenda (nasce como slot "livre").
@@ -59,11 +56,11 @@ export async function criarSlotsRecorrentesAction(input: {
 
   const dias = new Set(input.diasSemana);
   const datas: string[] = [];
-  const cursor = new Date(`${input.dataInicio}T00:00:00`);
-  const fim = new Date(`${input.dataFim}T00:00:00`);
   // Teto de 90 dias por lote — evita gerar milhares de linhas por engano.
-  for (let i = 0; i < 90 && cursor <= fim; i++, cursor.setDate(cursor.getDate() + 1)) {
-    if (dias.has(cursor.getDay())) datas.push(cursor.toLocaleDateString("sv-SE"));
+  // Aritmética de calendário em cima das strings (lib/datas.ts), sem depender
+  // do fuso do servidor (UTC na Vercel).
+  for (let i = 0, d = input.dataInicio; i < 90 && d <= input.dataFim; i++, d = somarDias(d, 1)) {
+    if (dias.has(diaDaSemana(d))) datas.push(d);
   }
   if (datas.length === 0) return { ok: false, erro: "Nenhuma data no intervalo cai nos dias escolhidos." };
 

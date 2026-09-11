@@ -1,3 +1,4 @@
+import { hojeEmSaoPaulo } from "./datas";
 const DIA_ABREV = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
 
 export interface PeriodoAberto {
@@ -33,7 +34,7 @@ export interface PeriodoAberto {
 export function resumoHorariosAbertos(
   slots: { data: string; hora_inicio: string; hora_fim: string; status?: string }[],
 ): PeriodoAberto[] {
-  const hojeStr = new Date().toLocaleDateString("sv-SE");
+  const hojeStr = hojeEmSaoPaulo();
   const grupos = new Map<string, { datas: string[]; dias: Set<number>; datasComServico: string[] }>();
 
   for (const s of slots) {

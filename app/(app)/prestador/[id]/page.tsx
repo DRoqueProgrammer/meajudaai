@@ -6,6 +6,7 @@ import { SlotPicker } from "@/components/agenda/slot-picker";
 import { nomeCategoria } from "@/lib/categorias";
 import { listarTiposServico } from "@/lib/tipos-servico";
 import { formatBRL } from "@/lib/format";
+import { hojeEmSaoPaulo } from "@/lib/datas";
 
 /**
  * Rota `/prestador/[id]` (cliente): perfil público do prestador — descrição,
@@ -24,7 +25,7 @@ export default async function PerfilPrestadorPage({ params }: { params: Promise<
     .maybeSingle();
   if (!p || p.tipo_base !== "prestador_servico") notFound();
 
-  const hojeStr = new Date().toLocaleDateString("sv-SE");
+  const hojeStr = hojeEmSaoPaulo();
   const { data: slotsLivres } = await sb
     .from("agenda_slots")
     .select("id, data, hora_inicio, hora_fim")

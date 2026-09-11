@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import { hojeEmSaoPaulo } from "@/lib/datas";
 
 /**
  * `anonimizarTitular` (LGPD art. 18, VI — eliminação; decisão D-023): tira o
@@ -57,10 +58,6 @@ function senhaAleatoria(): string {
   return `removido-${crypto.randomUUID()}`;
 }
 
-/** Data de hoje no fuso do produto (YYYY-MM-DD), para separar agendamento futuro de passado. */
-function hojeEmSaoPaulo(): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
-}
 
 export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
   // 1) Agendamentos em aberto (pendente/confirmado) de hoje em diante, nos

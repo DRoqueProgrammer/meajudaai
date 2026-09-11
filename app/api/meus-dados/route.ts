@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { exportarDadosDoTitular } from "@/lib/titular/exportar";
 import { logAction } from "@/lib/log";
+import { hojeEmSaoPaulo } from "@/lib/datas";
 
 /**
  * `GET /api/meus-dados`: baixa um JSON com tudo o que é do usuário da SESSÃO
@@ -31,7 +32,7 @@ export async function GET() {
   const dados = await exportarDadosDoTitular(db, user.id);
   logAction("meus_dados", { userId: user.id, result: "ok" });
 
-  const hoje = new Date().toISOString().slice(0, 10);
+  const hoje = hojeEmSaoPaulo();
   return new NextResponse(JSON.stringify(dados, null, 2), {
     status: 200,
     headers: {

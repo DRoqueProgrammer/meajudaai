@@ -4,6 +4,8 @@ import { createServerClient } from "@/lib/supabase/server";
 import { Avatar } from "@/components/ui";
 import { ServicoClienteCard } from "@/components/clientes/servico-cliente-card";
 import { TelefoneWhatsApp } from "@/components/telefone-whatsapp";
+import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
+import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 
 /**
  * Rota `/clientes/[id]` (prestador): visão limitada do cliente (nome, telefone)
@@ -28,12 +30,17 @@ export default async function ClienteDetalhePage({
   const { data: perfil } = await sb.from("profiles").select("nome, foto_url").eq("user_id", id).maybeSingle();
   if (!perfil) notFound();
   const { data: pii } = await sb.from("profiles_pii").select("telefone, is_whatsapp").eq("user_id", id).maybeSingle();
+  // Endereço e ponto do cliente (profile_local): a RLS só entrega para a outra
+  // parte de um serviço válido (tem_servico_com, migration 0039) — sem linha,
+  // o cartão não aparece. Pedido do Leonardo: o prestador vê o mapa e os
+  // botões de compartilhar/abrir no Maps e no Waze.
+  const { data: local } = await sb.from("profile_local").select("endereco, lat, lng").eq("user_id", id).maybeSingle();
 
   // `.eq("prestador_id", user.id)`: só os serviços que ELE fez com esse cliente —
   // nunca o histórico do cliente com outros prestadores.
   let query = sb
     .from("servicos")
-    .select("id, slot_id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, created_at")
+    .select("id, slot_id, descricao, preco_tipo, preco_valor, preco_pendente, status, cancelado_motivo, created_at, endereco, lat, lng, periodo_preferido, hora_combinada_inicio, hora_combinada_fim")
     .eq("prestador_id", user.id)
     .eq("cliente_id", id)
     .order("created_at", { ascending: false });
@@ -67,6 +74,15 @@ export default async function ClienteDetalhePage({
           {pii?.telefone ? <TelefoneWhatsApp telefone={pii.telefone} isWhatsapp={pii.is_whatsapp} /> : null}
         </div>
       </div>
+
+      {local ? (
+        <div className="card flex flex-col gap-3">
+          <h2 className="text-sm font-semibold text-muted">Endereço e localização</h2>
+          {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : null}
+          <LocalMapa lat={local.lat} lng={local.lng} />
+          <CompartilharLocal modo="perfil" lat={local.lat} lng={local.lng} />
+        </div>
+      ) : null}
 
       <form className="flex gap-2">
         <input

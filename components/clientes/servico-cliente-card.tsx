@@ -9,7 +9,9 @@ import {
 } from "@/lib/actions/agenda-v2";
 import { CancelarServicoBotao } from "@/components/agenda/cancelar-servico-botao";
 import { FormError } from "@/components/ui";
-import { formatBRL, formatData, formatHora } from "@/lib/format";
+import { formatBRL, formatData } from "@/lib/format";
+import { quandoDoServico } from "@/lib/periodo-da-visita";
+import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 
 const STATUS_ESTILO: Record<string, string> = {
   pendente: "bg-tint-warn text-tint-warn-ink",
@@ -28,6 +30,14 @@ export interface ServicoClienteCardProps {
     status: string;
     cancelado_motivo: string | null;
     created_at: string;
+    /** Local do serviço (escolhido pelo cliente ao pedir) — o prestador abre no mapa. */
+    endereco?: string | null;
+    lat?: number | null;
+    lng?: number | null;
+    /** Preferência e hora combinada da visita (migrations 0050/0051). */
+    periodo_preferido?: string | null;
+    hora_combinada_inicio?: string | null;
+    hora_combinada_fim?: string | null;
   };
   slot: { data: string; hora_inicio: string; hora_fim: string } | null;
   logs: { id: string; texto: string; created_at: string }[];
@@ -46,9 +56,10 @@ export function ServicoClienteCard({ servico, slot, logs }: ServicoClienteCardPr
       <button type="button" onClick={() => setAberto((a) => !a)} className="flex items-start justify-between gap-2 text-left">
         <div className="min-w-0">
           <p className="text-xs font-medium text-muted">
-            {slot ? `${formatData(slot.data)} · ${formatHora(slot.hora_inicio)}–${formatHora(slot.hora_fim)}` : formatData(servico.created_at.slice(0, 10))}
+            {slot ? `${formatData(slot.data)} · ${quandoDoServico(slot, servico)}` : formatData(servico.created_at.slice(0, 10))}
           </p>
           <p className="truncate text-sm font-semibold">{servico.descricao}</p>
+          {servico.endereco ? <p className="truncate text-xs text-muted">{servico.endereco}</p> : null}
         </div>
         <div className="shrink-0 text-right">
           <p className="text-sm font-semibold text-brand">{formatBRL(servico.preco_valor)}</p>
@@ -67,6 +78,13 @@ export function ServicoClienteCard({ servico, slot, logs }: ServicoClienteCardPr
       {aberto ? (
         <div className="flex flex-col gap-3 border-t border-line pt-3">
           {servico.cancelado_motivo ? <p className="text-xs text-danger">Cancelado: {servico.cancelado_motivo}</p> : null}
+          {servico.lat != null && servico.lng != null ? (
+            <div className="flex flex-col gap-1">
+              <p className="text-xs font-medium text-muted">Local do serviço</p>
+              {servico.endereco ? <p className="text-sm">{servico.endereco}</p> : null}
+              <CompartilharLocal modo="perfil" lat={servico.lat} lng={servico.lng} />
+            </div>
+          ) : null}
 
           {servico.status === "pendente" ? (
             <button

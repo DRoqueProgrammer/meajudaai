@@ -127,9 +127,9 @@ export function AgendaCalendarV2({
     grade = (
       <>
         <div className="mb-1 flex items-center justify-between">
-          <button type="button" onClick={() => setUrl("mes", new Date(year, month - 1, 1))} className="btn-ghost px-3 py-1" aria-label="Mês anterior">‹</button>
+          <button type="button" onClick={() => setUrl("mes", new Date(year, month - 1, 1))} className="btn-ghost min-w-11 px-3 py-1" aria-label="Mês anterior">‹</button>
           <span className="text-sm font-semibold capitalize">{MES[month]} de {year}</span>
-          <button type="button" onClick={() => setUrl("mes", new Date(year, month + 1, 1))} className="btn-ghost px-3 py-1" aria-label="Próximo mês">›</button>
+          <button type="button" onClick={() => setUrl("mes", new Date(year, month + 1, 1))} className="btn-ghost min-w-11 px-3 py-1" aria-label="Próximo mês">›</button>
         </div>
         <div className="grid grid-cols-7 gap-1">
           {cells.map((c) => celula(iso(c.data), c.data.getDate(), c.foraDoMes))}
@@ -147,11 +147,11 @@ export function AgendaCalendarV2({
     grade = (
       <>
         <div className="mb-1 flex items-center justify-between">
-          <button type="button" onClick={() => setUrl("semana", new Date(inicioSemana.getFullYear(), inicioSemana.getMonth(), inicioSemana.getDate() - 7))} className="btn-ghost px-3 py-1" aria-label="Semana anterior">‹</button>
+          <button type="button" onClick={() => setUrl("semana", new Date(inicioSemana.getFullYear(), inicioSemana.getMonth(), inicioSemana.getDate() - 7))} className="btn-ghost min-w-11 px-3 py-1" aria-label="Semana anterior">‹</button>
           <span className="text-sm font-semibold">
             {dias[0]!.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} – {dias[6]!.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
           </span>
-          <button type="button" onClick={() => setUrl("semana", new Date(inicioSemana.getFullYear(), inicioSemana.getMonth(), inicioSemana.getDate() + 7))} className="btn-ghost px-3 py-1" aria-label="Próxima semana">›</button>
+          <button type="button" onClick={() => setUrl("semana", new Date(inicioSemana.getFullYear(), inicioSemana.getMonth(), inicioSemana.getDate() + 7))} className="btn-ghost min-w-11 px-3 py-1" aria-label="Próxima semana">›</button>
         </div>
         <div className="grid grid-cols-7 gap-1">
           {dias.map((d) => celula(iso(d), d.getDate(), false))}

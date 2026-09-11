@@ -150,6 +150,11 @@ body {
   }
 }
 
+/* Classes de componente DENTRO de @layer components: assim um utilitário no
+   próprio elemento vence (`input w-24`, `btn-ghost text-danger`). Fora da camada,
+   declaradas depois de @tailwind utilities, elas ganhavam de qualquer ajuste
+   pontual — campo numérico de 1000px, botão "vermelho" saindo azul. */
+@layer components {
 /* min-h-11 = 44px. Fica na classe base porque toda a UI é usada em obra, com o
    dedo sujo e o celular no sol — nenhum call site pode encolher abaixo disso,
    por mais que reduza o padding. */
@@ -209,6 +214,7 @@ body {
 }
 .label {
   @apply mb-1 block text-sm font-medium text-ink;
+}
 }
 /* Tipografia das páginas legais (Termos, Privacidade). Uma coluna de leitura,
    escala clara, sem plugin de prose. Compartilhada por app/(legal)/*. */

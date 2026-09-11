@@ -67,13 +67,13 @@ export function AgendaCalendar({
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => goMonth(-1)} className="btn-ghost px-3 py-1" aria-label="Mês anterior">
+        <button type="button" onClick={() => goMonth(-1)} className="btn-ghost min-w-11 px-3 py-1" aria-label="Mês anterior">
           ‹
         </button>
         <span className="text-sm font-semibold capitalize">
           {MES[month - 1]} de {year}
         </span>
-        <button type="button" onClick={() => goMonth(1)} className="btn-ghost px-3 py-1" aria-label="Próximo mês">
+        <button type="button" onClick={() => goMonth(1)} className="btn-ghost min-w-11 px-3 py-1" aria-label="Próximo mês">
           ›
         </button>
       </div>

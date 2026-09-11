@@ -178,6 +178,9 @@ export function GraficoFaturamento({
   const numBarras = dados.barras.length;
   const larguraUtil = Math.max(0, largura - EIXO_W);
   const larguraColuna = Math.max(LARGURA_COLUNA_MIN, larguraUtil / Math.max(1, numBarras));
+  // Barra acompanha a coluna: fina quando há muitas (dias), encorpada quando há
+  // poucas (semanas, meses) — 20px fixos sumiam numa coluna de 80px.
+  const larguraBarra = Math.round(Math.min(56, Math.max(LARGURA_BARRA * 0.7, larguraColuna * 0.62)));
   const larguraSvg = Math.max(larguraUtil, larguraColuna * numBarras);
   const passoRotulo = Math.max(1, Math.ceil(34 / larguraColuna));
 
@@ -344,15 +347,15 @@ export function GraficoFaturamento({
                         s.ehTopo ? (
                           <path
                             key={s.slug}
-                            d={pathTopoArredondado(x + (larguraColuna - LARGURA_BARRA) / 2, s.y, LARGURA_BARRA, s.altura, RAIO_TOPO)}
+                            d={pathTopoArredondado(x + (larguraColuna - larguraBarra) / 2, s.y, larguraBarra, s.altura, RAIO_TOPO)}
                             fill={corDoTipo(s.slug)}
                           />
                         ) : (
                           <rect
                             key={s.slug}
-                            x={x + (larguraColuna - LARGURA_BARRA) / 2}
+                            x={x + (larguraColuna - larguraBarra) / 2}
                             y={s.y}
-                            width={LARGURA_BARRA}
+                            width={larguraBarra}
                             height={s.altura}
                             fill={corDoTipo(s.slug)}
                           />
@@ -373,7 +376,8 @@ export function GraficoFaturamento({
                         y={0}
                         width={larguraColuna}
                         height={PLOT_H}
-                        fill={ativo || emFoco ? "rgba(11,11,11,0.04)" : "transparent"}
+                        fill={ativo ? "var(--line)" : "transparent"}
+                        fillOpacity={ativo ? 0.55 : 1}
                         tabIndex={focoIdx === i ? 0 : -1}
                         role="button"
                         aria-label={`${periodoDaBarra(barra, agrupamento)}: ${formatBRL(barra.total)}`}

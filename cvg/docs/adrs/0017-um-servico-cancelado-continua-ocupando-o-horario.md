@@ -1,12 +1,12 @@
 ---
 adr: "0017"
-status: accepted
+status: superseded
 date: 2026-09-10
 ground: brownfield
 converge_pass: 2
 spec_ref: "R-37, R-54"
 supersedes: ""
-superseded_by: ""
+superseded_by: "migration 0048 (Fatia 4, 10/09/2026)"
 deciders: "Claude Opus 5 (controller) — registrado no scan do Pass 5 da Fatia 1"
 ---
 

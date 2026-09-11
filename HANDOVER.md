@@ -59,7 +59,15 @@ Leonardo aprovou o redesign pedindo só o rodapé colado no fim da tela (coluna 
 - **Tipos de serviço e faturamento (D-037, migration 0047, lote F1):** seis tipos, o cliente escolhe ao agendar e o prestador recategoriza; gráfico empilhado por tipo com filtro (15 dias padrão, 30, 60, 90, este ano, último ano), agrupado por semana, card no hover com tipos em ordem alfabética e por dia.
 - **Fatia 4 adiantada:** sessão memoizada (`cache` em `getCurrentUser`), fuso de São Paulo no servidor (`lib/datas.ts`), D-031 mitigado, horário cancelado liberado, classes de componente do CSS na camada certa do Tailwind (utilitários voltam a valer).
 
-**Próximo passo:** o que sobra da Fatia 4 (zod + `useActionState` nos formulários da agenda, testes de integração das actions, a causa de fundo do D-031) e a Fatia 5 (página pública do prestador, dashboard do SysAdmin, praça e comissão — esta última pede decisões do Leonardo).
+**Madrugada de 11/09 — mais pedidos ao vivo (D-040 a D-043):**
+- Página pública do prestador `/p/[id]` sem login (0049) — o "Ver agenda" da vitrine leva para lá; painel da plataforma do SysAdmin (lote S5).
+- Agenda: período preferido no pedido (0050) e hora combinada da visita (0051).
+- Suspeitas e sinalizações nas duas direções, com aprovação do Administrador, bandeiras com hover e suspensão com aviso formal (0052–0055, lote F5). Aba **Serviços** do prestador com "Flag Pilantra" no serviço.
+- Clientes: cartão com próximo agendamento e último serviço; endereço, mapa e compartilhar no detalhe.
+- Pix: várias chaves (0056), QR grande com "Me Ajuda Aí"/nome/data/valor no meio (jsQR confere a leitura), compartilhar no WhatsApp, cobrança avulsa no perfil.
+- Hero: tempo não vaza; faixa recolhida com os próximos dias; blocos de espera somem se o clima falhar.
+
+**Próximo passo:** a leitura do QR por um app de banco real (ROADMAP §16.5), o que sobra da Fatia 4 (zod + `useActionState` nos formulários da agenda, testes de integração das actions, a causa de fundo do D-031) e a comissão da plataforma (bloqueada por decisões do Leonardo).
 
 ---
 

@@ -81,9 +81,11 @@ describe.skipIf(!podeRodar)("Fatia 1 · o mundo de exemplo não enxerga o mundo 
 
   // Emenda do controller (10/09/2026, anúncios): além das cinco contas de 1
   // clique, o mundo de exemplo ganhou os prestadores que povoam o mural
-  // público (scripts/seed-anuncios.mjs, e-mails exemplo-anuncio-N@meajudaai.app).
+  // público (scripts/seed-anuncios.mjs, e-mails exemplo-anuncio-N@meajudaai.app)
+  // e, em 11/09/2026, as clientes da grade do Financeiro
+  // (scripts/financeiro-exemplo.mjs, exemplo-cliente-N@meajudaai.app).
   // A intenção do caso continua a mesma — a marca nunca cai em conta real.
-  it("as cinco contas de exemplo carregam a marca, e fora delas só os prestadores do mural de exemplo", async () => {
+  it("as cinco contas de exemplo carregam a marca, e fora delas só as contas semeadas do mundo de exemplo", async () => {
     const { data, error } = await servico!.from("profiles").select("user_id").eq("exemplo", true);
     expect(error).toBeNull();
     const ids = (data ?? []).map((l) => l.user_id as string);
@@ -92,7 +94,7 @@ describe.skipIf(!podeRodar)("Fatia 1 · o mundo de exemplo não enxerga o mundo 
     const esperados = new Set(Object.values(CONTAS_EXEMPLO).map((c) => c.email.toLowerCase()));
     for (const e of esperados) expect(emails.has(e)).toBe(true);
     const extras = [...emails].filter((e) => !esperados.has(e));
-    for (const e of extras) expect(e).toMatch(/^exemplo-anuncio-\d+@meajudaai\.app$/);
+    for (const e of extras) expect(e).toMatch(/^exemplo-(anuncio|cliente)-\d+@meajudaai\.app$/);
   });
 
   it("pessoa nova nasce fora do mundo de exemplo", async () => {

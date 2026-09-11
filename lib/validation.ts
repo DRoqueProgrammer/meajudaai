@@ -57,6 +57,30 @@ export const DenunciaSchema = z.object({
   detalhe: z.string().max(1000, "Detalhe muito longo").optional(),
 });
 
+/**
+ * Validação do anúncio do prestador (migration 0044): oferta do próprio
+ * serviço ou vaga para ajudante sem conta. `whatsapp` fica como string livre
+ * aqui — a contagem de dígitos (10 a 13, com DDD) é conferida na action
+ * (`lib/actions/anuncios.ts`) depois de `soDigitos`, porque só ali sabemos se
+ * o tipo é `vaga_ajudante` (único que exige o número).
+ */
+export const AnuncioSchema = z.object({
+  tipo: z.enum(["servico", "vaga_ajudante"]),
+  titulo: z
+    .string()
+    .trim()
+    .min(3, "O título precisa ter pelo menos 3 caracteres.")
+    .max(80, "O título pode ter no máximo 80 caracteres."),
+  descricao: z
+    .string()
+    .trim()
+    .min(10, "A descrição precisa ter pelo menos 10 caracteres.")
+    .max(600, "A descrição pode ter no máximo 600 caracteres."),
+  categoria: z.string().trim(),
+  whatsapp: z.string(),
+});
+export type AnuncioInput = z.infer<typeof AnuncioSchema>;
+
 /** Validação de mensagem do chat: 1–2000 caracteres, com erros em PT-BR. */
 export const MensagemSchema = z.object({
   conversaId: z.string().uuid(),

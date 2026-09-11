@@ -62,6 +62,10 @@ export interface DadosDoTitular {
   notificacoes: Database["public"]["Tables"]["notificacoes"]["Row"][];
   acessos: Database["public"]["Tables"]["login_logs"]["Row"][];
   demandas_de_busca: Database["public"]["Tables"]["demanda_servico"]["Row"][];
+  // Anúncios do prestador (migration 0044): serviço ou vaga para ajudante —
+  // conteúdo dela, sem outra parte envolvida, então `select *` completo (o
+  // WhatsApp da vaga é dela mesma, quem escolheu expor).
+  anuncios: Database["public"]["Tables"]["anuncios"]["Row"][];
   vinculos: {
     equipe: Array<
       Database["public"]["Tables"]["workspace_members"]["Row"] & {
@@ -90,6 +94,7 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     equipeRes,
     modulosRes,
     pedidosRes,
+    anunciosRes,
   ] = await Promise.all([
     db.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
     db.from("profiles_pii").select("*").eq("user_id", userId).maybeSingle(),
@@ -106,6 +111,7 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
     db.from("workspace_members").select("*").eq("user_id", userId),
     db.from("user_modules").select("*").eq("user_id", userId),
     db.from("pedidos_exclusao").select("*").eq("user_id", userId),
+    db.from("anuncios").select("*").eq("prestador_id", userId),
   ]);
 
   const comoCliente = comoClienteRes.data ?? [];
@@ -162,5 +168,6 @@ export async function exportarDadosDoTitular(db: DB, userId: string): Promise<Da
       modulos: modulosRes.data ?? [],
     },
     pedidos_de_exclusao: pedidosRes.data ?? [],
+    anuncios: anunciosRes.data ?? [],
   };
 }

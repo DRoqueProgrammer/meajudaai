@@ -11,6 +11,7 @@ import { nomeCategoria } from "@/lib/categorias";
 import { papelLabel } from "@/lib/papel-label";
 import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
 import { CompartilharLocal } from "@/components/maps/compartilhar-local";
+import { waLink } from "@/lib/whatsapp";
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -72,6 +73,13 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
     month: "long",
     year: "numeric",
   });
+
+  // Anúncios ativos do prestador (migration 0044) — leitura pública, sempre
+  // por `anuncios_publicos`, que nunca devolve telefone do perfil nem e-mail
+  // (só o WhatsApp que o próprio prestador escolheu expor NAQUELA vaga).
+  const { data: anuncios } = ehPrestadorV2
+    ? await sb.rpc("anuncios_publicos", { p_prestador: id })
+    : { data: null };
 
   const { data: avals } = await sb
     .from("avaliacoes")
@@ -194,6 +202,60 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
             </p>
           ) : null}
         </div>
+
+        {ehPrestadorV2 ? (
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-muted">Anúncios</h2>
+              {ehEu ? (
+                <Link href="/anuncios" className="text-sm font-medium text-brand underline">
+                  Gerenciar anúncios
+                </Link>
+              ) : null}
+            </div>
+            <div className="mt-2 flex flex-col gap-2">
+              {(anuncios ?? []).length === 0 ? (
+                ehEu ? (
+                  <p className="card-vazio">
+                    Você ainda não tem anúncio ativo. Publique um em &quot;Gerenciar anúncios&quot;.
+                  </p>
+                ) : null
+              ) : (
+                (anuncios ?? []).map((an) =>
+                  an.tipo === "vaga_ajudante" ? (
+                    <div key={an.id} className="card flex flex-col gap-2">
+                      <span className="inline-flex w-fit items-center rounded-full bg-tint-warn px-2.5 py-0.5 text-xs font-medium text-tint-warn-ink">
+                        Necessita-se ajudante!
+                      </span>
+                      <p className="text-sm font-semibold">{an.titulo}</p>
+                      <p className="text-sm leading-relaxed text-muted">{an.descricao}</p>
+                      {an.whatsapp ? (
+                        <a
+                          href={`${waLink(an.whatsapp)}?text=${encodeURIComponent(`Olá! Vi sua vaga "${an.titulo}" no Me Ajuda Aí.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-brand w-fit"
+                        >
+                          Chamar no WhatsApp
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div key={an.id} className="card flex flex-col gap-2">
+                      <p className="text-sm font-semibold">{an.titulo}</p>
+                      <p className="text-sm leading-relaxed text-muted">{an.descricao}</p>
+                      {an.categoria ? (
+                        <span className="inline-flex w-fit items-center rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-ink">
+                          {nomeCategoria(an.categoria)}
+                        </span>
+                      ) : null}
+                    </div>
+                  ),
+                )
+              )}
+            </div>
+          </div>
+        ) : null}
 
         <div>
           <h2 className="mb-2 text-sm font-semibold text-muted">

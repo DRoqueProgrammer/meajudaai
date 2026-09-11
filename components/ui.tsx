@@ -49,6 +49,11 @@ const STATUS_STYLE: Record<string, string> = {
   recusado: "bg-tint-danger text-danger",
   cancelada: "bg-tint-danger text-danger",
   cancelado: "bg-tint-danger text-danger",
+  // Anúncios do prestador (migration 0044, "Meus anúncios").
+  ativo: "bg-tint-ok text-ok",
+  pausado: "bg-tint-warn text-tint-warn-ink",
+  encerrado: "bg-tint-neutral text-muted",
+  moderado: "bg-tint-danger text-danger",
 };
 
 /**
@@ -66,6 +71,11 @@ const STATUS_LABEL: Record<string, string> = {
   recusado: "Não foi dessa vez",
   cancelada: "Vaga cancelada",
   cancelado: "Candidatura retirada",
+  // Anúncios do prestador (migration 0044, "Meus anúncios").
+  ativo: "Ativo",
+  pausado: "Pausado",
+  encerrado: "Encerrado",
+  moderado: "Moderado",
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

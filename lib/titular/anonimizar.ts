@@ -121,7 +121,14 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
     }
   }
 
-  // 3) profiles — nome/foto/bio/disponibilidade/gênero/localização textual
+  // 3) Anúncios que ela publicou como prestadora (migration 0044) — SEMPRE
+  // apagados, nunca só limpos: a vaga para ajudante exige WhatsApp por
+  // constraint (`anuncios_vaga_tem_whatsapp`), então um `update` que tirasse
+  // o número quebraria a linha. Sem outra parte envolvida — é conteúdo dela
+  // — apagar é o certo, igual ao endereço (passo 7).
+  conferir("apagar anúncios", await db.from("anuncios").delete().eq("prestador_id", userId));
+
+  // 4) profiles — nome/foto/bio/disponibilidade/gênero/localização textual
   // limpos e status 'removido' (some da busca e não recebe reserva — 0043);
   // `tipo_base` (papel) e as métricas de reputação (nota_media,
   // total_avaliacoes, servicos_realizados) ficam, porque são o histórico da
@@ -145,7 +152,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("user_id", userId),
   );
 
-  // 4) A foto em si, no bucket — `foto_url` null não apaga o arquivo, e a URL
+  // 5) A foto em si, no bucket — `foto_url` null não apaga o arquivo, e a URL
   // pública antiga continuaria abrindo. `remove` de caminho inexistente não
   // é erro, então repetir é seguro.
   conferir(
@@ -153,7 +160,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
     await db.storage.from("avatares").remove(EXTENSOES_FOTO.map((ext) => `${userId}/perfil.${ext}`)),
   );
 
-  // 5) profiles_pii — contato inteiro limpo (CPF já não existe mais nesta
+  // 6) profiles_pii — contato inteiro limpo (CPF já não existe mais nesta
   // tabela desde a migration 0018).
   conferir(
     "limpar contato",
@@ -163,25 +170,25 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("user_id", userId),
   );
 
-  // 6) profile_local (endereço + PIN exato) — apagado, não só limpo: é uma
+  // 7) profile_local (endereço + PIN exato) — apagado, não só limpo: é uma
   // tabela 1:1 por pessoa, sem valor em manter a linha vazia.
   conferir("apagar endereço e localização", await db.from("profile_local").delete().eq("user_id", userId));
 
-  // 7) login_logs (auditoria de acesso) — apagados; não há razão para manter
+  // 8) login_logs (auditoria de acesso) — apagados; não há razão para manter
   // IP/dispositivo de uma conta que não pode mais logar.
   conferir("apagar acessos", await db.from("login_logs").delete().eq("user_id", userId));
 
-  // 8) notificações e demandas de busca — apagadas (não são histórico de
+  // 9) notificações e demandas de busca — apagadas (não são histórico de
   // ninguém além da própria pessoa).
   conferir("apagar notificações", await db.from("notificacoes").delete().eq("user_id", userId));
   conferir("apagar demandas de busca", await db.from("demanda_servico").delete().eq("user_id", userId));
 
-  // 9) vínculos de equipe e módulos — apagados; a praça e os colegas de
+  // 10) vínculos de equipe e módulos — apagados; a praça e os colegas de
   // equipe continuam existindo, só a pessoa sai.
   conferir("apagar vínculos de equipe", await db.from("workspace_members").delete().eq("user_id", userId));
   conferir("apagar módulos", await db.from("user_modules").delete().eq("user_id", userId));
 
-  // 10) serviços em que ela é CLIENTE — endereço/coordenada (o local do
+  // 11) serviços em que ela é CLIENTE — endereço/coordenada (o local do
   // serviço, dado dela) e descrição (texto livre que ela escreveu) limpos.
   // `descricao` é NOT NULL, então vira um texto neutro em vez de null.
   // Serviços em que ela é PRESTADORA não entram aqui: o endereço ali é do
@@ -194,18 +201,18 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
       .eq("cliente_id", userId),
   );
 
-  // 11) mensagens que ela enviou — conteúdo trocado por texto neutro; a
+  // 12) mensagens que ela enviou — conteúdo trocado por texto neutro; a
   // conversa e as mensagens da outra parte continuam intactas.
   conferir(
     "limpar mensagens",
     await db.from("mensagens").update({ conteudo: CONTEUDO_MENSAGEM_REMOVIDO }).eq("remetente_id", userId),
   );
 
-  // 12) comentários que ela escreveu em avaliações — limpos; a nota fica (é o
+  // 13) comentários que ela escreveu em avaliações — limpos; a nota fica (é o
   // histórico de reputação de quem foi avaliado).
   conferir("limpar comentários de avaliação", await db.from("avaliacoes").update({ comentario: null }).eq("avaliador_id", userId));
 
-  // 13) Auth — nunca apaga (cascata derrubaria o histórico da outra parte).
+  // 14) Auth — nunca apaga (cascata derrubaria o histórico da outra parte).
   // Muda e-mail (determinístico, então idempotente) e senha (aleatória) e
   // bane por tempo bem longo: a pessoa não entra mais com a conta antiga.
   conferir(
@@ -217,7 +224,7 @@ export async function anonimizarTitular(db: DB, userId: string): Promise<void> {
     }),
   );
 
-  // 14) Por último, registra a conclusão no pedido pendente, se houver. Sem
+  // 15) Por último, registra a conclusão no pedido pendente, se houver. Sem
   // pedido (ex.: chamada direta, como no gabarito), não afeta nenhuma linha.
   conferir(
     "concluir pedido",

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerClient } from "@/lib/supabase/server";
 
 export type AppRole = "sysadmin" | "admin" | "funcionario" | "prestador_servico" | "cliente";
@@ -21,8 +22,12 @@ function isAppRole(v: unknown): v is AppRole {
  * Papel do usuário — vem de `profiles.tipo_base`. O JWT também carrega
  * `app_metadata.app_role` (hook da migration 0001), mas ele serve às policies
  * do banco (`current_app_role()`); aqui o perfil é a fonte da verdade.
+ *
+ * Memoizada por requisição (`cache` do React — Fatia 4, vistoria de 10/09): o
+ * layout, a página e os componentes de servidor de uma mesma tela chamavam
+ * isto cada um, e cada chamada era uma ida ao Auth mais uma ao banco.
  */
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const sb = await createServerClient();
   const {
     data: { user },
@@ -36,7 +41,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   const role = isAppRole(prof?.tipo_base) ? prof.tipo_base : "cliente";
   // Sem perfil, a pessoa não é de exemplo — o mesmo piso em que `role` cai em "cliente".
   return { id: user.id, email: user.email ?? null, role, exemplo: prof?.exemplo === true };
-}
+});
 
 /** Como `getCurrentUser`, mas lança se não houver sessão. Use em rotas/actions protegidas. */
 export async function requireUser(): Promise<CurrentUser> {

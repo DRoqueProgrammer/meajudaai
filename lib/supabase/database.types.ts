@@ -817,7 +817,7 @@ export type Database = {
           {
             foreignKeyName: "servicos_slot_id_fkey"
             columns: ["slot_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "agenda_slots"
             referencedColumns: ["id"]
           },
@@ -1063,6 +1063,15 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      avaliacoes_publicas: {
+        Args: { p_limite?: number; p_prestador: string }
+        Returns: {
+          avaliador_primeiro_nome: string
+          comentario: string
+          created_at: string
+          nota: number
+        }[]
+      }
       buscar_prestadores_proximos: {
         Args: { p_categoria?: string }
         Returns: {
@@ -1083,6 +1092,14 @@ export type Database = {
       has_capability: {
         Args: { v_cap: string; v_user: string; v_ws: string }
         Returns: boolean
+      }
+      horarios_livres_publicos: {
+        Args: { p_limite?: number; p_prestador: string }
+        Returns: {
+          data: string
+          hora_fim: string
+          hora_inicio: string
+        }[]
       }
       is_ajudante_aceito: {
         Args: { v_user: string; v_vaga: string }
@@ -1106,6 +1123,27 @@ export type Database = {
           nome: string
           servico_id: string
           status: string
+        }[]
+      }
+      perfil_publico_prestador: {
+        Args: { p_id: string }
+        Returns: {
+          bio: string
+          categoria: string
+          cidade: string
+          created_at: string
+          disponibilidade: string
+          estado: string
+          exemplo: boolean
+          foto_url: string
+          nome: string
+          nota_media: number
+          preco_tipo: string
+          preco_valor: number
+          servicos_realizados: number
+          total_avaliacoes: number
+          user_id: string
+          verificado: boolean
         }[]
       }
       tem_servico_com: { Args: { v_outro: string }; Returns: boolean }

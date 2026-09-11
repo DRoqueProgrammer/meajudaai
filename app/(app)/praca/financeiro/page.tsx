@@ -316,7 +316,7 @@ export default async function FinanceiroPage({
         <div className="card flex flex-col gap-3">
           <CampoAliquota workspaceId={praca.id} tipo={null} valorInicial={aliquotaGeral} placeholder="0" label="Geral da praça" />
           {tipos.length > 0 ? (
-            <div className="flex flex-col gap-3 border-t border-line pt-3">
+            <div className="grid gap-4 border-t border-line pt-3 sm:grid-cols-2 lg:grid-cols-3">
               {tipos.map((t) => (
                 <CampoAliquota
                   key={t.slug}

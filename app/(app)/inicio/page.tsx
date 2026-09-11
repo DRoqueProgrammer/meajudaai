@@ -710,13 +710,24 @@ export default async function InicioPage() {
               href="/comissao"
               className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-card px-4 py-3 text-sm transition hover:border-brand"
             >
+              {/* Com pagamento informado o saldo vira "informada" (R$ 0,00 em
+                  aberto) e não dá para pagar de novo até a confirmação — o
+                  cartão diz isso em vez de "R$ 0,00 · Pagar comissão". */}
               <span>
-                <span className="font-semibold text-brand">{formatBRL(saldoComissaoAberto)} em aberto</span>{" "}
+                {saldoComissaoAberto > 0 ? (
+                  <span className="font-semibold text-brand">{formatBRL(saldoComissaoAberto)} em aberto</span>
+                ) : (
+                  <span className="font-semibold text-ink">Comissão da plataforma</span>
+                )}{" "}
                 <span className="text-muted">
-                  {pagamentoComissaoInformado ? "— pagamento informado, aguardando confirmação." : "— comissão da plataforma."}
+                  {pagamentoComissaoInformado
+                    ? "— pagamento informado, aguardando a administração confirmar."
+                    : "— comissão da plataforma."}
                 </span>
               </span>
-              <span className="shrink-0 font-semibold text-brand">Pagar comissão →</span>
+              <span className="shrink-0 font-semibold text-brand">
+                {pagamentoComissaoInformado ? "Ver comissão →" : "Pagar comissão →"}
+              </span>
             </Link>
           ) : null}
 

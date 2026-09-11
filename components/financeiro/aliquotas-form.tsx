@@ -47,15 +47,17 @@ export function CampoAliquota({
   const id = `aliq-${tipo ?? "geral"}`;
   return (
     <div className="flex flex-col gap-1">
-      <form onSubmit={salvar} className="flex items-end gap-2">
-        <div className="flex-1">
-          <label className="label" htmlFor={id}>
-            {label}
-          </label>
-          <div className="relative">
+      {/* Campo estreito (uma porcentagem tem no máximo "50,00"): a versão de
+          largura inteira pesava a seção com sete linhas iguais. */}
+      <form onSubmit={salvar} className="flex flex-col gap-1">
+        <label className="label" htmlFor={id}>
+          {label}
+        </label>
+        <div className="flex items-center gap-2">
+          <div className="relative w-32">
             <input
               id={id}
-              className="input pr-8"
+              className="input pr-8 tabular-nums"
               inputMode="decimal"
               value={valor}
               onChange={(e) => setValor(e.target.value)}
@@ -65,10 +67,10 @@ export function CampoAliquota({
               %
             </span>
           </div>
+          <button type="submit" disabled={pending} className="btn-ghost">
+            {pending ? "Salvando…" : salvo ? "Salvo ✓" : "Salvar"}
+          </button>
         </div>
-        <button type="submit" disabled={pending} className="btn-ghost">
-          {pending ? "Salvando…" : salvo ? "Salvo ✓" : "Salvar"}
-        </button>
       </form>
       {erro ? <FormError>{erro}</FormError> : null}
     </div>

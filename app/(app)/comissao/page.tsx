@@ -221,7 +221,8 @@ export default async function ComissaoPage() {
             {meses.map(({ mes, resumo, situacao }) => (
               <div key={mes} className="card flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold capitalize">{mesPorExtenso(mes)}</p>
+                  {/* Só a primeira letra: `capitalize` do CSS fazia "Setembro De 2026". */}
+                  <p className="text-sm font-semibold">{mesPorExtenso(mes).replace(/^./, (c) => c.toUpperCase())}</p>
                   <p className="text-xs text-muted">
                     {resumo.quantidade} {resumo.quantidade === 1 ? "serviço" : "serviços"} ·{" "}
                     {formatBRL(resumo.totalServicos)} em serviços

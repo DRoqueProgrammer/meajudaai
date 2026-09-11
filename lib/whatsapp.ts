@@ -9,3 +9,13 @@ export function waLink(telefone: string): string {
 export function waShareLink(texto: string): string {
   return `https://wa.me/?text=${encodeURIComponent(texto)}`;
 }
+
+/**
+ * Link do WhatsApp de uma vaga do mural público, já com a mensagem de
+ * interesse pronta (`?text=`) — quem clica só confirma o envio, sem digitar
+ * nada. Usado pelo card de "Necessita-se ajudante!" (`components/landing/mural-vagas.tsx`).
+ */
+export function waLinkVaga(telefone: string, tituloVaga: string): string {
+  const texto = `Olá! Vi sua vaga "${tituloVaga}" no Me Ajuda Aí e tenho interesse.`;
+  return `${waLink(telefone)}?text=${encodeURIComponent(texto)}`;
+}

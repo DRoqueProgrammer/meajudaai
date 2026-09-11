@@ -2,9 +2,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { CONTAS_EXEMPLO } from "@/lib/auth/contas-exemplo";
+import { fotosContasExemplo } from "@/lib/auth/contas-exemplo-fotos";
 import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar } from "@/components/ui";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createServerClient } from "@/lib/supabase/server";
+import { MuralVagas } from "@/components/landing/mural-vagas";
+import { VitrineServicos } from "@/components/landing/vitrine-servicos";
 import { Logo } from "@/components/logo";
 import { Footer } from "@/components/footer";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,15 +38,18 @@ export default async function HomePage() {
   const user = await getCurrentUser();
   if (user) redirect("/inicio");
 
-  // Foto das contas de exemplo. Precisa de client admin: a landing é pública e a
-  // policy `profiles_select_all` (0001) só libera leitura para `authenticated`.
-  // São 4 linhas conhecidas, casadas por nome — nada de uuid fixo no código.
-  const nomesDemo = Object.values(CONTAS_EXEMPLO).map((c) => c.nome);
-  const { data: perfisDemo } = await createAdminClient()
-    .from("profiles")
-    .select("nome, foto_url")
-    .in("nome", nomesDemo);
-  const fotoDe = new Map((perfisDemo ?? []).map((p) => [p.nome, p.foto_url]));
+  // Foto das contas de exemplo (lib/auth/contas-exemplo-fotos.ts: precisa da
+  // chave de serviço, isolada lá — a landing em si só lê pelo client anon).
+  const fotoDe = await fotosContasExemplo();
+
+  // Mural público (pedido do Leonardo, 10/09/2026): vagas "Necessita-se
+  // ajudante!" e vitrine de anúncios de serviço, pela RPC anon
+  // `anuncios_publicos` (migrations 0044/0045) — sem chave de serviço.
+  const supabasePublico = await createServerClient();
+  const { data: vagas } = await supabasePublico.rpc("anuncios_publicos", {
+    p_tipo: "vaga_ajudante",
+    p_limite: 12,
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-card tabular-nums text-ink">
@@ -141,6 +147,21 @@ export default async function HomePage() {
                 normalmente (dá pra editar).
               </p>
             </div>
+          </div>
+        </section>
+
+        {/* Mural público (Fatia 2, lote A3): vagas de ajudante e vitrine de
+            anúncios de serviço, visíveis antes do login — logo depois do
+            hero, no lugar de maior destaque da landing. */}
+        <section className="border-b border-line bg-surface">
+          <div className="mx-auto max-w-[1200px] px-8 py-14">
+            <MuralVagas vagas={vagas ?? []} />
+          </div>
+        </section>
+
+        <section className="border-b border-line">
+          <div className="mx-auto max-w-[1200px] px-8 py-14">
+            <VitrineServicos />
           </div>
         </section>
 

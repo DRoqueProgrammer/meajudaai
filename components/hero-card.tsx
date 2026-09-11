@@ -84,6 +84,9 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
   const [previsao, setPrevisao] = useState<DiaPrevisao[] | null>(null);
   const [minimizado, setMinimizado] = useState(false);
   const [frase, setFrase] = useState<number | null>(null);
+  // O clima pode não vir (API fora do ar, cidade não achada): aí os blocos de
+  // espera somem, em vez de ficarem para sempre (achado do Leonardo).
+  const [climaCarregando, setClimaCarregando] = useState(true);
 
   useEffect(() => {
     setAgora(new Date());
@@ -109,6 +112,8 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
         if (json?.previsao) setPrevisao(json.previsao);
       } catch {
         // Sem clima (API fora do ar, cidade não encontrada) — o Hero funciona sem ele.
+      } finally {
+        if (!cancelado) setClimaCarregando(false);
       }
     })();
     return () => {
@@ -288,7 +293,7 @@ export function HeroCard({ nome, genero, cidade }: { nome: string; genero: strin
                   </li>
                 ))}
               </ul>
-            ) : cidade ? (
+            ) : cidade && climaCarregando ? (
               <div className="grid grid-cols-4 gap-2" aria-hidden="true">
                 {[0, 1, 2, 3].map((i) => (
                   <div key={i} className="h-[78px] animate-pulse sm:h-[92px] rounded-xl bg-white/[0.06] motion-reduce:animate-none" />

@@ -108,7 +108,9 @@ export async function numerosDoMesDaPraca(db: DB, prestadorIds: string[]): Promi
     .eq("status", "realizado");
   if (error) throw error;
   const linhas = realizados ?? [];
-  return { realizados: linhas.length, faturamento: linhas.reduce((acc, s) => acc + s.preco_valor, 0) };
+  // Soma em centavos: somar reais em ponto flutuante pode errar o último centavo.
+  const centavos = linhas.reduce((acc, s) => acc + Math.round(Number(s.preco_valor) * 100), 0);
+  return { realizados: linhas.length, faturamento: centavos / 100 };
 }
 
 /** Uma linha de `servicos`, no recorte mínimo para contar e achar o mais recente por cliente em /praca/clientes. */

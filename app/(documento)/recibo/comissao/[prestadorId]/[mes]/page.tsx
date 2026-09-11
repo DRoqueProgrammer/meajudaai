@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { pracasDoAtor, pracaAlcancada } from "@/lib/admin/alcance";
+import { atorAlcanca, pracasDoAtor, pracaAlcancada } from "@/lib/admin/alcance";
 import { pracaAtivaDoAdmin } from "@/lib/admin/praca-ativa";
 import { reciboMensal } from "@/lib/admin/financeiro";
 import { mesValido, mesPorExtenso, intervaloDoMes, numeroDoReciboMensal, valorPorExtenso } from "@/lib/comissao/regras";
@@ -50,7 +50,21 @@ export default async function ReciboComissaoPage({
 
   let workspaceId: string | null = pracaQuery || null;
   if (!workspaceId && user.role === "admin") workspaceId = (await pracaAtivaDoAdmin(db))?.id ?? null;
-  const daAdministracao = workspaceId != null && pracaAlcancada(user, await pracasDoAtor(db, user), workspaceId) != null;
+  const pracas = await pracasDoAtor(db, user);
+  const daAdministracao = workspaceId != null && pracaAlcancada(user, pracas, workspaceId) != null;
+  if (daAdministracao && user.id !== prestadorId) {
+    // Alcançar a PRAÇA não basta: o `[prestadorId]` do endereço tem de ser um
+    // prestador que a administração alcança (cidade e mundo — `atorAlcanca`) ou
+    // que já teve comissão NESTA praça (mudou de cidade depois). Sem isso, um
+    // id qualquer devolvia o nome de qualquer pessoa, até do mundo real para a
+    // conta de exemplo (revisão adversarial de 11/09/2026).
+    const [{ data: alvo }, { count }] = await Promise.all([
+      db.from("profiles").select("tipo_base, cidade, estado, exemplo").eq("user_id", prestadorId).maybeSingle(),
+      db.from("comissoes").select("id", { count: "exact", head: true }).eq("workspace_id", workspaceId!).eq("prestador_id", prestadorId),
+    ]);
+    const alcancaPrestador = alvo ? atorAlcanca(user, pracas, alvo, "prestador_servico") : false;
+    if (!alcancaPrestador && !count) notFound();
+  }
   if (!daAdministracao) {
     // Sem alcance administrativo, só o PRÓPRIO prestador — e só na praça que o
     // cobrou nesse mês: uma `?praca=` qualquer mostraria o cabeçalho e a

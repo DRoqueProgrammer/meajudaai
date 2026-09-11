@@ -197,6 +197,9 @@ export function AssinaturaPad({
       )}
 
       <div>
+        {/* Fundo sempre branco: a assinatura vai para o papel claro do recibo, e
+            o traço escuro sumia no fundo do tema escuro (bg-card) enquanto a
+            pessoa desenhava. */}
         <canvas
           ref={canvasRef}
           onPointerDown={iniciar}
@@ -204,7 +207,7 @@ export function AssinaturaPad({
           onPointerUp={finalizar}
           onPointerLeave={finalizar}
           onPointerCancel={finalizar}
-          className="h-40 w-full touch-none rounded-xl border border-dashed border-line-strong bg-card"
+          className="h-40 w-full touch-none rounded-xl border border-dashed border-line-strong bg-white"
           aria-label="Área para desenhar a assinatura"
           role="img"
         />

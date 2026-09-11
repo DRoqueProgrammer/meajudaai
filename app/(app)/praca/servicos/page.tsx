@@ -8,6 +8,7 @@ import { PracaAbas, SemPraca } from "@/components/admin/praca-abas";
 import { listarPrestadoresDaPraca } from "@/lib/admin/consultas";
 import { listarServicosDaPraca, slotsPorIds, numerosDoMesDaPraca } from "@/lib/admin/abas";
 import { comissoesDaPraca, doMes } from "@/lib/admin/financeiro";
+import { resumoDoRecibo } from "@/lib/comissao/regras";
 import { StatusTabs } from "@/components/status-tabs";
 import { Avatar } from "@/components/ui";
 import { formatBRL, formatData } from "@/lib/format";
@@ -99,7 +100,8 @@ export default async function PracaServicosPage({
   const nomeTipo = new Map(tipos.map((t) => [t.slug, t.nome]));
   const nomePrestador = new Map(prestadores.map((p) => [p.user_id, { nome: p.nome, fotoUrl: p.foto_url }]));
   const comissaoPorServico = new Map(comissoes.map((c) => [c.servicoId, c]));
-  const comissaoDoMes = doMes(comissoes, hojeEmSaoPaulo().slice(0, 7)).reduce((acc, c) => acc + c.valor, 0);
+  // Soma em centavos (resumoDoRecibo), nunca em ponto flutuante direto.
+  const comissaoDoMes = resumoDoRecibo(doMes(comissoes, hojeEmSaoPaulo().slice(0, 7))).totalComissao;
 
   const slotIds = [...new Set(servicos.map((s) => s.slot_id))];
   const clienteIds = [...new Set(servicos.map((s) => s.cliente_id))];

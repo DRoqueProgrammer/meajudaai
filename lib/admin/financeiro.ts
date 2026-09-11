@@ -294,10 +294,12 @@ export interface ReciboMensal {
 export async function reciboMensal(db: DB, workspaceId: string, prestadorId: string, mes: string): Promise<ReciboMensal | null> {
   const [emissor, { data: prestador }, todas] = await Promise.all([
     emissorDoRecibo(db, workspaceId),
-    db.from("profiles").select("nome").eq("user_id", prestadorId).maybeSingle(),
+    db.from("profiles").select("nome, tipo_base").eq("user_id", prestadorId).maybeSingle(),
     comissoesDaPraca(db, workspaceId, prestadorId),
   ]);
-  if (!emissor || !prestador) return null;
+  // Só recibo de PRESTADOR: um id de cliente, Administrador ou SysAdmin não
+  // vira "recibo" com o nome da pessoa (defesa em profundidade, além da página).
+  if (!emissor || !prestador || prestador.tipo_base !== "prestador_servico") return null;
   const linhas = doMes(todas, mes);
   const idsClientes = [...new Set(linhas.map((l) => l.clienteId).filter((x): x is string => Boolean(x)))];
   const { data: clientes } = idsClientes.length

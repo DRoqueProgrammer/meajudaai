@@ -141,6 +141,9 @@ describe.skipIf(!podeRodar)("Comissão · banco", () => {
     expect(recibo?.clientes[C]).toBeTruthy();
     // Outro mês: recibo vazio, nunca o serviço de outro mês.
     expect((await reciboMensal(db, W, P, "2001-01"))?.linhas).toHaveLength(0);
+    // Id de quem não é prestador (cliente, Administrador) não vira recibo com o nome da pessoa.
+    expect(await reciboMensal(db, W, C, c.dataServico!.slice(0, 7))).toBeNull();
+    expect(await reciboMensal(db, W, A, c.dataServico!.slice(0, 7))).toBeNull();
   });
 
   it("o prestador paga na chave padrão do Administrador responsável pela praça", async () => {

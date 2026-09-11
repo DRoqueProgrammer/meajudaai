@@ -340,3 +340,35 @@ travada pelo índice (0048).
 cadastro, foto opcional.** Cadastro em duas colunas no notebook, confirmação de senha com
 mostrar/ocultar, máscara do telefone à mostra, gênero como "Masculino / Feminino / Prefiro não
 informar" (a saudação continua derivada dele).
+
+**D-040 (do dono) — A agenda aberta é uma janela; o pedido diz a preferência e a hora é
+combinada depois.** *"a agenda do profissional está aberta neste caso das 09 às 18h. O cliente
+pode abrir o pedido, indicar na observação quando quer que seja realizada a visita, manhã,
+tarde"* e *"o horário acordado pode ser preenchido no serviço… sem necessidade da hora final"*.
+Migrations 0050 (`servicos.periodo_preferido`: manhã, tarde, noite ou qualquer — só os períodos
+que a janela cobre aparecem) e 0051 (`hora_combinada_inicio/fim`, fim opcional, dentro da janela,
+só o prestador marca). A agenda dos dois lados desenha o serviço na hora combinada. Limitação
+conhecida, não pedida: uma janela aberta continua recebendo UM pedido.
+
+**D-041 (do dono) — Suspeitas, sinalizações e suspensão ("Flag de Pilantragem").**
+Administrador registra suspeitas privadas sobre prestador (0052); as partes de um serviço se
+sinalizam nas duas direções, no serviço, com justificativa, e o Administrador aprova (0055, que
+refez a 0053); aprovadas viram bandeira no perfil do alvo, visível só para o outro lado e a
+administração (até 5, uma por sinal; 6+, uma com "N×"; hover com data/hora e quem sinalizou,
+mais recente primeiro); suspensão de qualquer conta (0052/0054) com aviso formal na página da
+pessoa, explicando que a plataforma existe para encontros que não aconteceriam fora dela. Conta
+de exemplo registra e decide sinais do mundo de exemplo, mas não suspende. Em aberto (LGPD):
+"Baixar meus dados" não traz as suspeitas privadas nem as sinalizações sobre a pessoa — são
+registros da administração; revisar com o encarregado se o direito de acesso as alcança.
+
+**D-042 (do dono) — Várias chaves Pix e QR com os dados no meio.** Até 5 chaves com apelido,
+uma padrão (0056; `profiles_pii.chave_pix` espelha a padrão). QR de 340px, correção nível H,
+caixa central com "Me Ajuda Aí" (faixa azul, "Aí" amarelo), nome, data e valor — leitura
+conferida por jsQR (`scripts/regressao/qr-pix.mjs`); falta a leitura por app de banco real, que
+o ROADMAP §16.5 exige antes de usar em produção. "Compartilhar no WhatsApp" em todo QR. No
+perfil, o QR de cada chave com valor em aberto (testar e cobrança avulsa, sem gravar nada).
+Conta de exemplo não mexe em chave.
+
+**D-043 (do controller) — Fatia 5 sem a comissão.** Página pública do prestador (`/p/[id]`,
+0049) e painel do SysAdmin entraram; a comissão da plataforma (ROADMAP §16) continua bloqueada
+pelas 7 lacunas de regra de dinheiro — decisão do dono.

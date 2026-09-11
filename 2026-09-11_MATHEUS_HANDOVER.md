@@ -628,6 +628,12 @@ integração, e isso precisa ficar escrito.
   - `scripts/enderecos-exemplo.mjs` grava rua e bairro, **sem número**, marcados "(endereço de exemplo)", para as nove contas de exemplo.
 - **Limpeza:** o servidor da vistoria (porta 3100) foi desligado; a worktree temporária e a
   configuração dela no `.claude/launch.json` saíram (commit `fe71d0e`).
+- **Repositório novo e produção** (pedido do Leonardo, 11/09):
+  - o código foi para o repositório privado `leonardochalhoub/meajudaai`, na `main`, com todo o histórico (remote `leonardo`);
+  - o app está no ar em **https://meajudaai-jet.vercel.app**, com deploy automático a cada push na `main` e funções em `cle1`, junto do banco;
+  - o Site URL do Supabase Auth saiu de `http://localhost:3000` e passou para o endereço de produção.
+
+  Variáveis, e-mail e o que fazer ao trocar de domínio estão no README, seção "Produção (Vercel)". **Atenção:** o SMTP padrão do Supabase não serve para cadastro público (ver README).
 - **Documentação:** este arquivo, o README (cobertura re-medida, mapa do banco e das pastas v2, testes)
   e o CLAUDE.md (onde está a avaliação, como verificar no navegador, dados de exemplo).
 

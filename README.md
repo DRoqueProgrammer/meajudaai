@@ -57,6 +57,20 @@ npm run dev
 
 `.env.local` (não comitado) precisa de `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY`, além de `SUPABASE_TOKEN` (token de gestão, usado só pela CLI para aplicar migrations — ver [CLAUDE.md](./CLAUDE.md#supabase)). O `GEMINI_API_KEY` só é necessário para o juiz de revisão do Converge.
 
+## Produção (Vercel)
+
+- **Endereço:** https://meajudaai-jet.vercel.app. É o projeto `meajudaai` na conta Vercel do Leonardo (`leonardochalhoubs-projects`), ligado ao repositório privado `leonardochalhoub/meajudaai`: **todo push na `main` publica sozinho**.
+- **Variáveis de ambiente (Production):**
+  - `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`;
+  - `SUPABASE_SERVICE_ROLE_KEY` (sensível);
+  - `CRON_SECRET` (sensível, gerado no Vercel; os crons do `vercel.json` o enviam sozinhos);
+  - `NEXT_PUBLIC_SITE_URL=https://meajudaai-jet.vercel.app`, o host dos links que saem por e-mail. Nunca `localhost`.
+
+  As `NEXT_PUBLIC_*` entram no build: se mudar alguma, faça um redeploy.
+- **Região das funções:** `cle1` (Cleveland), a mesma do banco (Supabase us-east-2).
+- **Supabase Auth:** o Site URL é o endereço de produção, e os Redirect URLs são `https://meajudaai-jet.vercel.app/**` e `http://localhost:3000/**`. Se trocar de domínio, atualize `NEXT_PUBLIC_SITE_URL` e essas duas configurações. Senão, os e-mails de confirmação e de recuperação de senha apontam para o lugar errado.
+- **E-mail:** o projeto usa o SMTP padrão do Supabase, que tem limite baixo de envios por hora e, pela política atual do Supabase, só entrega para endereços da equipe do projeto. Antes de abrir o cadastro para gente de fora, configure um SMTP próprio (Resend, Amazon SES…) em Authentication → SMTP.
+
 ## Contas de exemplo
 
 Contas reais (não read-only), uma por papel, com dados e ~3 anos de histórico simulado. Senha única: `MeAjudaAi2026!`.

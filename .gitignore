@@ -33,3 +33,6 @@ __pycache__/
 
 # Worktrees temporárias dos agentes executores (Agent tool) — não versionar
 /.claude/worktrees/
+
+# Vínculo local com o projeto do Vercel (vercel link) — por máquina, não versionar
+.vercel

@@ -24,6 +24,7 @@ export function PerfilForm({
   precoTipo,
   precoValor,
   chavePix,
+  linkChaves,
 }: {
   nome: string;
   bio: string | null;
@@ -35,6 +36,8 @@ export function PerfilForm({
   precoTipo?: string | null;
   precoValor?: number | null;
   chavePix?: string | null;
+  /** Onde ficam as chaves Pix (seção do perfil) — o campo único saiu daqui na migration 0056. */
+  linkChaves?: string;
 }) {
   const [estado, formAction] = useActionState(salvarPerfilAction, null);
   const v = estado?.valores ?? {};
@@ -155,20 +158,17 @@ export function PerfilForm({
             cliente antes de começar.
           </p>
 
-          <div>
-            <label className="label" htmlFor="chavePix">
-              Chave Pix
-            </label>
-            <input
-              id="chavePix"
-              name="chavePix"
-              className="input"
-              defaultValue={v.chavePix ?? chavePix ?? ""}
-              placeholder="CPF, e-mail, telefone ou chave aleatória"
-            />
-            <p className="mt-1 text-xs leading-relaxed text-muted">
-              Usada só pra gerar o QR de cobrança de cada serviço, pra você mostrar pro cliente. Fica
-              visível só pra você.
+          {/* As chaves Pix (várias, uma padrão — migration 0056) ficam em
+              "Minhas chaves Pix", no seu perfil, com o QR de cada uma. */}
+          <div className="rounded-xl border border-line bg-surface px-4 py-3 text-sm">
+            <p className="font-medium">Chaves Pix</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted">
+              {chavePix ? "Sua chave padrão está cadastrada. " : "Você ainda não cadastrou uma chave Pix. "}
+              Cadastre, edite e teste os QR em{" "}
+              <a href={linkChaves ?? "#"} className="font-semibold text-brand underline">
+                Minhas chaves Pix
+              </a>
+              , no seu perfil.
             </p>
           </div>
         </>

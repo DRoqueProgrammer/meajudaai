@@ -59,6 +59,7 @@ export default async function EditarPerfilPage() {
         precoTipo={p.preco_tipo}
         precoValor={p.preco_valor}
         chavePix={pii?.chave_pix}
+        linkChaves={`/perfil/${user.id}#chaves-pix`}
       />
       {precisaLocalizacao ? (
         <div className="mt-4">

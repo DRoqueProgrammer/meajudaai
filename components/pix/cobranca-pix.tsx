@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
+import { useMemo, useState } from "react";
 import { montarPixEstatico } from "@/lib/pix/static-qr";
 import { formatBRL, formatData } from "@/lib/format";
+import { QrPix } from "@/components/pix/qr-pix";
+import type { ChavePix } from "@/components/pix/chaves-pix";
 
 /**
  * Cobrança Pix de um serviço — o próprio prestador gera e mostra a tela (o
- * cliente escaneia com o celular dele, presencialmente). Nome/data/valor do
- * serviço ficam no meio, entre o cabeçalho e o QR, pra quem for pagar
- * conferir antes de escanear. Só precisa da própria `chave_pix` do
- * prestador — nunca lê dado de outra pessoa (ver ROADMAP §0).
+ * cliente escaneia com o celular dele, presencialmente) ou compartilha pelo
+ * WhatsApp. O QR é grande e leva no meio "Me Ajuda Aí", o nome, a data e o
+ * valor (`QrPix`). Usa as chaves Pix do próprio prestador (migration 0056): a
+ * padrão vem escolhida e, com mais de uma, um seletor discreto troca só nesta
+ * cobrança. Nunca lê dado de outra pessoa (ver ROADMAP §0).
  */
 export function CobrancaPix({
-  chavePix,
+  chaves,
   nomePrestador,
   cidade,
   nomeCliente,
@@ -21,7 +23,7 @@ export function CobrancaPix({
   descricao,
   valor,
 }: {
-  chavePix: string;
+  chaves: ChavePix[];
   nomePrestador: string;
   cidade: string | null;
   nomeCliente: string;
@@ -29,49 +31,55 @@ export function CobrancaPix({
   descricao: string;
   valor: number;
 }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [copiado, setCopiado] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-
-  let payload = "";
-  try {
-    payload = montarPixEstatico({ chave: chavePix, nome: nomePrestador, cidade: cidade ?? "BRASIL", valor });
-  } catch {
-    // chave vazia — não deveria chegar aqui, quem chama já checa antes.
-  }
-
-  useEffect(() => {
-    if (!payload || !canvasRef.current) return;
-    QRCode.toCanvas(canvasRef.current, payload, { errorCorrectionLevel: "M", margin: 1, width: 200 }).catch(() =>
-      setErro("Não foi possível gerar o QR."),
-    );
-  }, [payload]);
-
-  async function copiar() {
+  const [chaveId, setChaveId] = useState(() => (chaves.find((c) => c.padrao) ?? chaves[0])?.id ?? "");
+  const chaveAtual = chaves.find((c) => c.id === chaveId) ?? chaves[0];
+  const chavePix = chaveAtual?.chave ?? "";
+  const payload = useMemo(() => {
     try {
-      await navigator.clipboard.writeText(payload);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2000);
+      return montarPixEstatico({ chave: chavePix, nome: nomePrestador, cidade: cidade ?? "BRASIL", valor });
     } catch {
-      setErro("Não foi possível copiar — copie manualmente o código abaixo.");
+      return ""; // chave vazia — quem chama já checa antes.
     }
-  }
+  }, [chavePix, nomePrestador, cidade, valor]);
+  const linhas = useMemo(
+    () => ({ nome: nomeCliente, data: formatData(data), valor: formatBRL(valor) }),
+    [nomeCliente, data, valor],
+  );
 
   if (!payload) return null;
 
   return (
-    <div className="card flex flex-col items-center gap-2 text-center">
+    <div className="card flex flex-col items-center gap-3 text-center">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted">Cobrar via Pix</p>
       <div className="flex flex-col gap-0.5">
         <p className="text-sm font-semibold">{nomeCliente}</p>
-        <p className="text-xs text-muted">{formatData(data)} · {descricao}</p>
+        <p className="text-xs text-muted">
+          {formatData(data)} · {descricao}
+        </p>
         <p className="text-lg font-bold text-brand">{formatBRL(valor)}</p>
       </div>
-      <canvas ref={canvasRef} className="rounded-lg" />
-      <button type="button" onClick={copiar} className="btn-ghost w-full text-xs">
-        {copiado ? "Copiado!" : "Copiar código Pix"}
-      </button>
-      {erro ? <p className="text-xs text-danger">{erro}</p> : null}
+      {chaves.length > 1 ? (
+        <label className="flex items-center gap-2 text-xs text-muted">
+          Receber em
+          <select
+            className="input h-11 w-auto min-w-[9rem] py-0 text-sm"
+            value={chaveId}
+            onChange={(e) => setChaveId(e.target.value)}
+          >
+            {chaves.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.apelido}
+                {c.padrao ? " (padrão)" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      <QrPix
+        payload={payload}
+        linhas={linhas}
+        textoCompartilhar={`Pix de ${nomePrestador} — ${descricao} (${formatData(data)}): ${formatBRL(valor)}.`}
+      />
     </div>
   );
 }

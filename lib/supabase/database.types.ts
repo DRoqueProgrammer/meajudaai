@@ -216,6 +216,33 @@ export type Database = {
         }
         Relationships: []
       }
+      chaves_pix: {
+        Row: {
+          apelido: string
+          chave: string
+          created_at: string
+          id: string
+          padrao: boolean
+          user_id: string
+        }
+        Insert: {
+          apelido: string
+          chave: string
+          created_at?: string
+          id?: string
+          padrao?: boolean
+          user_id: string
+        }
+        Update: {
+          apelido?: string
+          chave?: string
+          created_at?: string
+          id?: string
+          padrao?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversa_membros: {
         Row: {
           conversa_id: string

@@ -12,6 +12,7 @@ import { papelLabel } from "@/lib/papel-label";
 import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
 import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 import { waLink } from "@/lib/whatsapp";
+import { ChavesPix } from "@/components/pix/chaves-pix";
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -81,6 +82,13 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
     ? await sb.rpc("anuncios_publicos", { p_prestador: id })
     : { data: null };
 
+  // Minhas chaves Pix (migration 0056) — só no PRÓPRIO perfil de prestador; a
+  // RLS também só entrega as do dono.
+  const { data: minhasChaves } =
+    ehEu && ehPrestadorV2
+      ? await sb.from("chaves_pix").select("id, apelido, chave, padrao").eq("user_id", id).order("created_at", { ascending: true })
+      : { data: null };
+
   const { data: avals } = await sb
     .from("avaliacoes")
     .select("id, nota, comentario, created_at, avaliador_id")
@@ -144,6 +152,8 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
             <CompartilharLocal modo="perfil" lat={local.lat} lng={local.lng} />
           </div>
         ) : null}
+
+        {minhasChaves ? <ChavesPix chaves={minhasChaves} nome={p.nome} cidade={p.cidade} /> : null}
 
         {/* Histórico de trabalho — o que responde "posso confiar?" para quem
             ainda não tem avaliação nenhuma. */}

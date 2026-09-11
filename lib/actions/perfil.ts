@@ -99,9 +99,8 @@ export async function salvarPerfilAction(_estado: EstadoForm, fd: FormData): Pro
     .eq("user_id", user.id);
   if (error) return { erro: "Não foi possível salvar o perfil.", valores: preserva };
 
-  if (d.chavePix !== undefined) {
-    await sb.from("profiles_pii").update({ chave_pix: d.chavePix || null }).eq("user_id", user.id);
-  }
+  // A chave Pix não se edita mais aqui: fica em chaves_pix (migration 0056), e
+  // profiles_pii.chave_pix só espelha a padrão (gatilho do banco).
 
   revalidatePath("/", "layout");
   redirect(`/perfil/${user.id}`);

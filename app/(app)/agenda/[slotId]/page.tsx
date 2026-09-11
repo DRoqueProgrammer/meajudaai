@@ -47,7 +47,13 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
     : { data: [] };
 
   const { data: meuPerfil } = await sb.from("profiles").select("nome, cidade").eq("user_id", user.id).maybeSingle();
-  const { data: minhaPii } = await sb.from("profiles_pii").select("chave_pix").eq("user_id", user.id).maybeSingle();
+  // Chaves Pix do prestador (migration 0056): a padrão vem escolhida, e dá para
+  // trocar só nesta cobrança.
+  const { data: minhasChaves } = await sb
+    .from("chaves_pix")
+    .select("id, apelido, chave, padrao")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true });
   const { data: cliente } = servico
     ? await sb
         .from("profiles")
@@ -59,6 +65,13 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
   const { data: clientePii } = servico
     ? await sb.from("profiles_pii").select("telefone, is_whatsapp").eq("user_id", servico.cliente_id).maybeSingle()
     : { data: null };
+  // Serviço sem local marcado (pedidos antigos): cai no endereço e no ponto do
+  // perfil do cliente — a RLS de profile_local entrega para a outra parte de um
+  // serviço válido (pedido do Leonardo: o prestador vê o mapa do cliente).
+  const { data: localCliente } =
+    servico && (servico.lat == null || servico.lng == null)
+      ? await sb.from("profile_local").select("endereco, lat, lng").eq("user_id", servico.cliente_id).maybeSingle()
+      : { data: null };
 
   return (
     <div className="flex flex-col gap-4">
@@ -80,13 +93,19 @@ export default async function AgendaSlotPage({ params }: { params: Promise<{ slo
           }}
           telefone={clientePii?.telefone ?? null}
           isWhatsapp={clientePii?.is_whatsapp ?? false}
-          endereco={servico.endereco}
-          local={servico.lat != null && servico.lng != null ? { lat: servico.lat, lng: servico.lng } : null}
+          endereco={servico.endereco ?? localCliente?.endereco ?? null}
+          local={
+            servico.lat != null && servico.lng != null
+              ? { lat: servico.lat, lng: servico.lng }
+              : localCliente
+                ? { lat: localCliente.lat, lng: localCliente.lng }
+                : null
+          }
         />
       ) : null}
-      {servico && minhaPii?.chave_pix ? (
+      {servico && (minhasChaves ?? []).length > 0 ? (
         <CobrancaPix
-          chavePix={minhaPii.chave_pix}
+          chaves={minhasChaves ?? []}
           nomePrestador={meuPerfil?.nome ?? ""}
           cidade={meuPerfil?.cidade ?? null}
           nomeCliente={cliente?.nome ?? "Cliente"}

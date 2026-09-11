@@ -55,7 +55,8 @@ export default async function ReciboComissaoPage({
     // Sem alcance administrativo, só o PRÓPRIO prestador — e só na praça que o
     // cobrou nesse mês: uma `?praca=` qualquer mostraria o cabeçalho e a
     // assinatura de outra praça (revisão do controller).
-    if (user.id !== prestadorId) notFound();
+    const ehOProprio = user.id === prestadorId;
+    if (!ehOProprio) notFound();
     workspaceId = await pracaDaComissaoDoMes(db, prestadorId, mes);
   }
   if (!workspaceId) notFound();

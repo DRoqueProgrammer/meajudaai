@@ -2,7 +2,23 @@
 
 Este arquivo existe pra uma sessão nova (modelo diferente, ou uma continuação depois de um tempo parado) retomar sem perder contexto. Leia nesta ordem: **este arquivo** → [ROADMAP.md](./ROADMAP.md) §0 (auditoria — o que falta, sempre atualizada) → [CLAUDE.md](./CLAUDE.md) (convenções e comandos).
 
-Última atualização: **11/09/2026, madrugada** — sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes; **Fatias 1, 3 e 2 entregues**; anúncios do prestador (a ação v2 do Administrador), Hero novo, cadastro, agenda e faturamento por tipo pedidos ao vivo pelo Leonardo; começo da Fatia 4. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
+Última atualização: **11/09/2026, madrugada (2ª parte)** — comissão da plataforma, abas da praça, Financeiro com recibos e nota avulsa, "Limpar red flags" (seção logo abaixo). Antes: sessão do Opus 5 como *controller* (executores Sonnet): vistoria dos 9 agentes; **Fatias 1, 3 e 2 entregues**; anúncios do prestador (a ação v2 do Administrador), Hero novo, cadastro, agenda e faturamento por tipo pedidos ao vivo pelo Leonardo; começo da Fatia 4. A seção logo abaixo é desta sessão; o resto do arquivo é da sessão de 09/09 e continua valendo.
+
+---
+
+## 11/09 — comissão, abas da praça, Financeiro com recibos (D-044 a D-047)
+
+**Banco (migrations 0057 e 0058, trancadas na cerca):** comissão da plataforma (alíquota em 4 níveis por praça, gerada pelo gatilho quando o serviço vira realizado, com a taxa congelada; "Enviei o Pix" → o Administrador confirma ou recusa); `sinalizacoes.status = 'limpa'` ("Limpar red flags" — o registro fica, sai do perfil); `notas_avulsas` numeradas; `assinaturas` do Administrador (PNG; a conta de exemplo não grava). Gabaritos em `tests/comissao/` (banco 8/8, financeiro 8/8, regras 8/8).
+
+**Código:** regras puras em `lib/comissao/regras.ts` (taxa média ponderada, valor por extenso, atraso de 7 dias); leituras do Financeiro em `lib/admin/financeiro.ts` e das abas em `lib/admin/abas.ts` (server-only, sempre recortadas pela praça — `lib/admin/praca-ativa.ts`); actions em `lib/actions/comissao.ts`, `lib/actions/financeiro.ts` e `limparRedFlagsAction` em `lib/actions/suspeitas.ts`. Telas: abas do Administrador `/praca/{servicos,clientes,prestadores,financeiro}` (faixa `PracaAbas`), recibos sem o menu em `app/(documento)/recibo/{comissao/[prestadorId]/[mes],nota/[id]}` (papel sempre claro, A4 / meia folha, "Imprimir / Salvar PDF"), e a tela `/comissao` do prestador com o QR na chave padrão do Administrador. As telas vieram de três lotes Sonnet em paralelo (T, F, C), com gabarito em `tests/praca/` e `tests/comissao/prestador-telas.test.ts`.
+
+**Dados de demonstração:** `node scripts/comissao-exemplo.mjs` (idempotente, só mundo de exemplo: alíquotas 10%/8% na praça de Niterói, chave Pix FICTÍCIA do Marcelo, comissões de 2026 do João — meses anteriores quitados, setembro em aberto ≈ R$ 97,60 —, 3 serviços extras em setembro e uma nota avulsa) e `node scripts/sinalizacoes-exemplo.mjs` (2 red flags aprovadas na Marina).
+
+**Red flags (pedido de 11/09):** o botão de sinalizar virou um ícone de bandeira em contorno, cinza (rótulo acessível "Sinalizar <nome>"); vermelho cheio só para as aprovadas, "N×" a partir de 6, também no cartão de hover do perfil. Nenhuma tela de cliente ou prestador fala em pilantragem. D-045 aplicada ao "Baixar meus dados" (sinalizações fora).
+
+**Juiz do tier 2:** a chave gratuita do Gemini não aguenta diffs grandes (o CLI fica em nova tentativa sem responder). Leonardo tem Gemini pago e Grok: o Gemini CLI aceita "Login with Google" (cota da conta, sem chave) e o `revisar-lote.sh` já aceita `JUIZ=grok` com `XAI_API_KEY` no `.env.local` (chave em console.x.ai; a API do xAI é cobrada à parte do app).
+
+**Armadilha nova:** o painel do navegador embutido, quando oculto, não roda `requestAnimationFrame` — a troca do esqueleto de carregamento ("Carregando…") nunca acontece e as capturas estouram o tempo. Para olhar telas, use o Chrome headless (playwright-core, `channel: "chrome"`), como a regressão.
 
 ---
 

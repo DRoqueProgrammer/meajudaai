@@ -6,6 +6,7 @@ import { notaAvulsaPorId, emissorDoRecibo } from "@/lib/admin/financeiro";
 import { numeroDaNotaAvulsa, valorPorExtenso } from "@/lib/comissao/regras";
 import { formatBRL, formatData } from "@/lib/format";
 import { dataEmSaoPaulo, horaEmSaoPaulo } from "@/lib/datas";
+import { AVISO_SEM_VALOR_FISCAL } from "@/lib/financeiro/avisos";
 import { BarraImpressao } from "@/components/recibo/barra-impressao";
 import { Logo } from "@/components/logo";
 import { fonteAssinatura } from "@/lib/fonte-assinatura";
@@ -109,6 +110,7 @@ export default async function ReciboNotaPage({ params }: { params: Promise<{ id:
             <span>Documento gerado eletronicamente pelo Me Ajuda Aí · guarde por 5 anos</span>
             <span>{emitidoEmTexto}</span>
           </footer>
+          <p className="na-aviso-fiscal">{AVISO_SEM_VALOR_FISCAL}</p>
         </article>
       </div>
 
@@ -144,6 +146,7 @@ export default async function ReciboNotaPage({ params }: { params: Promise<{ id:
         .na-assinatura-nome { margin-top:6px; font-size:13px; font-weight:500; color:#111827; }
         .na-assinatura-sub { font-size:11px; color:#52525b; }
         .na-rodape { margin-top:16px; padding-top:10px; border-top:1px solid #e4e4e7; display:flex; justify-content:space-between; gap:12px; font-size:10px; color:#71717a; position:relative; z-index:1; }
+        .na-aviso-fiscal { margin-top:6px; font-size:9px; line-height:1.4; color:#a1a1aa; text-align:center; position:relative; z-index:1; }
         @media print {
           html, body { background:#fff !important; margin:0 !important; padding:0 !important; }
           .no-print { display:none !important; }

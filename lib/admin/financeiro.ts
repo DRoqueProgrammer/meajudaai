@@ -28,6 +28,8 @@ export interface ComissaoDetalhada {
   status: string;
   pagamentoId: string | null;
   criadaEm: string;
+  /** Quando o Administrador deu o OK desta comissão (coluna `paga_em`, migration 0059) — data do livro-caixa (Entradas). */
+  pagaEm: string | null;
   /** Data do serviço (AAAA-MM-DD), do horário da agenda. */
   dataServico: string | null;
   clienteId: string | null;
@@ -46,11 +48,12 @@ type LinhaComissao = {
   status: string;
   pagamento_id: string | null;
   created_at: string;
+  paga_em: string | null;
   servicos: { cliente_id: string; descricao: string; agenda_slots: { data: string } | null } | null;
 };
 
 const SELECT_COMISSAO =
-  "id, servico_id, prestador_id, workspace_id, tipo_servico, base, percentual, valor, status, pagamento_id, created_at, servicos(cliente_id, descricao, agenda_slots(data))";
+  "id, servico_id, prestador_id, workspace_id, tipo_servico, base, percentual, valor, status, pagamento_id, created_at, paga_em, servicos(cliente_id, descricao, agenda_slots(data))";
 
 function detalhar(l: LinhaComissao): ComissaoDetalhada {
   return {
@@ -65,6 +68,7 @@ function detalhar(l: LinhaComissao): ComissaoDetalhada {
     status: l.status,
     pagamentoId: l.pagamento_id,
     criadaEm: l.created_at,
+    pagaEm: l.paga_em,
     dataServico: l.servicos?.agenda_slots?.data ?? null,
     clienteId: l.servicos?.cliente_id ?? null,
     descricao: l.servicos?.descricao ?? null,

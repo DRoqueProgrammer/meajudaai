@@ -4,9 +4,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { atorAlcanca, pracasDoAtor, pracaAlcancada } from "@/lib/admin/alcance";
 import { pracaAtivaDoAdmin } from "@/lib/admin/praca-ativa";
 import { reciboMensal } from "@/lib/admin/financeiro";
-import { mesValido, mesPorExtenso, intervaloDoMes, numeroDoReciboMensal, valorPorExtenso } from "@/lib/comissao/regras";
+import { mesValido, mesPorExtenso, intervaloDoMes, numeroDoReciboMensal, valorPorExtenso, resumoDoRecibo } from "@/lib/comissao/regras";
 import { formatBRL, formatData } from "@/lib/format";
 import { dataEmSaoPaulo, horaEmSaoPaulo } from "@/lib/datas";
+import { AVISO_SEM_VALOR_FISCAL } from "@/lib/financeiro/avisos";
 import { BarraImpressao } from "@/components/recibo/barra-impressao";
 import { Logo } from "@/components/logo";
 import { fonteAssinatura } from "@/lib/fonte-assinatura";
@@ -31,16 +32,22 @@ function fmtPct(n: number): string {
  * `?praca=`, ou, faltando, da praça ativa do Administrador; para o
  * prestador, da comissão mais recente DELE NESSE MÊS (ele pode ter mudado de
  * cidade, então não é fixo).
+ *
+ * `?servico=` (D-048, "o Administrador pode dar recibo de qualquer serviço
+ * realizado"): recorta `recibo.linhas` a um serviço só e recalcula o resumo —
+ * nunca busca dado novo, só filtra o que a autorização acima já liberou, então
+ * um id que não bate com nenhuma linha simplesmente esvazia a lista, sem
+ * vazar nada.
  */
 export default async function ReciboComissaoPage({
   params,
   searchParams,
 }: {
   params: Promise<{ prestadorId: string; mes: string }>;
-  searchParams: Promise<{ praca?: string }>;
+  searchParams: Promise<{ praca?: string; servico?: string }>;
 }) {
   const { prestadorId, mes } = await params;
-  const { praca: pracaQuery } = await searchParams;
+  const { praca: pracaQuery, servico: servicoQuery } = await searchParams;
   if (!mesValido(mes)) notFound();
 
   const user = await getCurrentUser();
@@ -81,10 +88,20 @@ export default async function ReciboComissaoPage({
   const { data: tiposRows } = await db.from("tipos_servico").select("slug, nome");
   const nomeDoTipo = new Map((tiposRows ?? []).map((t) => [t.slug, t.nome]));
 
-  const resumo = recibo.resumo;
+  // Recibo de um serviço só: recorta as linhas já autorizadas e refaz o
+  // resumo — nada busca de novo, então um `?servico=` estranho só esvazia.
+  const linhas = servicoQuery ? recibo.linhas.filter((l) => l.servicoId === servicoQuery) : recibo.linhas;
+  const resumo = servicoQuery ? resumoDoRecibo(linhas) : recibo.resumo;
   const emitidoEmTexto = `${formatData(dataEmSaoPaulo())} às ${horaEmSaoPaulo()}`;
   const quitado = resumo.pendente === 0 && resumo.totalComissao > 0;
-  const rotuloDocumento = resumo.confirmado > 0 ? "Recibo de comissão" : "Demonstrativo de comissão";
+  const rotuloDocumento = servicoQuery
+    ? "Recibo de comissão — serviço"
+    : resumo.confirmado > 0
+      ? "Recibo de comissão"
+      : "Demonstrativo de comissão";
+  const numeroDocumento = servicoQuery
+    ? `${numeroDoReciboMensal(prestadorId, mes)}-S${servicoQuery.replace(/-/g, "").slice(0, 8).toUpperCase()}`
+    : numeroDoReciboMensal(prestadorId, mes);
 
   return (
     <>
@@ -107,7 +124,7 @@ export default async function ReciboComissaoPage({
             </div>
             <div className="recibo-meta">
               <p className="recibo-eyebrow">{rotuloDocumento}</p>
-              <p className="recibo-numero">{numeroDoReciboMensal(prestadorId, mes)}</p>
+              <p className="recibo-numero">{numeroDocumento}</p>
               <p className="recibo-linha-meta">Competência: {mesPorExtenso(mes)}</p>
               <p className="recibo-linha-meta">Emitido em {emitidoEmTexto}</p>
             </div>
@@ -128,7 +145,7 @@ export default async function ReciboComissaoPage({
             </div>
           </section>
 
-          {recibo.linhas.length === 0 ? (
+          {linhas.length === 0 ? (
             <p className="recibo-vazio">Nenhum serviço com comissão realizado em {mesPorExtenso(mes)}.</p>
           ) : (
             <table className="recibo-tabela">
@@ -144,7 +161,7 @@ export default async function ReciboComissaoPage({
                 </tr>
               </thead>
               <tbody>
-                {recibo.linhas.map((l) => (
+                {linhas.map((l) => (
                   <tr key={l.id}>
                     <td>{formatData(l.dataServico)}</td>
                     <td>{(l.tipo && nomeDoTipo.get(l.tipo)) || l.tipo || "—"}</td>
@@ -225,6 +242,7 @@ export default async function ReciboComissaoPage({
             <span>Documento gerado eletronicamente pelo Me Ajuda Aí · guarde por 5 anos</span>
             <span>{emitidoEmTexto}</span>
           </footer>
+          <p className="recibo-aviso-fiscal">{AVISO_SEM_VALOR_FISCAL}</p>
         </article>
       </div>
 
@@ -275,6 +293,7 @@ export default async function ReciboComissaoPage({
         .recibo-assinatura-nome { margin-top:6px; font-size:13px; font-weight:500; color:#111827; }
         .recibo-assinatura-sub { font-size:11px; color:#52525b; }
         .recibo-rodape { margin-top:18px; padding-top:10px; border-top:1px solid #e4e4e7; display:flex; justify-content:space-between; gap:12px; font-size:9.5px; color:#71717a; position:relative; z-index:1; }
+        .recibo-aviso-fiscal { margin-top:6px; font-size:9px; line-height:1.4; color:#a1a1aa; text-align:center; position:relative; z-index:1; }
         @media print {
           html, body { background:#fff !important; margin:0 !important; padding:0 !important; }
           .no-print { display:none !important; }

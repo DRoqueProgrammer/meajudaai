@@ -6,6 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { geocodeAddress } from "@/lib/actions/geocode";
 import { coordLabel } from "@/lib/maps-share";
+import { AlvoIcon } from "@/components/icons";
 
 const icon = L.icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -31,15 +32,28 @@ export interface AddressValue {
 
 /**
  * Digite o endereço → "Localizar" geocoda e marca o pino (arrastável). Ou
- * "usar minha localização". Emite lat/lng para o formulário via onChange.
+ * "Marcar minha localização atual" (GPS do aparelho). Emite lat/lng para o
+ * formulário via onChange. `inicial` semeia o estado (pino já salvo em
+ * `profile_local`, por ex. em `/perfil/editar`) sem quebrar quem não passa
+ * nada (cadastro, publicar diária) — nesse caso começa sem pino, como antes.
  */
-export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => void }) {
-  const [endereco, setEndereco] = useState("");
-  const [lat, setLat] = useState<number | null>(null);
-  const [lng, setLng] = useState<number | null>(null);
+export function AddressMapPicker({
+  inicial,
+  onChange,
+}: {
+  inicial?: AddressValue;
+  onChange: (v: AddressValue) => void;
+}) {
+  const [endereco, setEndereco] = useState(inicial?.endereco ?? "");
+  const [lat, setLat] = useState<number | null>(inicial?.lat ?? null);
+  const [lng, setLng] = useState<number | null>(inicial?.lng ?? null);
   const [hits, setHits] = useState<{ label: string; lat: number; lng: number }[]>([]);
   const [geoErr, setGeoErr] = useState<string | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
+  // Precisão informada pelo GPS (accuracy, em metros) — só existe depois de um
+  // "Marcar minha localização atual" bem-sucedido; busca por endereço e
+  // arrastar o pino não têm essa medida, então zeram de novo.
+  const [precisao, setPrecisao] = useState<number | null>(null);
   const [pending, start] = useTransition();
   const markerRef = useRef<L.Marker>(null);
 
@@ -47,25 +61,46 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
     onChange({ endereco, lat, lng, ...next });
   }
 
-  function usarLocalAtual() {
+  /**
+   * GPS real do aparelho (não geocodificação de texto). `enableHighAccuracy`
+   * + `maximumAge: 0` pedem a leitura mais precisa disponível, mesmo que
+   * demore mais — o pino é o ponto exato do perfil, uma leitura em cache ou
+   * de baixa precisão (torre de celular) não serve. Sem geocodificação
+   * reversa no projeto (lib/actions/geocode.ts só busca texto → coordenada,
+   * não o caminho inverso): preenche só o pino, o endereço em texto continua
+   * o que a pessoa já tinha digitado.
+   */
+  function marcarLocalAtual() {
     setGeoErr(null);
     if (!navigator.geolocation) {
-      setGeoErr("Geolocalização não suportada neste aparelho.");
+      setGeoErr("Geolocalização não é suportada neste navegador.");
       return;
     }
     setGeoBusy(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLat(pos.coords.latitude);
-        setLng(pos.coords.longitude);
-        emit({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const { latitude, longitude, accuracy } = pos.coords;
+        setLat(latitude);
+        setLng(longitude);
+        setPrecisao(Number.isFinite(accuracy) ? Math.round(accuracy) : null);
+        emit({ lat: latitude, lng: longitude });
         setGeoBusy(false);
       },
-      () => {
-        setGeoErr("Não foi possível obter sua localização (permissão negada?).");
+      (err) => {
         setGeoBusy(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoErr(
+            "Permissão de localização negada. Libere o acesso à localização para este site nas configurações do navegador (ícone de cadeado ao lado do endereço) e tente de novo.",
+          );
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setGeoErr("Não foi possível determinar sua posição agora. Tente novamente em instantes.");
+        } else if (err.code === err.TIMEOUT) {
+          setGeoErr("Tempo esgotado tentando obter sua localização. Tente de novo.");
+        } else {
+          setGeoErr("Não foi possível obter sua localização.");
+        }
       },
-      { enableHighAccuracy: true, timeout: 10000 },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   }
 
@@ -76,6 +111,7 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
       if (res[0]) {
         setLat(res[0].lat);
         setLng(res[0].lng);
+        setPrecisao(null); // pino veio do texto buscado, não mais do GPS
         emit({ lat: res[0].lat, lng: res[0].lng });
       }
     });
@@ -106,16 +142,24 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
         </button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-1.5">
         <button
           type="button"
-          onClick={usarLocalAtual}
+          onClick={marcarLocalAtual}
           disabled={geoBusy}
-          className="btn-ghost px-3 py-1.5 text-xs"
+          className="btn-action w-full gap-2 sm:w-auto"
         >
-          {geoBusy ? "Obtendo…" : "📍 Usar minha localização"}
+          <AlvoIcon className="h-5 w-5 shrink-0" />
+          {geoBusy ? "Obtendo localização…" : "Marcar minha localização atual"}
         </button>
-        {geoErr ? <span className="text-rotulo text-danger">{geoErr}</span> : null}
+        {precisao != null && !geoErr ? (
+          <p className="text-xs text-muted">precisão de ~{precisao} m</p>
+        ) : null}
+        {geoErr ? (
+          <p role="alert" className="text-rotulo text-danger">
+            {geoErr}
+          </p>
+        ) : null}
       </div>
 
       {hits.length > 1 ? (
@@ -127,6 +171,7 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
                 onClick={() => {
                   setLat(h.lat);
                   setLng(h.lng);
+                  setPrecisao(null);
                   emit({ lat: h.lat, lng: h.lng });
                   setHits([]);
                 }}
@@ -162,6 +207,7 @@ export function AddressMapPicker({ onChange }: { onChange: (v: AddressValue) => 
                     const p = m.getLatLng();
                     setLat(p.lat);
                     setLng(p.lng);
+                    setPrecisao(null); // pino ajustado à mão, precisão do GPS não se aplica mais
                     emit({ lat: p.lat, lng: p.lng });
                   },
                 }}

@@ -9,6 +9,8 @@ import { TrocarPapel } from "@/components/trocar-papel";
 import { formatData } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
 import { papelLabel } from "@/lib/papel-label";
+import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
+import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 
 /** Rota `/perfil/[id]`: perfil público (nota, bio, disponibilidade e avaliações) de um usuário. */
 export default async function PerfilPage({ params }: { params: Promise<{ id: string }> }) {
@@ -55,6 +57,16 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
   // `servicos` tem RLS restrita às partes envolvidas; um cliente que nunca
   // contratou esse prestador precisa ver o total real, não zero.
   const ehPrestadorV2 = p.tipo_base === "prestador_servico";
+
+  // Endereço + PIN exato (profile_local): cliente, prestador_servico e
+  // Administrador (o endereço da empresa) têm. A RLS (migration 0023/0036/0039) decide sozinha quem lê essa linha — o
+  // próprio dono, sysadmin, ou a outra parte de um serviço válido
+  // (tem_servico_com) — com o client da sessão, sem checagem extra aqui: se
+  // não vier linha, o card simplesmente não aparece (nunca "sem permissão").
+  const mostrarLocalizacao = p.tipo_base === "cliente" || ehPrestadorV2 || p.tipo_base === "admin";
+  const { data: local } = mostrarLocalizacao
+    ? await sb.from("profile_local").select("endereco, lat, lng").eq("user_id", id).maybeSingle()
+    : { data: null };
 
   const desde = new Date(p.created_at).toLocaleDateString("pt-BR", {
     month: "long",
@@ -104,6 +116,25 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
             <span className="font-medium">Disponibilidade:</span>{" "}
             <span className="text-muted">{p.disponibilidade}</span>
           </p>
+        ) : null}
+
+        {/* Card só aparece pra quem a RLS deixou ler profile_local (o próprio
+            dono, ou a outra parte de um serviço válido) — "local" vem null
+            pra qualquer outro caso, e o card some, sem mensagem de aviso. */}
+        {local ? (
+          <div className="card flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-muted">Endereço e localização</h2>
+              {ehEu ? (
+                <Link href="/perfil/editar" className="text-sm font-medium text-brand underline">
+                  Alterar
+                </Link>
+              ) : null}
+            </div>
+            {local.endereco ? <p className="text-sm leading-relaxed">{local.endereco}</p> : null}
+            <LocalMapa lat={local.lat} lng={local.lng} />
+            <CompartilharLocal modo="perfil" lat={local.lat} lng={local.lng} />
+          </div>
         ) : null}
 
         {/* Histórico de trabalho — o que responde "posso confiar?" para quem

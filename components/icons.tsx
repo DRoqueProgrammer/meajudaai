@@ -41,6 +41,21 @@ export function LinkedInIcon({ className = "h-4 w-4 shrink-0" }: IconProps) {
   );
 }
 
+/**
+ * Alvo/GPS — botão "Marcar minha localização atual" do mapa de endereço
+ * (components/maps/address-map-picker.tsx). Miolo preenchido pra ficar
+ * reconhecível mesmo pequeno, ao lado do rótulo do botão.
+ */
+export function AlvoIcon({ className = "h-5 w-5" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...stroke} aria-hidden="true">
+      <circle cx="12" cy="12" r="7" />
+      <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none" />
+      <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3" />
+    </svg>
+  );
+}
+
 export function HardHat({ className = S }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} fill="currentColor" aria-hidden="true">

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/roles";
 import { createServerClient } from "@/lib/supabase/server";
 import { TelaComHeader } from "@/components/ui";
 import { PerfilForm } from "@/components/perfil-form";
+import { LocalizacaoForm } from "@/components/localizacao-form";
 import { DesativarContaBotao } from "@/components/desativar-conta-botao";
 import { SeusDadosCard } from "@/components/seus-dados-card";
 
@@ -37,6 +38,14 @@ export default async function EditarPerfilPage() {
   // O `CidadeSelect` guarda "Cidade|UF" num único campo escondido.
   const cidadeUf = `${p.cidade ?? ""}|${p.estado ?? ""}`;
 
+  // Endereço + PIN exato (profile_local): cliente e prestador (busca por
+  // proximidade) e o Administrador (o endereço da empresa dele — pedido do
+  // Leonardo em 10/09). SysAdmin e funcionário não têm.
+  const precisaLocalizacao = ["cliente", "prestador_servico", "admin"].includes(p.tipo_base);
+  const { data: local } = precisaLocalizacao
+    ? await sb.from("profile_local").select("endereco, lat, lng").eq("user_id", user.id).maybeSingle()
+    : { data: null };
+
   return (
     <TelaComHeader titulo="Editar perfil" voltar={`/perfil/${user.id}`}>
       <PerfilForm
@@ -51,6 +60,11 @@ export default async function EditarPerfilPage() {
         precoValor={p.preco_valor}
         chavePix={pii?.chave_pix}
       />
+      {precisaLocalizacao ? (
+        <div className="mt-4">
+          <LocalizacaoForm endereco={local?.endereco ?? null} lat={local?.lat ?? null} lng={local?.lng ?? null} />
+        </div>
+      ) : null}
       <SeusDadosCard podeProcessarEm={pedido?.pode_processar_em ?? null} />
       {user.role !== "sysadmin" ? <DesativarContaBotao /> : null}
     </TelaComHeader>

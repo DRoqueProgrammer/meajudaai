@@ -106,6 +106,51 @@ export async function salvarPerfilAction(_estado: EstadoForm, fd: FormData): Pro
   redirect(`/perfil/${user.id}`);
 }
 
+/**
+ * Salva o endereço + pino exato do próprio usuário em `profile_local`
+ * (upsert — a linha nasce no cadastro para cliente/prestador_servico, mas uma
+ * conta mais antiga pode não ter uma ainda). Ação separada de
+ * `salvarPerfilAction`: mistura mapa (client) com o resto do formulário de
+ * perfil ganharia complexidade sem necessidade — `LocalizacaoForm`
+ * (components/localizacao-form.tsx) é quem chama esta.
+ *
+ * `createServerClient` (cliente da SESSÃO), nunca a chave de serviço: o
+ * `user_id` sai de `tryWriter()` (a sessão), nunca de um campo do formulário —
+ * a RLS de `profile_local` (migration 0023/0036) já barraria escrever em nome
+ * de outra pessoa, mas nem chega a tentar. `tryWriter` também barra a conta
+ * demo read-only antiga (lib/auth/demo.ts) — as contas de exemplo reais
+ * (lib/auth/contas-exemplo.ts, `profiles.exemplo`) escrevem normalmente, como
+ * em `salvarPerfilAction`.
+ */
+export async function salvarLocalizacaoAction(_estado: EstadoForm, fd: FormData): Promise<EstadoForm> {
+  const endereco = campo(fd, "endereco");
+  const latStr = campo(fd, "lat");
+  const lngStr = campo(fd, "lng");
+  const preserva = valoresPreservados(fd);
+
+  if (!endereco) return { erro: "Informe o endereço.", valores: preserva };
+  if (!latStr || !lngStr) {
+    return { erro: "Marque sua localização no mapa antes de salvar.", valores: preserva };
+  }
+  const lat = Number(latStr);
+  const lng = Number(lngStr);
+  if (!Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+    return { erro: "Coordenada inválida — marque o ponto no mapa de novo.", valores: preserva };
+  }
+
+  const w = await tryWriter();
+  if ("erro" in w) return { erro: w.erro, valores: preserva };
+  const user = w.user;
+  const sb = await createServerClient();
+
+  const { error } = await sb.from("profile_local").upsert({ user_id: user.id, endereco, lat, lng });
+  if (error) return { erro: "Não foi possível salvar a localização.", valores: preserva };
+
+  revalidatePath("/perfil/editar");
+  revalidatePath(`/perfil/${user.id}`);
+  return { ok: true, mensagem: "Localização salva." };
+}
+
 /** Remove a foto e volta para as iniciais. */
 export async function removerFotoAction(): Promise<void> {
   const w = await tryWriter();

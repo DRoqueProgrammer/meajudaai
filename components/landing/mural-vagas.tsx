@@ -14,6 +14,7 @@ export interface VagaAnuncio {
   cidade: string | null;
   estado: string | null;
   whatsapp: string | null;
+  prestador_id: string;
   prestador_nome: string;
   prestador_categoria: string | null;
   prestador_foto: string | null;
@@ -44,7 +45,14 @@ function CartaoVaga({ vaga }: { vaga: VagaAnuncio }) {
         <div className="flex items-center gap-3">
           <Avatar nome={vaga.prestador_nome} fotoUrl={vaga.prestador_foto} />
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-ink">{vaga.prestador_nome}</p>
+            {/* Nome linka pra página pública do prestador (app/p/[id]) — quem
+                vê a vaga também consegue ver o perfil de quem publicou. */}
+            <Link
+              href={`/p/${vaga.prestador_id}`}
+              className="block truncate rounded text-sm font-semibold text-ink hover:text-brand hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {vaga.prestador_nome}
+            </Link>
             {vaga.prestador_categoria ? (
               <p className="truncate text-xs text-muted">{nomeCategoria(vaga.prestador_categoria)}</p>
             ) : null}

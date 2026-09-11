@@ -53,11 +53,12 @@ function CartaoServico({
         ) : null}
       </div>
 
-      {/* Sem contato aqui — só depois do agendamento, como no resto do app
-          (0044). Quem não tem conta cria uma; quem já tem, entra e volta pra
-          este perfil. */}
+      {/* "Ver agenda" agora abre a página pública do prestador (app/p/[id]),
+          que mostra anúncios, horários livres e avaliações sem exigir login
+          — antes caía direto no cadastro, e quem não tinha conta não via
+          nada do prestador antes de decidir se cadastrava (Fatia 5). */}
       <div className="mt-auto flex flex-col gap-1.5 border-t border-line pt-3">
-        <Link href="/cadastro" className="btn-brand w-full">
+        <Link href={`/p/${prestadorId}`} className="btn-brand w-full">
           Ver agenda
         </Link>
         <p className="text-center text-xs text-muted">Crie sua conta grátis para agendar</p>

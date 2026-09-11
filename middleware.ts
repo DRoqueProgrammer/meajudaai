@@ -12,6 +12,10 @@ const PUBLIC_PREFIXES = [
   "/privacidade",
   "/auth",
   "/convite",
+  // Página pública do prestador (Fatia 5, "/p/[id]"): vitrine sem login —
+  // quem não tem conta vê o perfil, os anúncios e os horários livres antes
+  // de decidir se cadastra. Ver app/p/[id]/page.tsx.
+  "/p/",
   "/_next",
   "/favicon",
   "/api/health",

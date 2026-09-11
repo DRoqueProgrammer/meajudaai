@@ -105,11 +105,12 @@ export function Avatar({
 }: {
   nome: string;
   fotoUrl?: string | null;
-  tamanho?: "md" | "lg";
+  /** `xl` (96px) é a foto grande do cabeçalho da página pública do prestador (`app/p/[id]/page.tsx`). */
+  tamanho?: "md" | "lg" | "xl";
 }) {
-  const cls = tamanho === "lg" ? "h-16 w-16 text-lg" : "h-11 w-11 text-sm";
+  const cls = tamanho === "xl" ? "h-24 w-24 text-2xl" : tamanho === "lg" ? "h-16 w-16 text-lg" : "h-11 w-11 text-sm";
   if (fotoUrl) {
-    const px = tamanho === "lg" ? 64 : 44;
+    const px = tamanho === "xl" ? 96 : tamanho === "lg" ? 64 : 44;
     return (
       // `<img>` e não `next/image`: as fotos já são WebP 256px de ~10 KB, então a
       // otimização do Next só somaria uma volta pelo servidor. `width`/`height`

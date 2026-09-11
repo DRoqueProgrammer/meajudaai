@@ -166,7 +166,7 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
         } ${ESTILO_CELULA[estado]} ${ativo ? "shadow-[0_0_0_2px_var(--brand-ink)]" : ""}`}
       >
         {compacto ? <span className="text-[10px] font-semibold uppercase tracking-wide opacity-80">{MESES_CURTOS[i]}</span> : null}
-        <span className="flex max-w-full items-center gap-0.5 text-xs">
+        <span className={`flex max-w-full items-center gap-0.5 ${compacto ? "text-xs" : "text-[11px] 2xl:text-xs"}`}>
           {estado === "ok" ? <Marca ok /> : estado === "atrasada" ? <Marca ok={false} /> : null}
           <span className="truncate">{valorCurto(t.total)}</span>
         </span>
@@ -191,11 +191,11 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
             Grade de {ano}: uma linha por {rotuloPessoa.toLowerCase()}, uma coluna por mês, valores em reais. Abra uma célula para ver os serviços.
           </caption>
           <colgroup>
-            <col className="w-36" />
+            <col className="w-32 2xl:w-40" />
             {CHAVES_MESES.map((m) => (
               <col key={m} />
             ))}
-            <col className="w-28" />
+            <col className="w-[6.5rem] 2xl:w-32" />
           </colgroup>
           <thead>
             <tr>
@@ -225,7 +225,7 @@ export function MatrizFinanceira(props: MatrizFinanceiraProps) {
                     <NomePessoa l={l} perfilHref={props.perfilHref} />
                   </th>
                   {CHAVES_MESES.map((m) => (
-                    <td key={m} className="border-b border-line px-0.5 py-1.5">
+                    <td key={m} className="border-b border-line px-px py-1.5 2xl:px-0.5">
                       {botaoMes(l, m)}
                     </td>
                   ))}
@@ -488,7 +488,25 @@ function CardDoMes({
                 {carregando ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true" /> : <Marca ok={ok} grande />}
               </button>
               <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{i.titulo}</p>
+                {/* Clicar no serviço abre a página dele em nova aba (pedido do
+                    Leonardo, 11/09/2026) — o card continua aberto aqui. */}
+                {i.servicoHref ? (
+                  <Link
+                    href={i.servicoHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Abrir o serviço em nova aba"
+                    className="group flex max-w-full items-center gap-1 font-medium text-ink hover:text-brand"
+                  >
+                    <span className="truncate underline decoration-line-strong underline-offset-2 group-hover:decoration-current">{i.titulo}</span>
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0 text-muted group-hover:text-brand" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+                    </svg>
+                    <span className="sr-only">(abre em nova aba)</span>
+                  </Link>
+                ) : (
+                  <p className="truncate font-medium">{i.titulo}</p>
+                )}
                 <p className="truncate text-xs text-muted">
                   {formatData(i.data)}
                   {i.detalhe ? ` · ${i.detalhe}` : ""}

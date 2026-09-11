@@ -187,6 +187,8 @@ export default async function FinanceiroPage({
         valor: c.valor,
         estado: c.status === "paga" ? "ok" : c.status === "informada" ? "informado" : "pendente",
         reciboHref: `/recibo/comissao/${c.prestadorId}/${c.dataServico.slice(0, 7)}?praca=${praca.id}&servico=${c.servicoId}`,
+        // Clicar no serviço no card do mês abre a página dele em nova aba (11/09/2026).
+        servicoHref: `/praca/servicos/${c.servicoId}`,
       };
     });
   const linhasGrade = filtrarMatriz(montarMatriz(itensGrade, ano), { busca, situacao }, hoje);

@@ -23,6 +23,8 @@ export interface ItemMatriz {
   estado: EstadoItem;
   /** Link do recibo deste item, quando existe. */
   reciboHref?: string | null;
+  /** Link da página do serviço (abre em nova aba a partir do card do mês). */
+  servicoHref?: string | null;
 }
 
 export interface ItemDaPessoa extends ItemMatriz {

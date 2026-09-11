@@ -191,14 +191,21 @@ export default async function PracaServicosPage({
                     </span>
                   </div>
                 </div>
-                {comissao ? (
-                  <p className="text-xs text-muted">
-                    Comissão <span className="font-semibold text-ink">{formatBRL(comissao.valor)}</span>{" "}
-                    <span className={`ml-1 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${COMISSAO_ESTILO[comissao.status] ?? "bg-surface text-muted"}`}>
-                      {COMISSAO_LABEL[comissao.status] ?? comissao.status}
-                    </span>
-                  </p>
-                ) : null}
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  {comissao ? (
+                    <p className="text-xs text-muted">
+                      Comissão <span className="font-semibold text-ink">{formatBRL(comissao.valor)}</span>{" "}
+                      <span className={`ml-1 rounded-full px-2 py-0.5 text-rotulo font-semibold uppercase tracking-wide ${COMISSAO_ESTILO[comissao.status] ?? "bg-surface text-muted"}`}>
+                        {COMISSAO_LABEL[comissao.status] ?? comissao.status}
+                      </span>
+                    </p>
+                  ) : (
+                    <span />
+                  )}
+                  <Link href={`/praca/servicos/${s.id}`} className="inline-flex min-h-11 items-center text-sm font-semibold text-brand">
+                    Ver serviço →
+                  </Link>
+                </div>
               </div>
             );
           })}

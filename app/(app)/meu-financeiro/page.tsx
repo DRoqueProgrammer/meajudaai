@@ -109,6 +109,8 @@ export default async function MeuFinanceiroPage({
         valor: rec ? Number(rec.valor) : Number(s.preco_valor),
         estado: (rec ? "ok" : "pendente") as ItemDaPessoa["estado"],
         reciboHref: rec ? `/recibo/recebimento/${rec.id}` : null,
+        // O serviço abre na página do horário da agenda (a do prestador).
+        servicoHref: `/agenda/${s.slot_id}`,
         tipoSlug: s.tipo,
       };
     })

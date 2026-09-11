@@ -401,3 +401,18 @@ meus dados".
 
 **D-046 (do dono) — QR Pix com os dados no meio validado em app de banco real** (11/09) — cumpre
 a validação obrigatória do ROADMAP §16.5.
+
+**D-047 (do dono, 11/09) — Abas da praça, Financeiro com recibos, nota avulsa e "Limpar red
+flags".** O Administrador ganha as abas **Serviços, Clientes, Prestadores e Financeiro**
+(`/praca/*`, recortadas pela praça ativa). No Financeiro: alíquotas (os 4 níveis da D-044),
+pagamentos informados para confirmar/recusar, saldo por prestador com o destaque de 7 dias,
+**recibo mensal** por prestador (todos os serviços realizados no mês em ordem de data, valor, taxa
+de cada um, taxa média ponderada, total, comissão confirmada — Pix recebido — e a assinatura do
+Administrador responsável pela praça) e **nota avulsa** (recibo numerado de um recebimento fora da
+comissão automática; não mexe no saldo). Assinatura: desenhada no app e guardada como PNG
+(`assinaturas`, migration 0058); sem ela, nome em letra cursiva; a conta de exemplo não grava.
+O Administrador pode **limpar as red flags** de quem ele alcança: a sinalização vira `limpa`,
+continua registrada (D-045) e sai do perfil. Decisões do controller, revisáveis: o mês do recibo é
+o da data do serviço; o Administrador também pode "registrar recebimento" (quitar o saldo em
+aberto que o prestador pagou por fora do "Enviei o Pix"); D-045 aplicada ao "Baixar meus dados"
+(as sinalizações que a pessoa escreveu saíram da exportação).

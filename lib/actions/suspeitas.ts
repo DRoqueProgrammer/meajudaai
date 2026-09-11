@@ -23,6 +23,8 @@ import type { ActionResult } from "./auth";
  *   bandeira no perfil do alvo, que só o outro lado e a administração veem. O
  *   Administrador também pode suspender o cliente (`suspenderClienteAction`).
  * - `encerrarSuspensaoAction` reabre a conta.
+ * - `limparRedFlagsAction` (0058): o Administrador tira as red flags de quem
+ *   ele alcança — a sinalização vira 'limpa', continua registrada (D-045).
  *
  * Toda escrita administrativa confere papel, praça e alcance ANTES
  * (`lib/admin/alcance.ts`) e só então usa a chave de serviço — as tabelas não
@@ -193,8 +195,48 @@ export async function encerrarSuspensaoAction(userId: string): Promise<ActionRes
 }
 
 /**
- * Uma das partes de um serviço sinaliza a OUTRA ("Flag Pilantra", migration
- * 0055) — a bandeira é dada no serviço em si, com justificativa obrigatória, e
+ * "Limpar red flags" (migration 0058, pedido do Leonardo em 11/09/2026): o
+ * Administrador tira as red flags de um cliente ou prestador que ele alcança,
+ * quando entende que não se justificam mais e estão prejudicando a pessoa. As
+ * sinalizações aprovadas viram 'limpa' — continuam registradas (são registro
+ * da administração, D-045), só saem do perfil. As pendentes seguem para
+ * análise. Conta de exemplo limpa só no mundo de exemplo (`atorAlcanca`).
+ */
+export async function limparRedFlagsAction(userId: string): Promise<ActionResult> {
+  const w = await tryWriter();
+  if ("erro" in w) return { ok: false, erro: w.erro };
+  const user = w.user;
+  if (!ehAdministracao(user)) return { ok: false, erro: "Só a administração limpa red flags." };
+
+  const db = createAdminClient();
+  const alvo = await perfilAlvo(db, userId);
+  if (!alvo) return { ok: false, erro: "Pessoa não encontrada." };
+  const papel = alvo.tipo_base === "cliente" ? "cliente" : "prestador_servico";
+  const pracas = await pracasDoAtor(db, user);
+  if (!atorAlcanca(user, pracas, alvo, papel)) return { ok: false, erro: "Você não administra a praça desta pessoa." };
+
+  const { data, error } = await db
+    .from("sinalizacoes")
+    .update({ status: "limpa", limpa_por: user.id, limpa_em: new Date().toISOString() })
+    .eq("alvo_id", userId)
+    .eq("status", "aprovada")
+    .select("id");
+  if (error) {
+    logAction("limpar_red_flags", { userId: user.id, alvo: userId, result: "erro", code: error.code });
+    return { ok: false, erro: "Não foi possível limpar as red flags." };
+  }
+  if (!data || data.length === 0) return { ok: false, erro: "Esta pessoa não tem red flags para limpar." };
+  logAction("limpar_red_flags", { userId: user.id, alvo: userId, quantas: data.length, result: "ok" });
+  revalidatePath("/inicio");
+  revalidatePath("/praca/clientes");
+  revalidatePath("/praca/prestadores");
+  revalidatePath(`/perfil/${userId}`);
+  return { ok: true };
+}
+
+/**
+ * Uma das partes de um serviço sinaliza a OUTRA (migration 0055) — a
+ * bandeira é dada no serviço em si, com justificativa obrigatória, e
  * vai para o Administrador aprovar. A direção sai do papel de quem sinaliza
  * naquele serviço: o prestador sinaliza o cliente; o cliente, o prestador.
  * Pela SESSÃO: a policy de insert confere que a pessoa é parte do serviço, o

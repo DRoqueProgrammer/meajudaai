@@ -55,6 +55,21 @@ export async function pracasDoAtor(db: DB, ator: CurrentUser): Promise<PracaPara
   return pracas.map((p) => ({ id: p.id, cidade: p.cidade, estado: p.estado, exemplo: pracasExemplo.has(p.id) }));
 }
 
+/**
+ * A praça `workspaceId`, se ela está entre as do ator e no mundo dele (conta
+ * de exemplo só mexe em praça de exemplo — `podeAgirSobre`); senão `null`.
+ * Base das escritas do Financeiro (alíquotas, pagamentos, notas avulsas).
+ */
+export function pracaAlcancada(
+  ator: Pick<CurrentUser, "exemplo">,
+  pracas: readonly PracaParaAlcance[],
+  workspaceId: string,
+): PracaParaAlcance | null {
+  const praca = pracas.find((p) => p.id === workspaceId);
+  if (!praca) return null;
+  return podeAgirSobre({ exemplo: Boolean(ator.exemplo) }, { exemplo: praca.exemplo }) ? praca : null;
+}
+
 /** Pessoa-alvo de uma ação administrativa: papel, cidade/UF e a marca de exemplo. */
 export interface PessoaAlvo {
   tipo_base: string;

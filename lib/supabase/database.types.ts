@@ -155,6 +155,24 @@ export type Database = {
         }
         Relationships: []
       }
+      assinaturas: {
+        Row: {
+          atualizado_em: string
+          imagem: string
+          user_id: string
+        }
+        Insert: {
+          atualizado_em?: string
+          imagem: string
+          user_id: string
+        }
+        Update: {
+          atualizado_em?: string
+          imagem?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       avaliacoes: {
         Row: {
           avaliado_id: string
@@ -635,6 +653,56 @@ export type Database = {
           },
         ]
       }
+      notas_avulsas: {
+        Row: {
+          created_at: string
+          descricao: string
+          emitido_por: string | null
+          forma: string
+          id: string
+          numero: number
+          pagador_nome: string
+          prestador_id: string | null
+          recebido_em: string
+          valor: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao: string
+          emitido_por?: string | null
+          forma?: string
+          id?: string
+          numero?: never
+          pagador_nome: string
+          prestador_id?: string | null
+          recebido_em: string
+          valor: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          emitido_por?: string | null
+          forma?: string
+          id?: string
+          numero?: never
+          pagador_nome?: string
+          prestador_id?: string | null
+          recebido_em?: string
+          valor?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notas_avulsas_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notificacoes: {
         Row: {
           created_at: string
@@ -1029,6 +1097,8 @@ export type Database = {
           direcao: string
           id: string
           justificativa: string
+          limpa_em: string | null
+          limpa_por: string | null
           motivo: string
           servico_id: string
           status: string
@@ -1042,6 +1112,8 @@ export type Database = {
           direcao: string
           id?: string
           justificativa: string
+          limpa_em?: string | null
+          limpa_por?: string | null
           motivo: string
           servico_id: string
           status?: string
@@ -1055,6 +1127,8 @@ export type Database = {
           direcao?: string
           id?: string
           justificativa?: string
+          limpa_em?: string | null
+          limpa_por?: string | null
           motivo?: string
           servico_id?: string
           status?: string
@@ -1463,6 +1537,7 @@ export type Database = {
           verificado: boolean
         }[]
       }
+      pode_assinar_recibos: { Args: never; Returns: boolean }
       praca_do_prestador: { Args: { p_prestador: string }; Returns: string }
       tem_servico_com: { Args: { v_outro: string }; Returns: boolean }
       vaga_aberta: { Args: { v_vaga: string }; Returns: boolean }

@@ -107,6 +107,12 @@ const NAV_ICONS: Record<string, ReactNode> = {
       <path d="M6.5 15.5 8 20" />
     </>
   ),
+  wrench: (
+    <>
+      <path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-2-2z" />
+      <path d="M14.5 6.5 17 4l3 3-2.5 2.5" />
+    </>
+  ),
 };
 
 function NavIcon({ name, className }: { name: string; className?: string }) {
@@ -187,14 +193,22 @@ export function Nav({
   // cobria os dois juntos): "Minhas Vagas", "Mapa", "Financeiro" e
   // "Relatórios" são o mural de vagas por diária da v1 — sem sentido pra ação
   // v2 dele (anúncios, decisão do Leonardo em 10/09/2026) —, então o menu dele
-  // fica só com "Equipe" (as páginas continuam existindo pro funcionário).
+  // fica com as abas da praça (Serviços, Clientes, Prestadores e Financeiro,
+  // pedido do Leonardo em 11/09/2026 — rotas /praca/*) e "Equipe" (as páginas
+  // v1 continuam existindo pro funcionário).
   const allowedSet = new Set(modules ?? []);
   const empresaItems: Item[] = PANEL_MODULES.filter((m) => allowedSet.has(m.key)).map((m) => ({
     href: m.href,
     label: m.label,
     icon: m.icon,
   }));
-  const itemsDoAdmin: Item[] = [{ href: "/equipe", label: "Equipe", icon: "users" }];
+  const itemsDoAdmin: Item[] = [
+    { href: "/praca/servicos", label: "Serviços", icon: "clipboard" },
+    { href: "/praca/clientes", label: "Clientes", icon: "users" },
+    { href: "/praca/prestadores", label: "Prestadores", icon: "wrench" },
+    { href: "/praca/financeiro", label: "Financeiro", icon: "coin" },
+    { href: "/equipe", label: "Equipe", icon: "users" },
+  ];
 
   const meio: Item[] =
     role === "sysadmin"
@@ -219,6 +233,7 @@ export function Nav({
                 { href: "/clientes", label: "Clientes", icon: "users" },
                 { href: "/anuncios", label: "Anúncios", icon: "megaphone" },
                 { href: "/mapa", label: "Mapa", icon: "map" },
+                { href: "/comissao", label: "Comissão", icon: "coin" },
               ]
             : role === "cliente"
               ? [

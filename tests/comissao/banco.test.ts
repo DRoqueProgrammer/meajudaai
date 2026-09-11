@@ -119,6 +119,30 @@ describe.skipIf(!podeRodar)("Comissão · banco", () => {
     expect((await sessaoC.from("comissoes").select("id")).data ?? []).toHaveLength(0);
   });
 
+  it("as consultas do Financeiro trazem a data do serviço, o saldo e o recibo do mês", async () => {
+    const { comissoesDaPraca, saldosPorPrestador, reciboMensal } = await import("@/lib/admin/financeiro");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = servico as any;
+    const todas = await comissoesDaPraca(db, W);
+    expect(todas).toHaveLength(1);
+    const c = todas[0]!;
+    expect(c.dataServico).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(c.clienteId).toBe(C);
+
+    const [saldo] = saldosPorPrestador(todas);
+    expect(saldo).toMatchObject({ prestadorId: P, emAberto: 3, informada: 0, pago: 0 });
+    expect(saldo!.maisAntigoEmAberto).toBe(c.criadaEm);
+
+    const recibo = await reciboMensal(db, W, P, c.dataServico!.slice(0, 7));
+    expect(recibo?.linhas).toHaveLength(1);
+    expect(recibo?.resumo).toMatchObject({ quantidade: 1, totalServicos: 200, totalComissao: 3, taxaMedia: 1.5, confirmado: 0, pendente: 3 });
+    expect(recibo?.emissor.assinanteId).toBe(A);
+    expect(recibo?.emissor.assinanteNome).toBe(`Admin Comissão ${s}`);
+    expect(recibo?.clientes[C]).toBeTruthy();
+    // Outro mês: recibo vazio, nunca o serviço de outro mês.
+    expect((await reciboMensal(db, W, P, "2001-01"))?.linhas).toHaveLength(0);
+  });
+
   it("o prestador paga na chave padrão do Administrador responsável pela praça", async () => {
     const sessaoP = await entrar(email("p"));
     const { data } = await sessaoP.rpc("destino_da_comissao");

@@ -233,7 +233,7 @@ export function Nav({
                 { href: "/clientes", label: "Clientes", icon: "users" },
                 { href: "/anuncios", label: "Anúncios", icon: "megaphone" },
                 { href: "/mapa", label: "Mapa", icon: "map" },
-                { href: "/comissao", label: "Comissão", icon: "coin" },
+                { href: "/meu-financeiro", label: "Financeiro", icon: "coin" },
               ]
             : role === "cliente"
               ? [

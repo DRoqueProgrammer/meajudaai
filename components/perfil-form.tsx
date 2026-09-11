@@ -7,6 +7,7 @@ import { CidadeSelect } from "@/components/cidade-select";
 import { CATEGORIAS } from "@/lib/categorias";
 import { Avatar, CampoArquivo, FormError } from "@/components/ui";
 import { BotaoEnviar } from "@/components/botao-enviar";
+import { EmiteNotaFiscalToggle } from "@/components/emite-nota-fiscal-toggle";
 
 /**
  * Editar o próprio perfil. Server Action no `action=`, como o resto dos
@@ -25,6 +26,7 @@ export function PerfilForm({
   precoValor,
   chavePix,
   linkChaves,
+  emiteNotaFiscal,
 }: {
   nome: string;
   bio: string | null;
@@ -38,6 +40,8 @@ export function PerfilForm({
   chavePix?: string | null;
   /** Onde ficam as chaves Pix (seção do perfil) — o campo único saiu daqui na migration 0056. */
   linkChaves?: string;
+  /** "Emito nota fiscal" (migration 0059, D-048) — só pro prestador; salva sozinho, fora deste form. */
+  emiteNotaFiscal?: boolean;
 }) {
   const [estado, formAction] = useActionState(salvarPerfilAction, null);
   const v = estado?.valores ?? {};
@@ -157,6 +161,8 @@ export function PerfilForm({
             O valor pode ser ajustado depois de avaliar o serviço no local — deixe isso claro pro
             cliente antes de começar.
           </p>
+
+          <EmiteNotaFiscalToggle inicial={emiteNotaFiscal ?? false} />
 
           {/* As chaves Pix (várias, uma padrão — migration 0056) ficam em
               "Minhas chaves Pix", no seu perfil, com o QR de cada uma. */}

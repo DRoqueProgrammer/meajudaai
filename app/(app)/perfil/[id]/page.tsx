@@ -9,6 +9,7 @@ import { TrocarPapel } from "@/components/trocar-papel";
 import { formatData } from "@/lib/format";
 import { nomeCategoria } from "@/lib/categorias";
 import { papelLabel } from "@/lib/papel-label";
+import { rotuloNotaFiscal } from "@/lib/financeiro/avisos";
 import { LocalMapa } from "@/components/maps/local-mapa-dynamic";
 import { CompartilharLocal } from "@/components/maps/compartilhar-local";
 import { FlagsPessoa } from "@/components/flags-pessoa";
@@ -24,7 +25,9 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
   // logado, e `profiles` guarda mais do que ela precisa mostrar.
   const { data: p } = await sb
     .from("profiles")
-    .select("nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, genero, nota_media, total_avaliacoes, verificado, created_at, servicos_realizados")
+    .select(
+      "nome, foto_url, bio, disponibilidade, cidade, estado, tipo_base, genero, nota_media, total_avaliacoes, verificado, created_at, servicos_realizados, categoria, emite_nota_fiscal",
+    )
     .eq("user_id", id)
     .maybeSingle();
   if (!p) notFound();
@@ -123,10 +126,16 @@ export default async function PerfilPage({ params }: { params: Promise<{ id: str
               {p.verificado ? <Verificado /> : null}
               <FlagsPessoa flags={flags ?? []} />
             </div>
-            <p className="text-sm text-muted">{papelLabel(p.tipo_base as AppRole, p.genero)}</p>
+            <p className="text-sm text-muted">
+              {papelLabel(p.tipo_base as AppRole, p.genero)}
+              {ehPrestadorV2 && p.categoria ? ` · ${nomeCategoria(p.categoria)}` : ""}
+            </p>
             <div className="mt-1">
               <StarRating nota={p.nota_media} total={p.total_avaliacoes} />
             </div>
+            {/* Todo mundo que abre o perfil vê isto — é o cliente quem decide
+                com essa informação (D-048); o prestador marca em "Editar perfil". */}
+            {ehPrestadorV2 ? <p className="mt-0.5 text-xs text-muted">{rotuloNotaFiscal(p.emite_nota_fiscal)}</p> : null}
           </div>
         </div>
 

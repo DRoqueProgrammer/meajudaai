@@ -19,7 +19,7 @@ export default async function EditarPerfilPage() {
   const sb = await createServerClient();
   const { data: p } = await sb
     .from("profiles")
-    .select("nome, bio, disponibilidade, cidade, estado, foto_url, tipo_base, categoria, preco_tipo, preco_valor")
+    .select("nome, bio, disponibilidade, cidade, estado, foto_url, tipo_base, categoria, preco_tipo, preco_valor, emite_nota_fiscal")
     .eq("user_id", user.id)
     .maybeSingle();
   if (!p) redirect("/inicio");
@@ -60,6 +60,7 @@ export default async function EditarPerfilPage() {
         precoValor={p.preco_valor}
         chavePix={pii?.chave_pix}
         linkChaves={`/perfil/${user.id}#chaves-pix`}
+        emiteNotaFiscal={p.emite_nota_fiscal}
       />
       {precisaLocalizacao ? (
         <div className="mt-4">
